@@ -53,12 +53,13 @@ jobs:
 
       - name: Generate release summary
         run: |
+          VERSION="$(node -p "require('./package.json').version")"
           {
             echo "# Release Preparation Summary"
             echo
             echo "- Ref: ${{ inputs.ref }}"
             echo "- Commit: $(git rev-parse HEAD)"
-            echo "- Version: $(node -p \"require('./package.json').version\")"
+            echo "- Version: ${VERSION}"
             echo "- Date (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           } > RELEASE_PREP.md
 
