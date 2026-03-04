@@ -49,7 +49,7 @@ jobs:
         run: bun run build
 
       - name: Test
-        run: bun test
+        run: bun run test
 
       - name: Smoke test bunx execution
         run: bun run smoke:bunx
