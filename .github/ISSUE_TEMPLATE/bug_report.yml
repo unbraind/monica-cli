@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a reproducible problem
+title: '[Bug]: '
+labels: ['bug']
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the bug and expected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide exact commands and inputs.
+      placeholder: |
+        1. Run `monica ...`
+        2. Observe output
+    validations:
+      required: true
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: CLI version, OS, Bun version, Monica version
+    validations:
+      required: true

@@ -1,0 +1,106 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to publish'
+        required: false
+        default: 'master'
+      dry_run:
+        description: 'If true, validate and package only (no publish)'
+        required: true
+        type: boolean
+        default: true
+      confirm:
+        description: 'Set to PUBLISH to allow non-dry-run publishing'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate release quality gates
+        run: |
+          bun run verify:release
+
+      - name: Verify release tag is not published yet
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="v${VERSION}"
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            echo "Release tag ${TAG} already exists."
+            exit 1
+          fi
+
+      - name: Capture release version
+        id: version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Package
+        run: node scripts/with-npm-version.mjs npm pack
+
+      - name: Stop if dry-run
+        if: inputs.dry_run
+        run: echo "Dry run enabled: skipping publish."
+
+      - name: Enforce explicit publish confirmation
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if [ "${{ inputs.confirm }}" != "PUBLISH" ]; then
+            echo "Missing publish confirmation. Set confirm=PUBLISH."
+            exit 1
+          fi
+
+      - name: Publish package
+        if: ${{ !inputs.dry_run }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node scripts/with-npm-version.mjs npm publish --provenance --access public
+
+      - name: Create and push release tag
+        if: ${{ !inputs.dry_run }}
+        run: |
+          VERSION="${{ steps.version.outputs.value }}"
+          TAG="v${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG}" -m "release: ${TAG}"
+          git push origin "${TAG}"
+
+      - name: Create GitHub release
+        if: ${{ !inputs.dry_run }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.value }}
+          generate_release_notes: true

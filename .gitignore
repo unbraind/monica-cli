@@ -1,0 +1,33 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+coverage/
+.nyc_output/
+.tool-output/
+.backup/
+*.tgz
+
+# Environment files - NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Sensitive configuration files
+settings.json
+credentials.json
+*.pem
+*.key
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.npmrc
+
+# OS files
+Thumbs.db

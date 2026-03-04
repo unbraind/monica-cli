@@ -1,0 +1,82 @@
+{
+  "name": "monica-cli",
+  "version": "2026.3.4",
+  "description": "CLI interface for Monica CRM API - optimized for agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "monica": "./dist/index.js",
+    "monica-cli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "bun dist/index.js",
+    "dev": "bun --bun src/index.ts",
+    "version:set": "node scripts/set-version.mjs",
+    "version:check": "node scripts/set-version.mjs --check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e:readonly": "bun scripts/e2e-readonly.ts",
+    "test:e2e:help": "bun scripts/e2e-help.ts",
+    "test:ui": "vitest --ui",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "clean": "rm -rf dist",
+    "smoke:npx": "node scripts/smoke-npx.mjs",
+    "smoke:bunx": "node scripts/smoke-bunx.mjs",
+    "audit:history": "node scripts/scan-history-secrets.mjs",
+    "audit:version-history": "node scripts/audit-version-history.mjs",
+    "verify:release": "bun run version:check && bun run typecheck && bun run build && bun test && bun run smoke:npx && bun run smoke:bunx && bun run audit:history && bun run audit:version-history",
+    "prepublishOnly": "bun run version:check && bun run clean && bun run build && bun test && bun run smoke:npx && bun run smoke:bunx",
+    "release": "bun run verify:release",
+    "version:check:format": "node scripts/set-version.mjs --format-only"
+  },
+  "keywords": [
+    "monica",
+    "crm",
+    "cli",
+    "api",
+    "toon",
+    "personal-crm",
+    "contact-management"
+  ],
+  "author": "unbraind",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unbraind/monica-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unbraind/monica-cli/issues"
+  },
+  "homepage": "https://github.com/unbraind/monica-cli#readme",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "dotenv": "^17.3.1",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.2",
+    "@vitest/coverage-v8": "1.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "bun@1.3.5",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ]
+}

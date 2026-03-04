@@ -1,0 +1,1308 @@
+{
+  "version": "v1",
+  "baseUrl": "https://app.monicahq.com/api",
+  "authentication": {
+    "type": "Bearer Token",
+    "header": "Authorization: Bearer OAUTH-TOKEN"
+  },
+  "pagination": {
+    "defaultPerPage": 10,
+    "maxPerPage": 100,
+    "parameters": ["page", "limit"],
+    "response": {
+      "links": ["first", "last", "prev", "next"],
+      "meta": ["current_page", "from", "last_page", "path", "per_page", "to", "total"]
+    }
+  },
+  "rateLimit": {
+    "limit": 60,
+    "window": "per minute",
+    "headers": ["X-RateLimit-Limit", "X-RateLimit-Remaining", "Retry-After"]
+  },
+  "resources": {
+    "activities": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/activities",
+          "description": "List all activities in account",
+          "parameters": [
+            {"name": "limit", "type": "integer", "required": false},
+            {"name": "page", "type": "integer", "required": false}
+          ],
+          "response": "PaginatedResponse<Activity>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/activities",
+          "description": "List activities for a contact",
+          "response": "PaginatedResponse<Activity>"
+        },
+        {
+          "method": "GET",
+          "path": "/activities/:id",
+          "description": "Get a specific activity",
+          "response": "Activity"
+        },
+        {
+          "method": "POST",
+          "path": "/activities",
+          "description": "Create an activity",
+          "input": {
+            "activity_type_id": {"type": "integer", "required": true},
+            "summary": {"type": "string", "required": true, "maxLength": 255},
+            "description": {"type": "string", "required": false, "maxLength": 1000000},
+            "happened_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "contacts": {"type": "array", "required": true, "description": "Array of contact IDs"},
+            "emotions": {"type": "array", "required": false}
+          },
+          "response": "Activity"
+        },
+        {
+          "method": "PUT",
+          "path": "/activities/:id",
+          "description": "Update an activity",
+          "input": "same as POST",
+          "response": "Activity"
+        },
+        {
+          "method": "DELETE",
+          "path": "/activities/:id",
+          "description": "Delete an activity",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "activityTypes": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/activitytypes",
+          "description": "List all activity types",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<ActivityType>"
+        },
+        {
+          "method": "GET",
+          "path": "/activitytypes/:id",
+          "description": "Get a specific activity type",
+          "response": "ActivityType"
+        },
+        {
+          "method": "POST",
+          "path": "/activitytypes",
+          "description": "Create an activity type",
+          "input": {
+            "name": {"type": "string", "required": true, "maxLength": 255},
+            "activity_type_category_id": {"type": "integer", "required": true}
+          },
+          "response": "ActivityType"
+        },
+        {
+          "method": "PUT",
+          "path": "/activitytypes/:id",
+          "description": "Update an activity type",
+          "input": "same as POST",
+          "response": "ActivityType"
+        },
+        {
+          "method": "DELETE",
+          "path": "/activitytypes/:id",
+          "description": "Delete an activity type",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "activityTypeCategories": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/activitytypecategories",
+          "description": "List all activity type categories",
+          "response": "PaginatedResponse<ActivityTypeCategory>"
+        },
+        {
+          "method": "GET",
+          "path": "/activitytypecategories/:id",
+          "description": "Get a specific activity type category",
+          "response": "ActivityTypeCategory"
+        },
+        {
+          "method": "POST",
+          "path": "/activitytypecategories",
+          "description": "Create an activity type category",
+          "input": {"name": {"type": "string", "required": true, "maxLength": 255}},
+          "response": "ActivityTypeCategory"
+        },
+        {
+          "method": "PUT",
+          "path": "/activitytypecategories/:id",
+          "description": "Update an activity type category",
+          "input": "same as POST",
+          "response": "ActivityTypeCategory"
+        },
+        {
+          "method": "DELETE",
+          "path": "/activitytypecategories/:id",
+          "description": "Delete an activity type category",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "addresses": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/contacts/:id/addresses",
+          "description": "List addresses for a contact",
+          "response": "PaginatedResponse<Address>"
+        },
+        {
+          "method": "GET",
+          "path": "/addresses/:id",
+          "description": "Get a specific address",
+          "response": "Address"
+        },
+        {
+          "method": "POST",
+          "path": "/addresses",
+          "description": "Create an address",
+          "input": {
+            "name": {"type": "string", "required": true, "maxLength": 255},
+            "street": {"type": "string", "required": false, "maxLength": 255},
+            "city": {"type": "string", "required": false, "maxLength": 255},
+            "province": {"type": "string", "required": false, "maxLength": 255},
+            "postal_code": {"type": "string", "required": false, "maxLength": 255},
+            "country": {"type": "string", "required": false, "maxLength": 3, "description": "Country ISO code"},
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "Address"
+        },
+        {
+          "method": "PUT",
+          "path": "/addresses/:id",
+          "description": "Update an address",
+          "input": "same as POST",
+          "response": "Address"
+        },
+        {
+          "method": "DELETE",
+          "path": "/addresses/:id",
+          "description": "Delete an address",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "auditLogs": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/logs",
+          "description": "List all audit logs in account",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<AuditLog>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/logs",
+          "description": "List audit logs for a contact",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<AuditLog>"
+        }
+      ]
+    },
+    "calls": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/calls",
+          "description": "List all calls in account",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Call>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/calls",
+          "description": "List calls for a contact",
+          "response": "PaginatedResponse<Call>"
+        },
+        {
+          "method": "GET",
+          "path": "/calls/:id",
+          "description": "Get a specific call",
+          "response": "Call"
+        },
+        {
+          "method": "POST",
+          "path": "/calls",
+          "description": "Create a call",
+          "input": {
+            "content": {"type": "string", "required": true, "maxLength": 100000},
+            "contact_id": {"type": "integer", "required": true},
+            "called_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"}
+          },
+          "response": "Call"
+        },
+        {
+          "method": "PUT",
+          "path": "/calls/:id",
+          "description": "Update a call",
+          "input": "same as POST",
+          "response": "Call"
+        },
+        {
+          "method": "DELETE",
+          "path": "/calls/:id",
+          "description": "Delete a call",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "companies": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/companies",
+          "description": "List all companies",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Company>"
+        },
+        {
+          "method": "GET",
+          "path": "/companies/:id",
+          "description": "Get a specific company",
+          "response": "Company"
+        },
+        {
+          "method": "POST",
+          "path": "/companies",
+          "description": "Create a company",
+          "input": {
+            "name": {"type": "string", "required": true, "maxLength": 255},
+            "website": {"type": "string", "required": false, "maxLength": 255},
+            "number_of_employees": {"type": "integer", "required": false}
+          },
+          "response": "Company"
+        },
+        {
+          "method": "PUT",
+          "path": "/companies/:id",
+          "description": "Update a company",
+          "input": "same as POST",
+          "response": "Company"
+        },
+        {
+          "method": "DELETE",
+          "path": "/companies/:id",
+          "description": "Delete a company",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "compliance": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/compliance",
+          "description": "List all terms and privacy policies",
+          "response": "PaginatedResponse<Term>"
+        },
+        {
+          "method": "GET",
+          "path": "/compliance/:id",
+          "description": "Get a specific term/privacy policy",
+          "response": "Term"
+        },
+        {
+          "method": "GET",
+          "path": "/me/compliance",
+          "description": "Get compliance status for authenticated user",
+          "response": "Array of compliance status objects"
+        },
+        {
+          "method": "GET",
+          "path": "/me/compliance/:id",
+          "description": "Get status of specific policy for user",
+          "response": "Compliance status object"
+        },
+        {
+          "method": "POST",
+          "path": "/me/compliance",
+          "description": "Sign latest compliance policy",
+          "input": {"ip_address": {"type": "string", "required": true}},
+          "response": "Compliance status object"
+        }
+      ]
+    },
+    "contacts": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/contacts",
+          "description": "List all contacts",
+          "parameters": [
+            {"name": "limit", "type": "integer"},
+            {"name": "page", "type": "integer"},
+            {"name": "query", "type": "string", "description": "Search query"},
+            {"name": "sort", "type": "string", "enum": ["created_at", "-created_at", "updated_at", "-updated_at"]}
+          ],
+          "response": "PaginatedResponse<Contact>"
+        },
+        {
+          "method": "GET",
+          "path": "/tags/:id/contacts",
+          "description": "List contacts for a tag",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Contact>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id",
+          "description": "Get a specific contact",
+          "parameters": [{"name": "with", "type": "string", "description": "Use 'contactfields' to include contact fields"}],
+          "response": "Contact"
+        },
+        {
+          "method": "POST",
+          "path": "/contacts",
+          "description": "Create a contact",
+          "input": {
+            "first_name": {"type": "string", "required": true, "maxLength": 50},
+            "last_name": {"type": "string", "required": false, "maxLength": 100},
+            "nickname": {"type": "string", "required": false, "maxLength": 100},
+            "gender_id": {"type": "integer", "required": true},
+            "birthdate_day": {"type": "integer", "required": false},
+            "birthdate_month": {"type": "integer", "required": false},
+            "birthdate_year": {"type": "integer", "required": false},
+            "birthdate_is_age_based": {"type": "boolean", "required": false},
+            "is_birthdate_known": {"type": "boolean", "required": true},
+            "birthdate_age": {"type": "integer", "required": false},
+            "is_partial": {"type": "boolean", "required": false},
+            "is_deceased": {"type": "boolean", "required": true},
+            "is_deceased_date_known": {"type": "boolean", "required": true},
+            "deceased_date_add_reminder": {"type": "boolean", "required": false},
+            "deceased_date_day": {"type": "integer", "required": false},
+            "deceased_date_month": {"type": "integer", "required": false},
+            "deceased_date_year": {"type": "integer", "required": false},
+            "deceased_date_is_age_based": {"type": "boolean", "required": false}
+          },
+          "response": "Contact"
+        },
+        {
+          "method": "PUT",
+          "path": "/contacts/:id",
+          "description": "Update a contact",
+          "input": "same as POST",
+          "response": "Contact"
+        },
+        {
+          "method": "PUT",
+          "path": "/contacts/:id/career",
+          "description": "Update contact career",
+          "input": {
+            "job": {"type": "string", "required": false},
+            "company": {"type": "string", "required": false}
+          },
+          "response": "Contact"
+        },
+        {
+          "method": "DELETE",
+          "path": "/contacts/:id",
+          "description": "Delete a contact",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ],
+      "nestedResources": [
+        {"path": "/contacts/:id/activities", "resource": "activities"},
+        {"path": "/contacts/:id/addresses", "resource": "addresses"},
+        {"path": "/contacts/:id/calls", "resource": "calls"},
+        {"path": "/contacts/:id/conversations", "resource": "conversations"},
+        {"path": "/contacts/:id/contactfields", "resource": "contactFields"},
+        {"path": "/contacts/:id/documents", "resource": "documents"},
+        {"path": "/contacts/:id/gifts", "resource": "gifts"},
+        {"path": "/contacts/:id/logs", "resource": "auditLogs"},
+        {"path": "/contacts/:id/notes", "resource": "notes"},
+        {"path": "/contacts/:id/photos", "resource": "photos"},
+        {"path": "/contacts/:id/reminders", "resource": "reminders"},
+        {"path": "/contacts/:id/relationships", "resource": "relationships"},
+        {"path": "/contacts/:id/tasks", "resource": "tasks"}
+      ]
+    },
+    "contactFields": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/contacts/:id/contactfields",
+          "description": "List contact fields for a contact",
+          "response": "PaginatedResponse<ContactField>"
+        },
+        {
+          "method": "GET",
+          "path": "/contactfields/:id",
+          "description": "Get a specific contact field",
+          "response": "ContactField"
+        },
+        {
+          "method": "POST",
+          "path": "/contactfields",
+          "description": "Create a contact field",
+          "input": {
+            "data": {"type": "string", "required": true, "maxLength": 255},
+            "contact_field_type_id": {"type": "integer", "required": true},
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "ContactField"
+        },
+        {
+          "method": "PUT",
+          "path": "/contactfields/:id",
+          "description": "Update a contact field",
+          "input": "same as POST",
+          "response": "ContactField"
+        },
+        {
+          "method": "DELETE",
+          "path": "/contactfields/:id",
+          "description": "Delete a contact field",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "contactFieldTypes": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/contactfieldtypes",
+          "description": "List all contact field types",
+          "response": "PaginatedResponse<ContactFieldType>"
+        },
+        {
+          "method": "GET",
+          "path": "/contactfieldtypes/:id",
+          "description": "Get a specific contact field type",
+          "response": "ContactFieldType"
+        },
+        {
+          "method": "POST",
+          "path": "/contactfieldtypes",
+          "description": "Create a contact field type",
+          "input": {
+            "name": {"type": "string", "required": true, "maxLength": 255},
+            "fontawesome_icon": {"type": "string", "required": false, "maxLength": 255},
+            "protocol": {"type": "string", "required": false, "maxLength": 255},
+            "delible": {"type": "integer", "required": false, "enum": [0, 1]},
+            "type": {"type": "string", "required": false, "maxLength": 255}
+          },
+          "response": "ContactFieldType"
+        },
+        {
+          "method": "PUT",
+          "path": "/contactfieldtypes/:id",
+          "description": "Update a contact field type",
+          "input": "same as POST",
+          "response": "ContactFieldType"
+        },
+        {
+          "method": "DELETE",
+          "path": "/contactfieldtypes/:id",
+          "description": "Delete a contact field type",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "conversations": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/conversations",
+          "description": "List all conversations",
+          "response": "PaginatedResponse<Conversation>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/conversations",
+          "description": "List conversations for a contact",
+          "response": "PaginatedResponse<Conversation>"
+        },
+        {
+          "method": "GET",
+          "path": "/conversations/:id",
+          "description": "Get a specific conversation with messages",
+          "response": "Conversation"
+        },
+        {
+          "method": "POST",
+          "path": "/conversations",
+          "description": "Create a conversation",
+          "input": {
+            "happened_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "contact_field_type_id": {"type": "integer", "required": true},
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "Conversation"
+        },
+        {
+          "method": "PUT",
+          "path": "/conversations/:id",
+          "description": "Update a conversation",
+          "input": {"happened_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"}},
+          "response": "Conversation"
+        },
+        {
+          "method": "DELETE",
+          "path": "/conversations/:id",
+          "description": "Delete a conversation",
+          "response": {"deleted": "boolean", "id": "integer"}
+        },
+        {
+          "method": "POST",
+          "path": "/conversations/:id/messages",
+          "description": "Add a message to conversation",
+          "input": {
+            "written_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "written_by_me": {"type": "boolean", "required": true},
+            "content": {"type": "string", "required": true},
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "Conversation"
+        },
+        {
+          "method": "PUT",
+          "path": "/conversations/:id/messages/:messageId",
+          "description": "Update a message in conversation",
+          "input": "same as POST message",
+          "response": "Conversation"
+        },
+        {
+          "method": "DELETE",
+          "path": "/conversations/:id/messages/:messageId",
+          "description": "Delete a message from conversation",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "countries": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/countries",
+          "description": "List all countries",
+          "response": "Object with country ISO codes as keys"
+        }
+      ]
+    },
+    "currencies": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/currencies",
+          "description": "List all currencies",
+          "response": "PaginatedResponse<Currency>"
+        },
+        {
+          "method": "GET",
+          "path": "/currencies/:id",
+          "description": "Get a specific currency",
+          "response": "Currency"
+        }
+      ]
+    },
+    "debts": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/debts",
+          "description": "List all debts",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Debt>"
+        },
+        {
+          "method": "GET",
+          "path": "/debts/:id",
+          "description": "Get a specific debt",
+          "response": "Debt"
+        },
+        {
+          "method": "POST",
+          "path": "/debts",
+          "description": "Create a debt",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "in_debt": {"type": "string", "required": true, "enum": ["yes", "no"]},
+            "status": {"type": "string", "required": true, "enum": ["inprogress", "complete"]},
+            "amount": {"type": "integer", "required": true},
+            "reason": {"type": "string", "required": false, "maxLength": 10000000}
+          },
+          "response": "Debt"
+        },
+        {
+          "method": "PUT",
+          "path": "/debts/:id",
+          "description": "Update a debt",
+          "input": "same as POST",
+          "response": "Debt"
+        },
+        {
+          "method": "DELETE",
+          "path": "/debts/:id",
+          "description": "Delete a debt",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "documents": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/documents",
+          "description": "List all documents in account",
+          "response": "PaginatedResponse<Document>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/documents",
+          "description": "List documents for a contact",
+          "response": "PaginatedResponse<Document>"
+        },
+        {
+          "method": "GET",
+          "path": "/documents/:id",
+          "description": "Get a specific document",
+          "response": "Document"
+        },
+        {
+          "method": "POST",
+          "path": "/documents",
+          "description": "Create/upload a document",
+          "contentType": "multipart/form-data",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "document": {"type": "file", "required": true}
+          },
+          "response": "Document"
+        },
+        {
+          "method": "DELETE",
+          "path": "/documents/:id",
+          "description": "Delete a document",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "genders": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/genders",
+          "description": "List all genders",
+          "response": "PaginatedResponse<Gender>"
+        },
+        {
+          "method": "GET",
+          "path": "/genders/:id",
+          "description": "Get a specific gender",
+          "response": "Gender"
+        },
+        {
+          "method": "POST",
+          "path": "/genders",
+          "description": "Create a gender",
+          "input": {"name": {"type": "string", "required": true, "maxLength": 255}},
+          "response": "Gender"
+        },
+        {
+          "method": "PUT",
+          "path": "/genders/:id",
+          "description": "Update a gender",
+          "input": "same as POST",
+          "response": "Gender"
+        },
+        {
+          "method": "DELETE",
+          "path": "/genders/:id",
+          "description": "Delete a gender",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "gifts": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/gifts",
+          "description": "List all gifts",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Gift>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/gifts",
+          "description": "List gifts for a contact",
+          "response": "PaginatedResponse<Gift>"
+        },
+        {
+          "method": "GET",
+          "path": "/gifts/:id",
+          "description": "Get a specific gift",
+          "response": "Gift"
+        },
+        {
+          "method": "POST",
+          "path": "/gifts",
+          "description": "Create a gift",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "recipient_id": {"type": "integer", "required": false},
+            "name": {"type": "string", "required": true, "maxLength": 255},
+            "comment": {"type": "string", "required": false, "maxLength": 1000000},
+            "url": {"type": "string", "required": false, "maxLength": 1000000},
+            "amount": {"type": "number", "required": false},
+            "status": {"type": "string", "required": true, "enum": ["idea", "offered", "received"]},
+            "date": {"type": "string", "required": false, "format": "YYYY-MM-DD"}
+          },
+          "response": "Gift"
+        },
+        {
+          "method": "PUT",
+          "path": "/gifts/:id",
+          "description": "Update a gift",
+          "input": "same as POST",
+          "response": "Gift"
+        },
+        {
+          "method": "DELETE",
+          "path": "/gifts/:id",
+          "description": "Delete a gift",
+          "response": {"deleted": "boolean", "id": "integer"}
+        },
+        {
+          "method": "PUT",
+          "path": "/gifts/:id/photo/:photoId",
+          "description": "Associate a photo with a gift",
+          "response": "Gift"
+        }
+      ]
+    },
+    "groups": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/groups",
+          "description": "List all groups",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Group>"
+        },
+        {
+          "method": "GET",
+          "path": "/groups/:id",
+          "description": "Get a specific group",
+          "response": "Group"
+        },
+        {
+          "method": "POST",
+          "path": "/groups",
+          "description": "Create a group",
+          "input": {"name": {"type": "string", "required": true}},
+          "response": "Group"
+        },
+        {
+          "method": "PUT",
+          "path": "/groups/:id",
+          "description": "Update a group",
+          "input": {"name": {"type": "string", "required": true}},
+          "response": "Group"
+        },
+        {
+          "method": "DELETE",
+          "path": "/groups/:id",
+          "description": "Delete a group",
+          "response": {"deleted": "boolean", "id": "integer"}
+        },
+        {
+          "method": "POST",
+          "path": "/groups/:id/attach",
+          "description": "Attach contacts to a group",
+          "input": {"contacts": {"type": "array", "required": true, "description": "Array of contact IDs"}},
+          "response": "Group"
+        }
+      ]
+    },
+    "journal": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/journal",
+          "description": "List all journal entries",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<JournalEntry>"
+        },
+        {
+          "method": "GET",
+          "path": "/journal/:id",
+          "description": "Get a specific journal entry",
+          "response": "JournalEntry"
+        },
+        {
+          "method": "POST",
+          "path": "/journal",
+          "description": "Create a journal entry",
+          "input": {
+            "title": {"type": "string", "required": true, "maxLength": 255},
+            "post": {"type": "string", "required": true, "maxLength": 1000000}
+          },
+          "response": "JournalEntry"
+        },
+        {
+          "method": "PUT",
+          "path": "/journal/:id",
+          "description": "Update a journal entry",
+          "input": "same as POST",
+          "response": "JournalEntry"
+        },
+        {
+          "method": "DELETE",
+          "path": "/journal/:id",
+          "description": "Delete a journal entry",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "notes": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/notes",
+          "description": "List all notes",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Note>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/notes",
+          "description": "List notes for a contact",
+          "response": "PaginatedResponse<Note>"
+        },
+        {
+          "method": "GET",
+          "path": "/notes/:id",
+          "description": "Get a specific note",
+          "response": "Note"
+        },
+        {
+          "method": "POST",
+          "path": "/notes",
+          "description": "Create a note",
+          "input": {
+            "body": {"type": "string", "required": true, "maxLength": 100000},
+            "contact_id": {"type": "integer", "required": true},
+            "is_favorited": {"type": "integer", "required": true, "enum": [0, 1]}
+          },
+          "response": "Note"
+        },
+        {
+          "method": "PUT",
+          "path": "/notes/:id",
+          "description": "Update a note",
+          "input": "same as POST",
+          "response": "Note"
+        },
+        {
+          "method": "DELETE",
+          "path": "/notes/:id",
+          "description": "Delete a note",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "occupations": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/occupations",
+          "description": "List all occupations",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Occupation>"
+        },
+        {
+          "method": "GET",
+          "path": "/occupations/:id",
+          "description": "Get a specific occupation",
+          "response": "Occupation"
+        },
+        {
+          "method": "POST",
+          "path": "/occupations",
+          "description": "Create an occupation",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "company_id": {"type": "integer", "required": true},
+            "title": {"type": "string", "required": true, "maxLength": 255},
+            "description": {"type": "string", "required": false, "maxLength": 1000},
+            "salary": {"type": "integer", "required": false},
+            "salary_unit": {"type": "string", "required": false, "enum": ["year", "month", "week", "day", "hour"]},
+            "currently_works_here": {"type": "boolean", "required": false},
+            "start_date": {"type": "string", "required": false, "format": "YYYY-MM-DD"},
+            "end_date": {"type": "string", "required": false, "format": "YYYY-MM-DD"}
+          },
+          "response": "Occupation"
+        },
+        {
+          "method": "PUT",
+          "path": "/occupations/:id",
+          "description": "Update an occupation",
+          "input": "same as POST",
+          "response": "Occupation"
+        },
+        {
+          "method": "DELETE",
+          "path": "/occupations/:id",
+          "description": "Delete an occupation",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "photos": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/photos",
+          "description": "List all photos in account",
+          "response": "PaginatedResponse<Photo>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/photos",
+          "description": "List photos for a contact",
+          "response": "PaginatedResponse<Photo>"
+        },
+        {
+          "method": "GET",
+          "path": "/photos/:id",
+          "description": "Get a specific photo",
+          "response": "Photo"
+        },
+        {
+          "method": "POST",
+          "path": "/photos",
+          "description": "Create/upload a photo",
+          "contentType": "multipart/form-data",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "photo": {"type": "file", "required": true}
+          },
+          "response": "Photo"
+        },
+        {
+          "method": "DELETE",
+          "path": "/photos/:id",
+          "description": "Delete a photo",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "relationships": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/relationships/:id",
+          "description": "Get a specific relationship",
+          "response": "Relationship"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/relationships",
+          "description": "List relationships for a contact",
+          "response": "PaginatedResponse<Relationship>"
+        },
+        {
+          "method": "POST",
+          "path": "/relationships",
+          "description": "Create a relationship",
+          "input": {
+            "contact_is": {"type": "integer", "required": true, "description": "Primary contact ID"},
+            "relationship_type_id": {"type": "integer", "required": true},
+            "of_contact": {"type": "integer", "required": true, "description": "Secondary contact ID"}
+          },
+          "response": "Relationship"
+        },
+        {
+          "method": "PUT",
+          "path": "/relationships/:id",
+          "description": "Update a relationship (type only)",
+          "input": {"relationship_type_id": {"type": "integer", "required": true}},
+          "response": "Relationship"
+        },
+        {
+          "method": "DELETE",
+          "path": "/relationships/:id",
+          "description": "Delete a relationship",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "relationshipTypes": {
+      "readOnly": true,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/relationshiptypes",
+          "description": "List all relationship types",
+          "response": "PaginatedResponse<RelationshipType>"
+        },
+        {
+          "method": "GET",
+          "path": "/relationshiptypes/:id",
+          "description": "Get a specific relationship type",
+          "response": "RelationshipType"
+        }
+      ],
+      "defaultTypes": [
+        {"name": "partner", "group": "love"},
+        {"name": "spouse", "group": "love"},
+        {"name": "date", "group": "love"},
+        {"name": "lover", "group": "love"},
+        {"name": "inlovewith", "group": "love"},
+        {"name": "ex", "group": "love"},
+        {"name": "parent", "group": "family"},
+        {"name": "child", "group": "family"},
+        {"name": "sibling", "group": "family"},
+        {"name": "grandparent", "group": "family"},
+        {"name": "grandchild", "group": "family"},
+        {"name": "uncle", "group": "family"},
+        {"name": "nephew", "group": "family"},
+        {"name": "cousin", "group": "family"},
+        {"name": "friend", "group": "friend"},
+        {"name": "bestfriend", "group": "friend"},
+        {"name": "colleague", "group": "work"},
+        {"name": "boss", "group": "work"},
+        {"name": "mentor", "group": "work"}
+      ]
+    },
+    "relationshipTypeGroups": {
+      "readOnly": true,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/relationshiptypegroups",
+          "description": "List all relationship type groups",
+          "response": "PaginatedResponse<RelationshipTypeGroup>"
+        },
+        {
+          "method": "GET",
+          "path": "/relationshiptypegroups/:id",
+          "description": "Get a specific relationship type group",
+          "response": "RelationshipTypeGroup"
+        }
+      ],
+      "defaultGroups": ["love", "family", "friend", "work"]
+    },
+    "reminders": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/reminders",
+          "description": "List all reminders",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Reminder>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/reminders",
+          "description": "List reminders for a contact",
+          "response": "PaginatedResponse<Reminder>"
+        },
+        {
+          "method": "GET",
+          "path": "/reminders/:id",
+          "description": "Get a specific reminder",
+          "response": "Reminder"
+        },
+        {
+          "method": "POST",
+          "path": "/reminders",
+          "description": "Create a reminder",
+          "input": {
+            "title": {"type": "string", "required": true, "maxLength": 100000},
+            "description": {"type": "string", "required": false, "maxLength": 1000000},
+            "next_expected_date": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "frequency_type": {"type": "string", "required": true, "enum": ["one_time", "week", "month", "year"]},
+            "frequency_number": {"type": "integer", "required": false},
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "Reminder"
+        },
+        {
+          "method": "PUT",
+          "path": "/reminders/:id",
+          "description": "Update a reminder",
+          "input": "same as POST",
+          "response": "Reminder"
+        },
+        {
+          "method": "DELETE",
+          "path": "/reminders/:id",
+          "description": "Delete a reminder",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "tags": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/tags",
+          "description": "List all tags",
+          "parameters": [{"name": "limit", "type": "integer"}, {"name": "page", "type": "integer"}],
+          "response": "PaginatedResponse<Tag>"
+        },
+        {
+          "method": "GET",
+          "path": "/tags/:id",
+          "description": "Get a specific tag",
+          "response": "Tag"
+        },
+        {
+          "method": "POST",
+          "path": "/tags",
+          "description": "Create a tag",
+          "input": {"name": {"type": "string", "required": true, "maxLength": 255}},
+          "response": "Tag"
+        },
+        {
+          "method": "PUT",
+          "path": "/tags/:id",
+          "description": "Update a tag",
+          "input": "same as POST",
+          "response": "Tag"
+        },
+        {
+          "method": "DELETE",
+          "path": "/tags/:id",
+          "description": "Delete a tag",
+          "response": {"deleted": "boolean", "id": "integer"}
+        },
+        {
+          "method": "POST",
+          "path": "/contacts/:id/setTags",
+          "description": "Associate tags to a contact",
+          "input": {"tags": {"type": "array", "required": true, "description": "Array of tag names"}},
+          "response": "Contact"
+        },
+        {
+          "method": "POST",
+          "path": "/contacts/:id/unsetTag",
+          "description": "Remove specific tags from a contact",
+          "input": {"tags": {"type": "array", "required": true, "description": "Array of tag IDs"}},
+          "response": "Contact"
+        },
+        {
+          "method": "POST",
+          "path": "/contacts/:id/unsetTags",
+          "description": "Remove all tags from a contact",
+          "response": "Contact"
+        }
+      ]
+    },
+    "tasks": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/tasks",
+          "description": "List all tasks",
+          "parameters": [
+            {"name": "limit", "type": "integer"},
+            {"name": "page", "type": "integer"},
+            {"name": "sort", "type": "string", "enum": ["created_at", "-created_at", "updated_at", "-updated_at", "completed_at", "-completed_at"]}
+          ],
+          "response": "PaginatedResponse<Task>"
+        },
+        {
+          "method": "GET",
+          "path": "/contacts/:id/tasks",
+          "description": "List tasks for a contact",
+          "response": "PaginatedResponse<Task>"
+        },
+        {
+          "method": "GET",
+          "path": "/tasks/:id",
+          "description": "Get a specific task",
+          "response": "Task"
+        },
+        {
+          "method": "POST",
+          "path": "/tasks",
+          "description": "Create a task",
+          "input": {
+            "title": {"type": "string", "required": true, "maxLength": 255},
+            "description": {"type": "string", "required": false, "maxLength": 1000000},
+            "completed": {"type": "integer", "required": true, "enum": [0, 1]},
+            "completed_at": {"type": "string", "required": false, "format": "YYYY-MM-DD"},
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "Task"
+        },
+        {
+          "method": "PUT",
+          "path": "/tasks/:id",
+          "description": "Update a task",
+          "input": "same as POST",
+          "response": "Task"
+        },
+        {
+          "method": "DELETE",
+          "path": "/tasks/:id",
+          "description": "Delete a task",
+          "response": {"deleted": "boolean", "id": "integer"}
+        }
+      ]
+    },
+    "user": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "description": "Get current authenticated user",
+          "response": "User"
+        }
+      ]
+    }
+  },
+  "errorCodes": {
+    "30": "The limit parameter is too big (max 100)",
+    "31": "The resource has not been found",
+    "32": "Error while trying to save the data",
+    "33": "Too many parameters",
+    "34": "Too many attempts, please slow down the request",
+    "35": "This email address is already taken",
+    "36": "You can't set a partner or a child to a partial contact",
+    "37": "Problems parsing JSON",
+    "38": "Date should be in the future",
+    "39": "The sorting criteria is invalid",
+    "40": "Invalid query",
+    "41": "Invalid parameters"
+  },
+  "responseTypes": {
+    "single": {
+      "structure": {"data": "Resource"},
+      "example": {"data": {"id": 1, "object": "type", "...": "..."}}
+    },
+    "paginated": {
+      "structure": {
+        "data": "Resource[]",
+        "links": {"first": "string", "last": "string", "prev": "string|null", "next": "string|null"},
+        "meta": {
+          "current_page": "integer",
+          "from": "integer",
+          "last_page": "integer",
+          "path": "string",
+          "per_page": "integer",
+          "to": "integer",
+          "total": "integer"
+        }
+      }
+    },
+    "delete": {
+      "structure": {"deleted": "boolean", "id": "integer"}
+    }
+  }
+}

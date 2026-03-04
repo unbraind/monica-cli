@@ -1,0 +1,1774 @@
+{
+  "version": "1.0.0",
+  "baseUrl": "https://app.monicahq.com/api",
+  "description": "Monica CRM API Reference - Complete endpoint documentation",
+  "generated": "2026-02-28",
+  "endpoints": {
+    "activities": {
+      "description": "Activities made with one or more contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/activities",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false, "description": "Page size" },
+            { "name": "page", "type": "integer", "required": false, "description": "Page number" }
+          ],
+          "response": "PaginatedResponse<Activity>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/activities",
+          "response": "PaginatedResponse<Activity>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/activities/:id",
+          "response": "ApiResponse<Activity>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/activities",
+          "body": {
+            "required": ["activity_type_id", "summary", "happened_at", "contacts"],
+            "properties": {
+              "activity_type_id": { "type": "integer", "description": "Activity type ID" },
+              "summary": { "type": "string", "maxLength": 255, "description": "Short description" },
+              "description": { "type": "string", "maxLength": 1000000, "description": "Detailed description" },
+              "happened_at": { "type": "string", "format": "YYYY-MM-DD", "description": "Date activity happened" },
+              "contacts": { "type": "array", "items": "integer", "description": "Contact IDs" },
+              "emotions": { "type": "array", "items": "integer", "description": "Emotion IDs" }
+            }
+          },
+          "response": "ApiResponse<Activity>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/activities/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Activity>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/activities/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "summary": "string",
+        "description": "string|null",
+        "happened_at": "string",
+        "activity_type": "ActivityType",
+        "attendees": { "total": "integer", "contacts": "Contact[]" },
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "activityTypes": {
+      "description": "Types of activities (e.g., restaurant, theater)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/activitytypes",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<ActivityType>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/activitytypes/:id",
+          "response": "ApiResponse<ActivityType>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/activitytypes",
+          "body": {
+            "required": ["name", "activity_type_category_id"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 },
+              "activity_type_category_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<ActivityType>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/activitytypes/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<ActivityType>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/activitytypes/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "location_type": "string|null",
+        "activity_type_category": "ActivityTypeCategory",
+        "account": "Account",
+        "created_at": "string|null",
+        "updated_at": "string|null"
+      }
+    },
+    "activityTypeCategories": {
+      "description": "Categories for activity types (e.g., Sport, Food, Cultural)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/activitytypecategories",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<ActivityTypeCategory>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/activitytypecategories/:id",
+          "response": "ApiResponse<ActivityTypeCategory>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/activitytypecategories",
+          "body": {
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 }
+            }
+          },
+          "response": "ApiResponse<ActivityTypeCategory>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/activitytypecategories/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<ActivityTypeCategory>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/activitytypecategories/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "account": "Account",
+        "created_at": "string|null",
+        "updated_at": "string|null"
+      }
+    },
+    "addresses": {
+      "description": "Addresses associated with contacts",
+      "methods": {
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/addresses",
+          "response": "PaginatedResponse<Address>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/addresses/:id",
+          "response": "ApiResponse<Address>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/addresses",
+          "body": {
+            "required": ["name", "contact_id"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255, "description": "Description of address" },
+              "street": { "type": "string", "maxLength": 255 },
+              "city": { "type": "string", "maxLength": 255 },
+              "province": { "type": "string", "maxLength": 255 },
+              "postal_code": { "type": "string", "maxLength": 255 },
+              "country": { "type": "string", "maxLength": 3, "description": "Country ISO code" },
+              "contact_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Address>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/addresses/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Address>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/addresses/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "street": "string|null",
+        "city": "string|null",
+        "province": "string|null",
+        "postal_code": "string|null",
+        "country": "Country",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string|null",
+        "updated_at": "string|null"
+      }
+    },
+    "auditLogs": {
+      "description": "Audit logs tracking account activity",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/logs",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<AuditLog>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/logs",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<AuditLog>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "author": { "id": "integer", "name": "string|null" },
+        "action": "string",
+        "objects": "object",
+        "audited_at": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "calls": {
+      "description": "Phone calls with contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/calls",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Call>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/calls",
+          "response": "PaginatedResponse<Call>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/calls/:id",
+          "response": "ApiResponse<Call>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/calls",
+          "body": {
+            "required": ["content", "contact_id", "called_at"],
+            "properties": {
+              "content": { "type": "string", "maxLength": 100000, "description": "Call description" },
+              "contact_id": { "type": "integer" },
+              "called_at": { "type": "string", "format": "YYYY-MM-DD" }
+            }
+          },
+          "response": "ApiResponse<Call>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/calls/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Call>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/calls/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "called_at": "string",
+        "content": "string",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "companies": {
+      "description": "Companies where contacts work",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/companies",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Company>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/companies/:id",
+          "response": "ApiResponse<Company>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/companies",
+          "body": {
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 },
+              "website": { "type": "string", "maxLength": 255 },
+              "number_of_employees": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Company>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/companies/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Company>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/companies/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "website": "string|null",
+        "number_of_employees": "integer|null",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "compliance": {
+      "description": "Terms of use and privacy policies",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/compliance",
+          "response": "PaginatedResponse<Term>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/compliance/:id",
+          "response": "ApiResponse<Term>"
+        },
+        "getUserCompliance": {
+          "method": "GET",
+          "path": "/me/compliance",
+          "response": "ApiResponse<UserCompliance[]>"
+        },
+        "getUserComplianceById": {
+          "method": "GET",
+          "path": "/me/compliance/:id",
+          "response": "ApiResponse<UserCompliance>"
+        },
+        "sign": {
+          "method": "POST",
+          "path": "/me/compliance",
+          "body": {
+            "required": ["ip_address"],
+            "properties": {
+              "ip_address": { "type": "string" }
+            }
+          },
+          "response": "ApiResponse<UserCompliance>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "term_version": "string",
+        "term_content": "string",
+        "privacy_version": "string",
+        "privacy_content": "string",
+        "created_at": "string",
+        "updated_at": "string|null"
+      }
+    },
+    "contacts": {
+      "description": "Core contact management",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/contacts",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false },
+            { "name": "query", "type": "string", "required": false, "description": "Search query" },
+            { "name": "sort", "type": "string", "required": false, "enum": ["created_at", "-created_at", "updated_at", "-updated_at"] }
+          ],
+          "response": "PaginatedResponse<Contact>"
+        },
+        "listByTag": {
+          "method": "GET",
+          "path": "/tags/:id/contacts",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Contact>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/contacts/:id",
+          "parameters": [
+            { "name": "with", "type": "string", "required": false, "description": "Include contactfields" }
+          ],
+          "response": "ApiResponse<Contact>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/contacts",
+          "body": {
+            "required": ["first_name", "gender_id", "is_birthdate_known", "is_deceased", "is_deceased_date_known"],
+            "properties": {
+              "first_name": { "type": "string", "maxLength": 50 },
+              "last_name": { "type": "string", "maxLength": 100 },
+              "nickname": { "type": "string", "maxLength": 100 },
+              "gender_id": { "type": "integer" },
+              "birthdate_day": { "type": "integer" },
+              "birthdate_month": { "type": "integer" },
+              "birthdate_year": { "type": "integer" },
+              "birthdate_is_age_based": { "type": "boolean" },
+              "is_birthdate_known": { "type": "boolean" },
+              "birthdate_age": { "type": "integer" },
+              "is_partial": { "type": "boolean" },
+              "is_deceased": { "type": "boolean" },
+              "is_deceased_date_known": { "type": "boolean" },
+              "deceased_date_add_reminder": { "type": "boolean" },
+              "deceased_date_day": { "type": "integer" },
+              "deceased_date_month": { "type": "integer" },
+              "deceased_date_year": { "type": "integer" },
+              "deceased_date_is_age_based": { "type": "boolean" }
+            }
+          },
+          "response": "ApiResponse<Contact>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/contacts/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Contact>"
+        },
+        "updateCareer": {
+          "method": "PUT",
+          "path": "/contacts/:id/career",
+          "body": {
+            "properties": {
+              "job": { "type": "string", "maxLength": 255 },
+              "company": { "type": "string", "maxLength": 255 }
+            }
+          },
+          "response": "ApiResponse<Contact>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/contacts/:id",
+          "response": "DeleteResponse"
+        },
+        "search": {
+          "method": "GET",
+          "path": "/contacts/search",
+          "parameters": [
+            { "name": "query", "type": "string", "required": true }
+          ],
+          "response": "PaginatedResponse<Contact>"
+        },
+        "setTags": {
+          "method": "POST",
+          "path": "/contacts/:id/setTags",
+          "body": {
+            "required": ["tags"],
+            "properties": {
+              "tags": { "type": "array", "items": "string", "description": "Tag names" }
+            }
+          },
+          "response": "ApiResponse<Contact>"
+        },
+        "unsetTag": {
+          "method": "POST",
+          "path": "/contacts/:id/unsetTag",
+          "body": {
+            "required": ["tags"],
+            "properties": {
+              "tags": { "type": "array", "items": "integer", "description": "Tag IDs" }
+            }
+          },
+          "response": "ApiResponse<Contact>"
+        },
+        "unsetTags": {
+          "method": "POST",
+          "path": "/contacts/:id/unsetTags",
+          "response": "ApiResponse<Contact>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "hash_id": "string",
+        "first_name": "string",
+        "last_name": "string|null",
+        "nickname": "string|null",
+        "complete_name": "string",
+        "description": "string|null",
+        "gender": "string",
+        "gender_type": "string|null",
+        "is_starred": "boolean",
+        "is_partial": "boolean",
+        "is_active": "boolean",
+        "is_dead": "boolean",
+        "is_me": "boolean",
+        "last_called": "string|null",
+        "last_activity_together": "string|null",
+        "stay_in_touch_frequency": "integer|null",
+        "stay_in_touch_trigger_date": "string|null",
+        "information": "ContactInformation",
+        "addresses": "Address[]",
+        "tags": "Tag[]",
+        "statistics": "ContactStatistics",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "contactFields": {
+      "description": "Contact fields (email, phone, social profiles)",
+      "methods": {
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/contactfields",
+          "response": "PaginatedResponse<ContactField>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/contactfields/:id",
+          "response": "ApiResponse<ContactField>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/contactfields",
+          "body": {
+            "required": ["data", "contact_field_type_id", "contact_id"],
+            "properties": {
+              "data": { "type": "string", "maxLength": 255, "description": "Field content" },
+              "contact_field_type_id": { "type": "integer" },
+              "contact_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<ContactField>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/contactfields/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<ContactField>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/contactfields/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "data": "string",
+        "contact_field_type": "ContactFieldType",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string|null"
+      }
+    },
+    "contactFieldTypes": {
+      "description": "Types of contact fields (Email, Phone, Facebook, etc.)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/contactfieldtypes",
+          "response": "PaginatedResponse<ContactFieldType>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/contactfieldtypes/:id",
+          "response": "ApiResponse<ContactFieldType>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/contactfieldtypes",
+          "body": {
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 },
+              "fontawesome_icon": { "type": "string", "maxLength": 255, "description": "FontAwesome class name" },
+              "protocol": { "type": "string", "maxLength": 255, "description": "e.g., mailto:, tel:" },
+              "delible": { "type": "integer", "enum": [0, 1] },
+              "type": { "type": "string", "maxLength": 255 }
+            }
+          },
+          "response": "ApiResponse<ContactFieldType>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/contactfieldtypes/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<ContactFieldType>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/contactfieldtypes/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "fontawesome_icon": "string|null",
+        "protocol": "string|null",
+        "delible": "boolean",
+        "type": "string|null",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "conversations": {
+      "description": "Conversations with contacts and their messages",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/conversations",
+          "response": "PaginatedResponse<Conversation>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/conversations",
+          "response": "PaginatedResponse<Conversation>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/conversations/:id",
+          "response": "ApiResponse<Conversation>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/conversations",
+          "body": {
+            "required": ["happened_at", "contact_field_type_id", "contact_id"],
+            "properties": {
+              "happened_at": { "type": "string", "format": "YYYY-MM-DD" },
+              "contact_field_type_id": { "type": "integer" },
+              "contact_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Conversation>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/conversations/:id",
+          "body": {
+            "required": ["happened_at"],
+            "properties": {
+              "happened_at": { "type": "string", "format": "YYYY-MM-DD" }
+            }
+          },
+          "response": "ApiResponse<Conversation>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/conversations/:id",
+          "response": "DeleteResponse"
+        },
+        "addMessage": {
+          "method": "POST",
+          "path": "/conversations/:id/messages",
+          "body": {
+            "required": ["written_at", "written_by_me", "content", "contact_id"],
+            "properties": {
+              "written_at": { "type": "string", "format": "YYYY-MM-DD" },
+              "written_by_me": { "type": "boolean" },
+              "content": { "type": "string" },
+              "contact_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Conversation>"
+        },
+        "updateMessage": {
+          "method": "PUT",
+          "path": "/conversations/:id/messages/:messageId",
+          "body": "Same as addMessage",
+          "response": "ApiResponse<Conversation>"
+        },
+        "deleteMessage": {
+          "method": "DELETE",
+          "path": "/conversations/:id/messages/:messageId",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "happened_at": "string",
+        "messages": "Message[]",
+        "contact_field_type": "ContactFieldType",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "countries": {
+      "description": "List of countries (read-only)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/countries",
+          "response": "{ [iso: string]: Country }"
+        }
+      },
+      "responseObject": {
+        "id": "string",
+        "object": "string",
+        "name": "string",
+        "iso": "string"
+      }
+    },
+    "currencies": {
+      "description": "List of supported currencies",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/currencies",
+          "response": "PaginatedResponse<Currency>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/currencies/:id",
+          "response": "ApiResponse<Currency>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "iso": "string",
+        "name": "string",
+        "symbol": "string"
+      }
+    },
+    "debts": {
+      "description": "Debts between user and contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/debts",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Debt>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/debts/:id",
+          "response": "ApiResponse<Debt>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/debts",
+          "body": {
+            "required": ["contact_id", "in_debt", "status", "amount"],
+            "properties": {
+              "contact_id": { "type": "integer" },
+              "in_debt": { "type": "string", "enum": ["yes", "no"], "description": "yes=user owes contact, no=contact owes user" },
+              "status": { "type": "string", "enum": ["inprogress", "complete"] },
+              "amount": { "type": "integer" },
+              "reason": { "type": "string", "maxLength": 10000000 }
+            }
+          },
+          "response": "ApiResponse<Debt>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/debts/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Debt>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/debts/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "in_debt": "string",
+        "status": "string",
+        "amount": "integer",
+        "amount_with_currency": "string",
+        "reason": "string|null",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "documents": {
+      "description": "Documents attached to contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/documents",
+          "response": "PaginatedResponse<Document>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/documents",
+          "response": "PaginatedResponse<Document>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/documents/:id",
+          "response": "ApiResponse<Document>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/documents",
+          "contentType": "multipart/form-data",
+          "body": {
+            "required": ["contact_id", "document"],
+            "properties": {
+              "contact_id": { "type": "integer" },
+              "document": { "type": "file" }
+            }
+          },
+          "response": "ApiResponse<Document>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/documents/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "original_filename": "string",
+        "new_filename": "string",
+        "filesize": "integer",
+        "type": "string",
+        "number_of_downloads": "integer",
+        "link": "string|null",
+        "account": "Account",
+        "contact": "Contact|null",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "genders": {
+      "description": "Gender options for contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/genders",
+          "response": "PaginatedResponse<Gender>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/genders/:id",
+          "response": "ApiResponse<Gender>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/genders",
+          "body": {
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 }
+            }
+          },
+          "response": "ApiResponse<Gender>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/genders/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Gender>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/genders/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "gifts": {
+      "description": "Gifts exchanged with contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/gifts",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Gift>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/gifts",
+          "response": "PaginatedResponse<Gift>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/gifts/:id",
+          "response": "ApiResponse<Gift>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/gifts",
+          "body": {
+            "required": ["contact_id", "name", "status"],
+            "properties": {
+              "contact_id": { "type": "integer" },
+              "recipient_id": { "type": "integer", "description": "Partner or child of contact" },
+              "name": { "type": "string", "maxLength": 255 },
+              "comment": { "type": "string", "maxLength": 1000000 },
+              "url": { "type": "string", "maxLength": 1000000 },
+              "amount": { "type": "number" },
+              "status": { "type": "string", "enum": ["idea", "offered", "received"] },
+              "date": { "type": "string", "format": "YYYY-MM-DD" }
+            }
+          },
+          "response": "ApiResponse<Gift>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/gifts/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Gift>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/gifts/:id",
+          "response": "DeleteResponse"
+        },
+        "associatePhoto": {
+          "method": "PUT",
+          "path": "/gifts/:id/photo/:photoId",
+          "response": "ApiResponse<Gift>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "comment": "string|null",
+        "url": "string|null",
+        "amount": "string|null",
+        "amount_with_currency": "string|null",
+        "status": "string",
+        "date": "string|null",
+        "recipient": "Contact|null",
+        "photos": "Photo[]",
+        "contact": "Contact",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "groups": {
+      "description": "Groups of contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/groups",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Group>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/groups/:id",
+          "response": "ApiResponse<Group>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/groups",
+          "body": {
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 }
+            }
+          },
+          "response": "ApiResponse<Group>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/groups/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Group>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/groups/:id",
+          "response": "DeleteResponse"
+        },
+        "attachContacts": {
+          "method": "POST",
+          "path": "/groups/:id/attachContacts",
+          "body": {
+            "required": ["contacts"],
+            "properties": {
+              "contacts": { "type": "array", "items": "integer", "description": "Contact IDs" }
+            }
+          },
+          "response": "ApiResponse<Group>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "contacts": "Contact[]",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "journal": {
+      "description": "Personal journal entries (not linked to contacts)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/journal",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<JournalEntry>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/journal/:id",
+          "response": "ApiResponse<JournalEntry>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/journal",
+          "body": {
+            "required": ["title", "post"],
+            "properties": {
+              "title": { "type": "string", "maxLength": 255 },
+              "post": { "type": "string", "maxLength": 1000000 }
+            }
+          },
+          "response": "ApiResponse<JournalEntry>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/journal/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<JournalEntry>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/journal/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "title": "string",
+        "post": "string",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "notes": {
+      "description": "Notes attached to contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/notes",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Note>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/notes",
+          "response": "PaginatedResponse<Note>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/notes/:id",
+          "response": "ApiResponse<Note>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/notes",
+          "body": {
+            "required": ["body", "contact_id", "is_favorited"],
+            "properties": {
+              "body": { "type": "string", "maxLength": 100000 },
+              "contact_id": { "type": "integer" },
+              "is_favorited": { "type": "integer", "enum": [0, 1] }
+            }
+          },
+          "response": "ApiResponse<Note>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/notes/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Note>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/notes/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "body": "string",
+        "is_favorited": "boolean",
+        "favorited_at": "string|null",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "occupations": {
+      "description": "Job/occupation history for contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/occupations",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Occupation>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/occupations/:id",
+          "response": "ApiResponse<Occupation>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/occupations",
+          "body": {
+            "required": ["contact_id", "company_id", "title"],
+            "properties": {
+              "contact_id": { "type": "integer" },
+              "company_id": { "type": "integer" },
+              "title": { "type": "string", "maxLength": 255 },
+              "description": { "type": "string", "maxLength": 1000 },
+              "salary": { "type": "integer" },
+              "salary_unit": { "type": "string", "enum": ["year", "month", "week", "day", "hour"] },
+              "currently_works_here": { "type": "boolean" },
+              "start_date": { "type": "string", "format": "YYYY-MM-DD" },
+              "end_date": { "type": "string", "format": "YYYY-MM-DD" }
+            }
+          },
+          "response": "ApiResponse<Occupation>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/occupations/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Occupation>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/occupations/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "title": "string",
+        "description": "string|null",
+        "salary": "integer|null",
+        "salary_unit": "string|null",
+        "currently_works_here": "boolean",
+        "start_date": "string|null",
+        "end_date": "string|null",
+        "company": "Company",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "photos": {
+      "description": "Photos attached to contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/photos",
+          "response": "PaginatedResponse<Photo>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/photos",
+          "response": "PaginatedResponse<Photo>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/photos/:id",
+          "response": "ApiResponse<Photo>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/photos",
+          "contentType": "multipart/form-data",
+          "body": {
+            "required": ["contact_id", "photo"],
+            "properties": {
+              "contact_id": { "type": "integer" },
+              "photo": { "type": "file" }
+            }
+          },
+          "response": "ApiResponse<Photo>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/photos/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "original_filename": "string",
+        "new_filename": "string",
+        "filesize": "integer",
+        "mime_type": "string",
+        "link": "string",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "petCategories": {
+      "description": "Pet categories (e.g., Dog, Cat, Bird)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/petcategories",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<PetCategory>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/petcategories/:id",
+          "response": "ApiResponse<PetCategory>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "is_common": "boolean",
+        "account": "Account",
+        "created_at": "string|null",
+        "updated_at": "string|null"
+      }
+    },
+    "pets": {
+      "description": "Pets associated with contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/pets",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Pet>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/pets",
+          "response": "PaginatedResponse<Pet>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/pets/:id",
+          "response": "ApiResponse<Pet>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/pets",
+          "body": {
+            "required": ["name", "pet_category_id", "contact_id"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255, "description": "Pet name" },
+              "pet_category_id": { "type": "integer", "description": "Pet category ID" },
+              "contact_id": { "type": "integer", "description": "Contact ID" }
+            }
+          },
+          "response": "ApiResponse<Pet>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/pets/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Pet>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/pets/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "uuid": "string",
+        "object": "string",
+        "name": "string",
+        "pet_category": "PetCategory",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "relationships": {
+      "description": "Relationships between contacts",
+      "methods": {
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/relationships",
+          "response": "RelationshipTypeGroup[]"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/relationships/:id",
+          "response": "ApiResponse<Relationship>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/relationships",
+          "body": {
+            "required": ["contact_is", "relationship_type_id", "of_contact"],
+            "properties": {
+              "contact_is": { "type": "integer", "description": "Primary contact ID" },
+              "relationship_type_id": { "type": "integer" },
+              "of_contact": { "type": "integer", "description": "Related contact ID" }
+            }
+          },
+          "response": "ApiResponse<Relationship>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/relationships/:id",
+          "body": {
+            "required": ["relationship_type_id"],
+            "properties": {
+              "relationship_type_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Relationship>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/relationships/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "contact_is": "Contact",
+        "relationship_type": "RelationshipType",
+        "of_contact": "Contact",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "relationshipTypes": {
+      "description": "Types of relationships (read-only)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/relationshiptypes",
+          "response": "PaginatedResponse<RelationshipType>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/relationshiptypes/:id",
+          "response": "ApiResponse<RelationshipType>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "name_reverse_relationship": "string",
+        "relationship_type_group_id": "integer",
+        "delible": "boolean",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      },
+      "defaultTypes": [
+        { "name": "partner", "reverse": "partner", "group": "love" },
+        { "name": "spouse", "reverse": "spouse", "group": "love" },
+        { "name": "date", "reverse": "date", "group": "love" },
+        { "name": "lover", "reverse": "lover", "group": "love" },
+        { "name": "inlovewith", "reverse": "lovedby", "group": "love" },
+        { "name": "ex", "reverse": "ex", "group": "love" },
+        { "name": "parent", "reverse": "child", "group": "family" },
+        { "name": "child", "reverse": "parent", "group": "family" },
+        { "name": "sibling", "reverse": "sibling", "group": "family" },
+        { "name": "grandparent", "reverse": "grandchild", "group": "family" },
+        { "name": "grandchild", "reverse": "grandparent", "group": "family" },
+        { "name": "uncle", "reverse": "nephew", "group": "family" },
+        { "name": "nephew", "reverse": "uncle", "group": "family" },
+        { "name": "cousin", "reverse": "cousin", "group": "family" },
+        { "name": "godfather", "reverse": "godson", "group": "family" },
+        { "name": "friend", "reverse": "friend", "group": "friend" },
+        { "name": "bestfriend", "reverse": "bestfriend", "group": "friend" },
+        { "name": "colleague", "reverse": "colleague", "group": "work" },
+        { "name": "boss", "reverse": "subordonate", "group": "work" },
+        { "name": "mentor", "reverse": "protege", "group": "work" }
+      ]
+    },
+    "relationshipTypeGroups": {
+      "description": "Categories for relationship types (read-only)",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/relationshiptypegroups",
+          "response": "PaginatedResponse<RelationshipTypeGroup>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/relationshiptypegroups/:id",
+          "response": "ApiResponse<RelationshipTypeGroup>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "delible": "boolean",
+        "account": "Account",
+        "created_at": "string|null",
+        "updated_at": "string|null"
+      },
+      "defaultGroups": ["love", "family", "friend", "work"]
+    },
+    "reminders": {
+      "description": "Reminders about contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/reminders",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Reminder>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/reminders",
+          "response": "PaginatedResponse<Reminder>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/reminders/:id",
+          "response": "ApiResponse<Reminder>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/reminder",
+          "body": {
+            "required": ["title", "next_expected_date", "frequency_type", "contact_id"],
+            "properties": {
+              "title": { "type": "string", "maxLength": 100000 },
+              "description": { "type": "string", "maxLength": 1000000 },
+              "next_expected_date": { "type": "string", "format": "YYYY-MM-DD" },
+              "frequency_type": { "type": "string", "enum": ["one_time", "week", "month", "year"] },
+              "frequency_number": { "type": "integer" },
+              "contact_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Reminder>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/reminders/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Reminder>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/reminders/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "title": "string",
+        "description": "string|null",
+        "frequency_type": "string",
+        "frequency_number": "integer|null",
+        "last_triggered_date": "string|null",
+        "next_expected_date": "string",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "tags": {
+      "description": "Tags for organizing contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/tags",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Tag>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/tags/:id",
+          "response": "ApiResponse<Tag>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/tags",
+          "body": {
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "maxLength": 255 }
+            }
+          },
+          "response": "ApiResponse<Tag>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/tags/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Tag>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/tags/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "name": "string",
+        "name_slug": "string",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "tasks": {
+      "description": "Tasks related to contacts",
+      "methods": {
+        "list": {
+          "method": "GET",
+          "path": "/tasks",
+          "parameters": [
+            { "name": "limit", "type": "integer", "required": false },
+            { "name": "page", "type": "integer", "required": false }
+          ],
+          "response": "PaginatedResponse<Task>"
+        },
+        "listByContact": {
+          "method": "GET",
+          "path": "/contacts/:id/tasks",
+          "response": "PaginatedResponse<Task>"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/tasks/:id",
+          "response": "ApiResponse<Task>"
+        },
+        "create": {
+          "method": "POST",
+          "path": "/task",
+          "body": {
+            "required": ["title", "completed", "contact_id"],
+            "properties": {
+              "title": { "type": "string", "maxLength": 255 },
+              "description": { "type": "string", "maxLength": 1000000 },
+              "completed": { "type": "integer", "enum": [0, 1] },
+              "completed_at": { "type": "string", "format": "YYYY-MM-DD" },
+              "contact_id": { "type": "integer" }
+            }
+          },
+          "response": "ApiResponse<Task>"
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/tasks/:id",
+          "body": "Same as create",
+          "response": "ApiResponse<Task>"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/tasks/:id",
+          "response": "DeleteResponse"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "title": "string",
+        "description": "string|null",
+        "completed": "boolean",
+        "completed_at": "string|null",
+        "account": "Account",
+        "contact": "Contact",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "users": {
+      "description": "Current user information",
+      "methods": {
+        "getMe": {
+          "method": "GET",
+          "path": "/me",
+          "response": "ApiResponse<User>"
+        }
+      },
+      "responseObject": {
+        "id": "integer",
+        "object": "string",
+        "first_name": "string",
+        "last_name": "string",
+        "email": "string",
+        "timezone": "string",
+        "currency": "Currency",
+        "locale": "string",
+        "is_policy_compliant": "boolean",
+        "account": "Account",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    }
+  },
+  "commonTypes": {
+    "Account": {
+      "id": "integer"
+    },
+    "ApiResponse": {
+      "data": "T"
+    },
+    "PaginatedResponse": {
+      "data": "T[]",
+      "links": {
+        "first": "string",
+        "last": "string",
+        "prev": "string|null",
+        "next": "string|null"
+      },
+      "meta": {
+        "current_page": "integer",
+        "from": "integer",
+        "last_page": "integer",
+        "path": "string",
+        "per_page": "integer",
+        "to": "integer",
+        "total": "integer"
+      }
+    },
+    "DeleteResponse": {
+      "deleted": "boolean",
+      "id": "integer"
+    },
+    "SpecialDate": {
+      "is_age_based": "boolean|null",
+      "is_year_unknown": "boolean|null",
+      "date": "string|null"
+    },
+    "ContactStatistics": {
+      "number_of_calls": "integer",
+      "number_of_notes": "integer",
+      "number_of_activities": "integer",
+      "number_of_reminders": "integer",
+      "number_of_tasks": "integer",
+      "number_of_gifts": "integer",
+      "number_of_debts": "integer"
+    }
+  },
+  "notes": [
+    "All endpoints require Bearer token authentication via MONICA_API_KEY",
+    "Pagination uses page/limit parameters with default per_page of 10-15 items",
+    "Delete responses return { deleted: true, id: number }",
+    "Date formats are YYYY-MM-DD for input, ISO 8601 for output",
+    "Special dates (birthdate, deceased_date, first_met_date) have special handling for age-based or year-unknown scenarios",
+    "Relationship types and relationship type groups are read-only"
+  ]
+}
