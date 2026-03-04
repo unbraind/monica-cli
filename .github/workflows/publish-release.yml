@@ -10,8 +10,7 @@ on:
       dry_run:
         description: 'If true, validate and package only (no publish)'
         required: true
-        type: boolean
-        default: true
+        default: 'true'
       confirm:
         description: 'Set to PUBLISH to allow non-dry-run publishing'
         required: false
@@ -71,11 +70,11 @@ jobs:
         run: node scripts/with-npm-version.mjs npm pack
 
       - name: Stop if dry-run
-        if: inputs.dry_run
+        if: ${{ inputs.dry_run == 'true' }}
         run: echo "Dry run enabled: skipping publish."
 
       - name: Enforce explicit publish confirmation
-        if: ${{ !inputs.dry_run }}
+        if: ${{ inputs.dry_run != 'true' }}
         run: |
           if [ "${{ inputs.confirm }}" != "PUBLISH" ]; then
             echo "Missing publish confirmation. Set confirm=PUBLISH."
@@ -83,13 +82,13 @@ jobs:
           fi
 
       - name: Publish package
-        if: ${{ !inputs.dry_run }}
+        if: ${{ inputs.dry_run != 'true' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: node scripts/with-npm-version.mjs npm publish --provenance --access public
 
       - name: Create and push release tag
-        if: ${{ !inputs.dry_run }}
+        if: ${{ inputs.dry_run != 'true' }}
         run: |
           VERSION="${{ steps.version.outputs.value }}"
           TAG="v${VERSION}"
@@ -99,7 +98,7 @@ jobs:
           git push origin "${TAG}"
 
       - name: Create GitHub release
-        if: ${{ !inputs.dry_run }}
+        if: ${{ inputs.dry_run != 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.value }}
