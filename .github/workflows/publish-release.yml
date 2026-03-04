@@ -8,8 +8,8 @@ on:
         required: false
         default: 'master'
       dry_run:
-        description: 'If true, validate and package only (no publish)'
-        required: true
+        description: 'Set to true to validate/package only (no publish)'
+        required: false
         default: 'true'
       confirm:
         description: 'Set to PUBLISH to allow non-dry-run publishing'
@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event.inputs.ref }}
           fetch-depth: 0
 
       - name: Setup Bun
@@ -48,58 +48,55 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Validate release quality gates
-        run: |
-          bun run verify:release
+        run: bun run verify:release
 
-      - name: Verify release tag is not published yet
+      - name: Capture release metadata
+        id: meta
         run: |
           VERSION="$(node -p "require('./package.json').version")"
           TAG="v${VERSION}"
-          if git rev-parse "${TAG}" >/dev/null 2>&1; then
-            echo "Release tag ${TAG} already exists."
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify release tag is not published yet
+        run: |
+          if git rev-parse "${{ steps.meta.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Release tag ${{ steps.meta.outputs.tag }} already exists."
             exit 1
           fi
-
-      - name: Capture release version
-        id: version
-        run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Package
         run: node scripts/with-npm-version.mjs npm pack
 
       - name: Stop if dry-run
-        if: ${{ inputs.dry_run == 'true' }}
+        if: ${{ github.event.inputs.dry_run == 'true' }}
         run: echo "Dry run enabled: skipping publish."
 
       - name: Enforce explicit publish confirmation
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          if [ "${{ inputs.confirm }}" != "PUBLISH" ]; then
+          if [ "${{ github.event.inputs.confirm }}" != "PUBLISH" ]; then
             echo "Missing publish confirmation. Set confirm=PUBLISH."
             exit 1
           fi
 
       - name: Publish package
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: node scripts/with-npm-version.mjs npm publish --provenance --access public
 
       - name: Create and push release tag
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          VERSION="${{ steps.version.outputs.value }}"
-          TAG="v${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${TAG}" -m "release: ${TAG}"
-          git push origin "${TAG}"
+          git tag -a "${{ steps.meta.outputs.tag }}" -m "release: ${{ steps.meta.outputs.tag }}"
+          git push origin "${{ steps.meta.outputs.tag }}"
 
       - name: Create GitHub release
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.value }}
+          tag_name: ${{ steps.meta.outputs.tag }}
           generate_release_notes: true
