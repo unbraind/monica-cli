@@ -7,13 +7,9 @@ on:
         description: 'Git ref to publish'
         required: false
         default: 'master'
-      dry_run:
-        description: 'Set to true to validate/package only (no publish)'
-        required: false
-        default: 'true'
       confirm:
-        description: 'Set to PUBLISH to allow non-dry-run publishing'
-        required: false
+        description: 'Set to PUBLISH to allow publishing'
+        required: true
         default: ''
 
 permissions:
@@ -50,6 +46,13 @@ jobs:
       - name: Validate release quality gates
         run: bun run verify:release
 
+      - name: Enforce explicit publish confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "PUBLISH" ]; then
+            echo "Missing publish confirmation. Set confirm=PUBLISH."
+            exit 1
+          fi
+
       - name: Capture release metadata
         id: meta
         run: |
@@ -68,26 +71,12 @@ jobs:
       - name: Package
         run: node scripts/with-npm-version.mjs npm pack
 
-      - name: Stop if dry-run
-        if: ${{ github.event.inputs.dry_run == 'true' }}
-        run: echo "Dry run enabled: skipping publish."
-
-      - name: Enforce explicit publish confirmation
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: |
-          if [ "${{ github.event.inputs.confirm }}" != "PUBLISH" ]; then
-            echo "Missing publish confirmation. Set confirm=PUBLISH."
-            exit 1
-          fi
-
       - name: Publish package
-        if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: node scripts/with-npm-version.mjs npm publish --provenance --access public
 
       - name: Create and push release tag
-        if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -95,7 +84,6 @@ jobs:
           git push origin "${{ steps.meta.outputs.tag }}"
 
       - name: Create GitHub release
-        if: ${{ github.event.inputs.dry_run != 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
