@@ -29,8 +29,8 @@
     "smoke:bunx": "node scripts/smoke-bunx.mjs",
     "audit:history": "node scripts/scan-history-secrets.mjs",
     "audit:version-history": "node scripts/audit-version-history.mjs",
-    "verify:release": "bun run version:check && bun run typecheck && bun run build && bun test && bun run smoke:npx && bun run smoke:bunx && bun run audit:history && bun run audit:version-history",
-    "prepublishOnly": "bun run version:check && bun run clean && bun run build && bun test && bun run smoke:npx && bun run smoke:bunx",
+    "verify:release": "bun run version:check && bun run typecheck && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx && bun run audit:history && bun run audit:version-history",
+    "prepublishOnly": "bun run version:check && bun run clean && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx",
     "release": "bun run verify:release",
     "version:check:format": "node scripts/set-version.mjs --format-only"
   },
