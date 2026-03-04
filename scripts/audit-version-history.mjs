@@ -24,7 +24,7 @@ function readVersionAtCommit(commit) {
 }
 
 function main() {
-  const commits = readLines('git rev-list --reverse --all');
+  const commits = readLines('git rev-list --reverse HEAD');
   const findings = [];
   let checkedCommits = 0;
 
