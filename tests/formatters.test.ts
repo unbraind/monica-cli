@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import {
   formatToon,
@@ -16,6 +16,11 @@ import {
   TaskFields,
 } from '../src/formatters/toon';
 import type { PaginatedResponse, Contact } from '../src/types';
+import { resetRuntimeFieldSelection, setRuntimeFieldSelection } from '../src/formatters/runtime-fields';
+
+afterEach(() => {
+  resetRuntimeFieldSelection();
+});
 
 describe('formatToon', () => {
   it('formats null as null', () => {
@@ -131,6 +136,76 @@ describe('formatOutput', () => {
     const result = formatOutput({ id: 1 }, 'yml');
     expect(result).toContain('id: 1');
   });
+
+  it('applies runtime field selection override to json output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'json');
+    expect(JSON.parse(result)).toEqual({ id: 1 });
+  });
+
+  it('applies runtime field selection override to yaml output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'yaml');
+    expect(result).toContain('id: 1');
+    expect(result).not.toContain('name:');
+  });
+
+  it('applies runtime field selection override to table output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'table');
+    expect(result).toContain('id');
+    expect(result).toContain('1');
+    expect(result).not.toContain('name');
+    expect(result).not.toContain('Test');
+  });
+
+  it('applies runtime field selection override to markdown output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'md');
+    expect(result).toContain('**id**');
+    expect(result).toContain('1');
+    expect(result).not.toContain('**name**');
+    expect(result).not.toContain('Test');
+  });
+
+  it('applies runtime field selection override to toon output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'toon');
+    expect(result).toContain('id: 1');
+    expect(result).not.toContain('name');
+    expect(result).not.toContain('Test');
+  });
+
+  it('gives runtime field selection precedence over explicit formatter fields', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test', email: 'test@example.com' }, 'json', { fields: ['name', 'email'] });
+    expect(JSON.parse(result)).toEqual({ id: 1 });
+  });
+
+  it('filters arrays of objects when runtime fields are set', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput([{ id: 1, name: 'First' }, { id: 2, name: 'Second' }], 'json');
+    expect(JSON.parse(result)).toEqual([{ id: 1 }, { id: 2 }]);
+  });
+
+  it('does not modify arrays of primitives when runtime fields are set', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput([1, 2, 3], 'json');
+    expect(JSON.parse(result)).toEqual([1, 2, 3]);
+  });
+
+  it('silently omits missing keys from runtime field selection', () => {
+    setRuntimeFieldSelection(['id', 'missing']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'json');
+    expect(JSON.parse(result)).toEqual({ id: 1 });
+  });
+
+  it('clears runtime field selection via reset helper', () => {
+    setRuntimeFieldSelection(['id']);
+    resetRuntimeFieldSelection();
+    const result = formatOutput({ id: 1, name: 'Test' }, 'json');
+    expect(JSON.parse(result)).toEqual({ id: 1, name: 'Test' });
+  });
 });
 
 describe('formatPaginatedResponse', () => {
@@ -167,6 +242,77 @@ describe('formatPaginatedResponse', () => {
     expect(result).toContain('meta:');
   });
 
+  it('applies runtime field selection override to paginated json output', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+    const result = formatPaginatedResponse(response, 'json');
+    expect(JSON.parse(result)).toEqual({
+      ...response,
+      data: [{ id: 7 }],
+    });
+  });
+
+  it('applies runtime field selection override to paginated yaml output and preserves metadata', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+    const result = formatPaginatedResponse(response, 'yaml');
+    const parsed = parseYaml(result) as PaginatedResponse<{ id: number }>;
+    expect(parsed.meta.current_page).toBe(1);
+    expect(parsed.meta.total).toBe(1);
+    expect(parsed.data).toEqual([{ id: 7 }]);
+  });
+
+  it('applies runtime field selection override to paginated markdown output', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+    const result = formatPaginatedResponse(response, 'md');
+    expect(result).toContain('**Page 1/1** (1 total)');
+    expect(result).toContain('| id |');
+    expect(result).not.toContain('first_name');
+    expect(result).not.toContain('Raw');
+  });
+
+  it('applies runtime field selection override to paginated toon output', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+    const result = formatPaginatedResponse(response, 'toon');
+    expect(result).toContain('1/1');
+    expect(result).toContain('id:7');
+    expect(result).not.toContain('first_name');
+    expect(result).not.toContain('Raw');
+  });
+
+  it('applies runtime field selection override to paginated table output', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+    const result = formatPaginatedResponse(response, 'table');
+    expect(result).toContain('1/1');
+    expect(result).toContain('\nid');
+    expect(result).toContain('\n7');
+    expect(result).not.toContain('first_name');
+    expect(result).not.toContain('Raw');
+  });
+
   it('formats paginated response as raw JSON data when raw is true', () => {
     const response: PaginatedResponse<Contact> = {
       data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
@@ -177,6 +323,19 @@ describe('formatPaginatedResponse', () => {
     const result = formatPaginatedResponse(response, 'toon', undefined, true);
 
     expect(JSON.parse(result)).toEqual(response.data);
+  });
+
+  it('applies runtime field selection when raw output is requested', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+
+    const result = formatPaginatedResponse(response, 'json', undefined, true);
+
+    expect(JSON.parse(result)).toEqual([{ id: 7 }]);
   });
 });
 

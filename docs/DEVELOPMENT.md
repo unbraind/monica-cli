@@ -52,10 +52,27 @@ MONICA_API_KEY=your-jwt-token
 | `bun run test:watch` | Watch mode for tests |
 | `bun run test:coverage` | Run tests with coverage |
 | `bun run typecheck` | Type check without emitting |
+| `bun run lint` | Run baseline ESLint checks on `src/**/*.ts` |
+| `bun run lint:strict` | Run stricter ESLint checks on the hardened module set |
 | `bun run smoke:npx` | Verify packed artifact runs with npx |
 | `bun run smoke:bunx` | Verify packed artifact runs with bunx |
 | `bun run audit:history` | Scan all git commits for likely leaked secrets |
 | `bun run verify:release` | Run the full release quality gate |
+
+## Incremental Lint Strictness
+
+Linting is staged:
+
+- Baseline rules run on all `src/**/*.ts` files.
+- Stricter rules are enforced only for a curated module set in [`eslint.config.cjs`](../eslint.config.cjs) (`STRICT_MODULES`).
+Current strict set includes:
+`src/program.ts`, `src/commands/global-options.ts`, `src/commands/config*.ts`, `src/formatters/toon.ts`, `src/formatters/runtime-fields.ts`.
+
+To tighten rules gradually:
+
+1. Pick one module (or a small group) and make it pass `bun run lint:strict`.
+2. Add that module path to `STRICT_MODULES`.
+3. Keep CI green via `bun run lint` (already part of `verify:release` and CI workflows).
 
 ## Project Structure
 

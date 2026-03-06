@@ -11,6 +11,7 @@ import type {
 } from '../types';
 import { getDefaultFields } from './helpers';
 import { formatMarkdown } from './markdown';
+import { getRuntimeFieldSelection } from './runtime-fields';
 import { formatYaml } from './yaml';
 
 export { formatMarkdown, formatYaml };
@@ -31,19 +32,55 @@ export function formatOutput<T>(
   options?: { fields?: string[] }
 ): string {
   const resolved = resolveOutputFormat(format);
+  const fields = resolveFieldsOption(options?.fields);
+  const filteredData = filterDataByFields(data, fields);
   switch (resolved) {
     case 'json':
-      return JSON.stringify(data, null, 2);
+      return JSON.stringify(filteredData, null, 2);
     case 'yaml':
-      return formatYaml(data);
+      return formatYaml(filteredData);
     case 'table':
-      return formatTable(data, options?.fields);
+      return formatTable(filteredData, fields);
     case 'md':
-      return formatMarkdown(data, options?.fields);
+      return formatMarkdown(filteredData, fields);
     case 'toon':
     default:
-      return formatToon(data, options?.fields);
+      return formatToon(filteredData, fields);
   }
+}
+
+function resolveFieldsOption(explicit?: string[]): string[] | undefined {
+  const runtime = getRuntimeFieldSelection();
+  return runtime && runtime.length > 0 ? runtime : explicit;
+}
+
+function filterDataByFields<T>(data: T, fields?: string[]): T {
+  if (!fields || fields.length === 0) return data;
+
+  if (Array.isArray(data)) {
+    return data.map((item) => {
+      if (typeof item !== 'object' || item === null || Array.isArray(item)) {
+        return item;
+      }
+      return pickFields(item as Record<string, unknown>, fields);
+    }) as T;
+  }
+
+  if (typeof data === 'object' && data !== null) {
+    return pickFields(data as Record<string, unknown>, fields) as T;
+  }
+
+  return data;
+}
+
+function pickFields(record: Record<string, unknown>, fields: string[]): Record<string, unknown> {
+  const selected: Record<string, unknown> = {};
+  for (const field of fields) {
+    if (Object.prototype.hasOwnProperty.call(record, field)) {
+      selected[field] = record[field];
+    }
+  }
+  return selected;
 }
 
 export function formatToon<T>(data: T, fields?: string[]): string {
@@ -193,17 +230,21 @@ export function formatPaginatedResponse<T>(
   fields?: string[],
   raw?: boolean
 ): string {
+  const effectiveFields = resolveFieldsOption(fields);
+  const filteredData = filterDataByFields(response.data, effectiveFields);
+
   if (raw || process.argv.includes('--raw')) {
-    return JSON.stringify(response.data, null, 2);
+    return JSON.stringify(filteredData, null, 2);
   }
 
+  const filteredResponse = { ...response, data: filteredData };
   const resolved = resolveOutputFormat(format);
-  if (resolved === 'json') return JSON.stringify(response, null, 2);
-  if (resolved === 'yaml') return formatYaml(response);
+  if (resolved === 'json') return JSON.stringify(filteredResponse, null, 2);
+  if (resolved === 'yaml') return formatYaml(filteredResponse);
   if (resolved === 'md') {
     if (response.meta.total === 0) return '*No results*';
     const info = `**Page ${response.meta.current_page}/${response.meta.last_page}** (${response.meta.total} total)`;
-    return `${info}\n\n${formatMarkdown(response.data, fields)}`;
+    return `${info}\n\n${formatMarkdown(filteredData, effectiveFields)}`;
   }
 
   if (response.meta.total === 0) return 'No results';
@@ -213,8 +254,8 @@ export function formatPaginatedResponse<T>(
     : `${response.meta.current_page}/${response.meta.last_page}`;
 
   const dataStr = resolved === 'toon'
-    ? formatToon(response.data, fields)
-    : formatTable(response.data, fields);
+    ? formatToon(filteredData, effectiveFields)
+    : formatTable(filteredData, effectiveFields);
 
   return `${info}\n${dataStr}`;
 }

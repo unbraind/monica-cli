@@ -14,6 +14,7 @@ import {
 } from './config-output';
 import { maybePromptGitHubStar } from './github-star';
 import { runConfigDoctor } from './config-doctor';
+import { parseOutputFormat } from './global-options';
 import {
   loadSettings,
   saveSettings,
@@ -273,7 +274,7 @@ async function updateConfig(options: ConfigSetOptions, command: Command): Promis
     if (options.apiKey) newConfig.apiKey = options.apiKey.trim();
     if (options.userEmail) newConfig.userEmail = options.userEmail.trim();
     if (options.userPassword) newConfig.userPassword = options.userPassword;
-    if (options.defaultFormat) newConfig.defaultFormat = fmt.resolveOutputFormat(options.defaultFormat.trim());
+    if (options.defaultFormat) newConfig.defaultFormat = parseOutputFormat(options.defaultFormat.trim());
     if (options.readOnly && options.readWrite) throw new Error('Cannot use both --read-only and --read-write');
     if (options.readOnly) newConfig.readOnlyMode = true;
     if (options.readWrite) newConfig.readOnlyMode = false;

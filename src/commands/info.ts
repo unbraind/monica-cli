@@ -18,6 +18,15 @@ export function createInfoCommand(): Command {
   const cmd = new Command('info')
     .description('Get information about the Monica instance')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon');
+
+  cmd.action(function (this: Command): never {
+    const subcommands = this.commands
+      .map((subcommand) => subcommand.name())
+      .filter((name) => name !== 'help')
+      .join(', ');
+    this.error(`"info" requires a subcommand. Use: ${subcommands}`, { exitCode: 1 });
+  });
+
   cmd.addCommand(createInfoInstanceProfileSubcommand());
 
   cmd

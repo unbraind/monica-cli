@@ -43,16 +43,24 @@ import {
   createAuditCommand,
   createApiResearchCommand,
 } from './commands';
-import { applyRequestTimeoutOverride, parseRequestTimeoutMs } from './commands/global-options';
+import {
+  applyRequestTimeoutOverride,
+  parseFieldsOption,
+  parseOutputFormat,
+  parsePositiveInteger,
+  parseRequestTimeoutMs,
+} from './commands/global-options';
 import { addGlobalHelpFooters } from './commands/help-ux';
 import { resolveOutputFormat } from './formatters';
+import { resetRuntimeFieldSelection, setRuntimeFieldSelection } from './formatters/runtime-fields';
+import type { OutputFormat } from './types';
 import { loadSettings } from './utils/settings';
 
 interface PackageJsonVersion {
   version: string;
 }
 
-function applyFormatToCommandChain(start: Command, format: 'json' | 'yaml' | 'table' | 'md'): void {
+function applyFormatToCommandChain(start: Command, format: OutputFormat): void {
   let current: Command | null = start;
   while (current) {
     current.setOptionValue('format', format);
@@ -85,6 +93,24 @@ function hasExplicitFormatFlag(argv: string[]): boolean {
     '--markdown',
   ]);
   return argv.some((arg) => flags.has(arg));
+}
+
+function applyGlobalArgParsers(root: Command): void {
+  const stack: Command[] = [root];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) continue;
+    for (const option of current.options) {
+      if (option.long === '--format') {
+        option.argParser(parseOutputFormat);
+      } else if (option.long === '--page' || option.long === '--limit') {
+        option.argParser(parsePositiveInteger);
+      } else if (option.long === '--fields') {
+        option.argParser(parseFieldsOption);
+      }
+    }
+    stack.push(...current.commands);
+  }
 }
 
 function loadPackageVersion(): string {
@@ -127,6 +153,11 @@ export function createProgram(argv: string[] = process.argv): Command {
         applyFormatToCommandChain(target, defaultFormat);
       }
       const opts = (target as Command & { optsWithGlobals?: () => Record<string, unknown> }).optsWithGlobals?.() || target.opts();
+      resetRuntimeFieldSelection();
+      setRuntimeFieldSelection(opts.fields as string[] | undefined);
+      if (hasExplicitFormatFlag(argv) && typeof opts.format === 'string') {
+        applyFormatToCommandChain(target, opts.format as OutputFormat);
+      }
       applyRequestTimeoutOverride(opts.requestTimeoutMs as number | undefined);
       if (opts.raw) {
         target.setOptionValue('raw', true);
@@ -193,6 +224,7 @@ export function createProgram(argv: string[] = process.argv): Command {
   program.addCommand(createAuditCommand());
   program.addCommand(createApiResearchCommand());
 
+  applyGlobalArgParsers(program);
   addGlobalHelpFooters(program);
   return program;
 }
