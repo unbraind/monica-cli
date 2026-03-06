@@ -1,7 +1,7 @@
 import { createInterface } from 'readline';
 import { stdin as input, stdout as output } from 'process';
-import type { MonicaConfig, OutputFormat } from '../types';
-import { resolveOutputFormat } from '../formatters';
+import type { MonicaConfig } from '../types';
+import { parseOutputFormat } from './global-options';
 
 export interface ConfigSetupOptions {
   apiUrl?: string;
@@ -42,10 +42,6 @@ function readSetupEnvDefaults(): Partial<MonicaConfig> {
     defaultFormat: defaultFormat ? parseOutputFormat(defaultFormat) : undefined,
     readOnlyMode,
   };
-}
-
-function parseOutputFormat(value: string): OutputFormat {
-  return resolveOutputFormat(value);
 }
 
 function validateApiKey(apiKey: string): void {

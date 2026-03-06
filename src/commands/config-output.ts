@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import type { Command } from 'commander';
 import type { MonicaConfig, OutputFormat } from '../types';
 import { GLOBAL_SETTINGS_PATH, getSettingsStats, maskApiKey } from '../utils/settings';
 import { resolveCommandOutputFormat } from './output-format';

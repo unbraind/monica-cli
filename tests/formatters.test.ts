@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import {
   formatToon,
@@ -16,6 +16,11 @@ import {
   TaskFields,
 } from '../src/formatters/toon';
 import type { PaginatedResponse, Contact } from '../src/types';
+import { setRuntimeFieldSelection } from '../src/formatters/runtime-fields';
+
+afterEach(() => {
+  setRuntimeFieldSelection(undefined);
+});
 
 describe('formatToon', () => {
   it('formats null as null', () => {
@@ -131,6 +136,19 @@ describe('formatOutput', () => {
     const result = formatOutput({ id: 1 }, 'yml');
     expect(result).toContain('id: 1');
   });
+
+  it('applies runtime field selection override to json output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'json');
+    expect(JSON.parse(result)).toEqual({ id: 1 });
+  });
+
+  it('applies runtime field selection override to yaml output', () => {
+    setRuntimeFieldSelection(['id']);
+    const result = formatOutput({ id: 1, name: 'Test' }, 'yaml');
+    expect(result).toContain('id: 1');
+    expect(result).not.toContain('name:');
+  });
 });
 
 describe('formatPaginatedResponse', () => {
@@ -165,6 +183,20 @@ describe('formatPaginatedResponse', () => {
     expect(result).toContain('data:');
     expect(result).toContain('[]');
     expect(result).toContain('meta:');
+  });
+
+  it('applies runtime field selection override to paginated json output', () => {
+    setRuntimeFieldSelection(['id']);
+    const response: PaginatedResponse<Contact> = {
+      data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
+      links: { first: 'url', last: 'url', prev: null, next: null },
+      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+    };
+    const result = formatPaginatedResponse(response, 'json');
+    expect(JSON.parse(result)).toEqual({
+      ...response,
+      data: [{ id: 7 }],
+    });
   });
 
   it('formats paginated response as raw JSON data when raw is true', () => {
