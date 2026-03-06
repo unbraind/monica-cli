@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createInfoCommand } from '../src/commands/info';
 
 describe('info command UX', () => {
-  it('requires a subcommand and prints a clear error', async () => {
+  it('requires a subcommand and prints actionable guidance', async () => {
     const cmd = createInfoCommand();
     cmd.exitOverride();
 
@@ -20,8 +20,12 @@ describe('info command UX', () => {
     });
 
     expect(stderr).toContain('"info" requires a subcommand');
-    expect(stderr).toContain('Use:');
+    expect(stderr).toContain('Available subcommands:');
     expect(stderr).toContain('me');
     expect(stderr).toContain('instance-profile');
+    expect(stderr).toContain('Get current user info');
+    expect(stderr).toContain('deterministic agent planning');
+    expect(stderr).toContain('Example:');
+    expect(stderr).toContain('monica info me');
   });
 });

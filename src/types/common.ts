@@ -9,6 +9,7 @@ export interface MonicaConfig {
   readOnly?: boolean;
   readOnlyMode?: boolean;
   githubRepoStarred?: boolean;
+  githubStarPrompted?: boolean;
   defaultFormat?: OutputFormat;
 }
 

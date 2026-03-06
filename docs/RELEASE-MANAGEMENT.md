@@ -8,7 +8,7 @@ This repository uses manual, safety-gated release management with Bun as the pri
 - `Security`: gitleaks secret scan, local history secret scan, dependency review on PRs, CodeQL on push/schedule, npm audit on push/schedule
 - `Release Draft`: continuously updates draft release notes
 - `Prepare Release`: validates and packages without publishing; fails if target release tag already exists
-- `Publish Release`: manual npm publish workflow (environment-gated) with explicit confirmation, npm provenance, tag creation, and GitHub release publication
+- `Publish Release`: manual npm publish workflow (environment-gated) with explicit confirmation, automatic fast-forward sync of the selected release ref into `master`, npm provenance, tag creation, and GitHub release publication
 
 ## Required repository settings
 
@@ -24,13 +24,13 @@ Configure branch protection for `master`:
 
 ## Release checklist
 
-1. Ensure release PR is merged to `master`
-2. Run `Prepare Release` workflow on `master`
+1. Ensure release branch/ref is ready (that is, `master` can be fast-forwarded to it)
+2. Run `Prepare Release` workflow on your intended release ref
 3. Review generated `.tgz` and `RELEASE_PREP.md` artifact
 4. Trigger `Publish Release` with:
-   - `dry_run=false`
+   - `ref=<release-ref>` (for example `master` or a release branch tip)
    - `confirm=PUBLISH`
-5. Verify npm package metadata, pushed tag, and generated GitHub release metadata
+5. Verify npm package metadata, `master` sync, pushed tag, and generated GitHub release metadata
 
 ## Required secrets
 

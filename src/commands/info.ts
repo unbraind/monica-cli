@@ -14,17 +14,37 @@ function getActionCommand(command?: Command): Command {
   return command || new Command();
 }
 
+function buildMissingSubcommandMessage(command: Command): string {
+  const subcommands = command.commands
+    .filter((subcommand) => subcommand.name() !== 'help')
+    .map((subcommand) => ({
+      name: subcommand.name(),
+      description: subcommand.description(),
+    }));
+  const longestName = Math.max(...subcommands.map((subcommand) => subcommand.name.length), 0);
+  const formattedSubcommands = subcommands.map((subcommand) => {
+    const paddedName = subcommand.name.padEnd(longestName, ' ');
+    return `  ${paddedName}  ${subcommand.description}`;
+  });
+
+  return [
+    '"info" requires a subcommand.',
+    '',
+    'Available subcommands:',
+    ...formattedSubcommands,
+    '',
+    'Example:',
+    '  monica info me',
+  ].join('\n');
+}
+
 export function createInfoCommand(): Command {
   const cmd = new Command('info')
     .description('Get information about the Monica instance')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon');
 
   cmd.action(function (this: Command): never {
-    const subcommands = this.commands
-      .map((subcommand) => subcommand.name())
-      .filter((name) => name !== 'help')
-      .join(', ');
-    this.error(`"info" requires a subcommand. Use: ${subcommands}`, { exitCode: 1 });
+    this.error(buildMissingSubcommandMessage(this), { exitCode: 1 });
   });
 
   cmd.addCommand(createInfoInstanceProfileSubcommand());
