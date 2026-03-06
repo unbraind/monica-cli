@@ -9,15 +9,19 @@ version-resolver:
       bump: major
     - label: 'feature'
       bump: minor
+    - label: 'enhancement'
+      bump: minor
     - label: 'fix'
+      bump: patch
+    - label: 'bug'
       bump: patch
 categories:
   - title: 'Features'
-    labels: ['feature']
+    labels: ['feature', 'enhancement']
   - title: 'Fixes'
-    labels: ['fix']
+    labels: ['fix', 'bug']
   - title: 'Documentation'
-    labels: ['docs']
+    labels: ['docs', 'documentation']
   - title: 'Maintenance'
     labels: ['chore', 'refactor', 'test']
 exclude-labels:
