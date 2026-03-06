@@ -16,6 +16,10 @@ permissions:
   contents: write
   id-token: write
 
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -43,15 +47,37 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Validate release quality gates
-        run: bun run verify:release
-
       - name: Enforce explicit publish confirmation
         run: |
           if [ "${{ github.event.inputs.confirm }}" != "PUBLISH" ]; then
             echo "Missing publish confirmation. Set confirm=PUBLISH."
             exit 1
           fi
+
+      - name: Synchronize release ref into master
+        env:
+          SOURCE_REF: ${{ github.event.inputs.ref || 'master' }}
+        run: |
+          set -euo pipefail
+
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          echo "Resolved source ref: ${SOURCE_REF}"
+          echo "Source commit: ${SOURCE_SHA}"
+
+          git fetch origin --prune --tags
+          git checkout -B master origin/master
+          MASTER_SHA="$(git rev-parse HEAD)"
+
+          if [ "${MASTER_SHA}" = "${SOURCE_SHA}" ]; then
+            echo "Source commit is already on master."
+          else
+            git merge --ff-only "${SOURCE_SHA}"
+            git push origin HEAD:master
+            echo "Fast-forwarded and pushed master to $(git rev-parse HEAD)."
+          fi
+
+      - name: Validate release quality gates
+        run: bun run verify:release
 
       - name: Capture release metadata
         id: meta
