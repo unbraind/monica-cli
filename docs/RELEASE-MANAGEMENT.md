@@ -24,7 +24,7 @@ Configure branch protection for `master`:
 
 ## Release checklist
 
-1. Ensure release branch/ref is ready and fast-forwardable from `master`
+1. Ensure release branch/ref is ready (that is, `master` can be fast-forwarded to it)
 2. Run `Prepare Release` workflow on your intended release ref
 3. Review generated `.tgz` and `RELEASE_PREP.md` artifact
 4. Trigger `Publish Release` with:

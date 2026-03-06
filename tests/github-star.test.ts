@@ -192,6 +192,8 @@ describe('github star startup hook', () => {
     await maybePromptGitHubStarOnCliRun(['node', 'monica', '--help'], deps);
     await maybePromptGitHubStarOnCliRun(['node', 'monica', '--version'], deps);
     await maybePromptGitHubStarOnCliRun(['node', 'monica', 'info', '--help'], deps);
+    await maybePromptGitHubStarOnCliRun(['node', 'monica', '-h'], deps);
+    await maybePromptGitHubStarOnCliRun(['node', 'monica', '-V'], deps);
 
     expect(runGh).not.toHaveBeenCalled();
     expect(saveSettings).not.toHaveBeenCalled();

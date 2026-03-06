@@ -54,17 +54,30 @@ jobs:
             exit 1
           fi
 
+      - name: Validate release quality gates
+        run: bun run verify:release
+
       - name: Synchronize release ref into master
         env:
           SOURCE_REF: ${{ github.event.inputs.ref || 'master' }}
         run: |
           set -euo pipefail
 
+          git fetch origin --prune --tags
+          if ! git rev-parse --verify "${SOURCE_REF}^{commit}" >/dev/null 2>&1; then
+            if git rev-parse --verify "origin/${SOURCE_REF}^{commit}" >/dev/null 2>&1; then
+              SOURCE_REF="origin/${SOURCE_REF}"
+            else
+              echo "Could not resolve ref: ${SOURCE_REF}"
+              exit 1
+            fi
+          fi
+
+          git checkout --detach "${SOURCE_REF}"
           SOURCE_SHA="$(git rev-parse HEAD)"
           echo "Resolved source ref: ${SOURCE_REF}"
           echo "Source commit: ${SOURCE_SHA}"
 
-          git fetch origin --prune --tags
           git checkout -B master origin/master
           MASTER_SHA="$(git rev-parse HEAD)"
 
@@ -75,9 +88,6 @@ jobs:
             git push origin HEAD:master
             echo "Fast-forwarded and pushed master to $(git rev-parse HEAD)."
           fi
-
-      - name: Validate release quality gates
-        run: bun run verify:release
 
       - name: Capture release metadata
         id: meta
