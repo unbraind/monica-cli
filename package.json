@@ -1,6 +1,6 @@
 {
   "name": "monica-cli",
-  "version": "2026.3.6",
+  "version": "2026.3.6-2",
   "description": "CLI interface for Monica CRM API - optimized for agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

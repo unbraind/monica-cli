@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 - No changes yet.
 
+## [2026.3.6-2] - 2026-03-06
+
+### Changed
+
+- Improved `monica info` missing-subcommand UX with structured guidance, subcommand descriptions, and an example invocation.
+
+### Tests
+
+- Expanded coverage for:
+  - `info` missing-subcommand guidance output contract
+  - startup prompt-state persistence and CLI skip guards
+  - optional prompt fallback/accept/decline/failure paths
+
 ## [2026.3.6] - 2026-03-06
 
 ### Added
