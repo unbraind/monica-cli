@@ -36,6 +36,7 @@ All notable changes to this project will be documented in this file.
   - paginated JSON/YAML output payloads
 - Hardened runtime field-selection lifecycle to reset global override state at command execution boundaries, preventing cross-command leakage in long-lived processes.
 - Simplified global parser application by centralizing `--fields` parsing and removing redundant `--format` re-parse in pre-action handling.
+- Updated strict lint config to permit separate value/type imports while still enforcing duplicate import hygiene.
 
 ### Fixed
 

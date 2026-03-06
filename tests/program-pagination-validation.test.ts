@@ -12,35 +12,23 @@ describe('program pagination validation', () => {
     const program = createProgram(['node', 'monica', 'contacts', 'list', '--page', 'abc']);
     applyExitOverrideRecursive(program);
 
-    let error: unknown;
-    try {
-      await program.parseAsync(['contacts', 'list', '--page', 'abc'], { from: 'user' });
-    } catch (caught) {
-      error = caught;
-    }
-    expect(error).toMatchObject({
+    const parsePromise = program.parseAsync(['contacts', 'list', '--page', 'abc'], { from: 'user' });
+    await expect(parsePromise).rejects.toMatchObject({
       code: 'commander.invalidArgument',
       exitCode: 1,
     });
-
-    expect((error as Error).message).toContain('Invalid number "abc"');
+    await expect(parsePromise).rejects.toThrow('Invalid number "abc"');
   });
 
   it('rejects non-positive --limit values', async () => {
     const program = createProgram(['node', 'monica', 'contacts', 'list', '--limit', '0']);
     applyExitOverrideRecursive(program);
 
-    let error: unknown;
-    try {
-      await program.parseAsync(['contacts', 'list', '--limit', '0'], { from: 'user' });
-    } catch (caught) {
-      error = caught;
-    }
-    expect(error).toMatchObject({
+    const parsePromise = program.parseAsync(['contacts', 'list', '--limit', '0'], { from: 'user' });
+    await expect(parsePromise).rejects.toMatchObject({
       code: 'commander.invalidArgument',
       exitCode: 1,
     });
-
-    expect((error as Error).message).toContain('Invalid number "0"');
+    await expect(parsePromise).rejects.toThrow('Invalid number "0"');
   });
 });

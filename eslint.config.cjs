@@ -53,7 +53,7 @@ module.exports = [
       '@typescript-eslint/no-shadow': 'error',
       '@typescript-eslint/no-redeclare': 'error',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
       'no-empty': 'error',
       'no-var': 'error',
       'prefer-const': 'error',
