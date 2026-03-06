@@ -34,6 +34,8 @@ All notable changes to this project will be documented in this file.
   - list outputs
   - get outputs
   - paginated JSON/YAML output payloads
+- Hardened runtime field-selection lifecycle to reset global override state at command execution boundaries, preventing cross-command leakage in long-lived processes.
+- Simplified global parser application by centralizing `--fields` parsing and removing redundant `--format` re-parse in pre-action handling.
 
 ### Fixed
 
@@ -49,3 +51,5 @@ All notable changes to this project will be documented in this file.
   - invalid `--format` handling
   - invalid `--page` / `--limit` handling
   - `--fields` parsing and formatter field filtering behavior
+  - runtime field filtering across `json`, `yaml`, `table`, `md`, and `toon`
+  - paginated formatter filtering parity (including `--raw` behavior with runtime fields)

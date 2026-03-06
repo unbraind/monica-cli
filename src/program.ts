@@ -52,7 +52,7 @@ import {
 } from './commands/global-options';
 import { addGlobalHelpFooters } from './commands/help-ux';
 import { resolveOutputFormat } from './formatters';
-import { setRuntimeFieldSelection } from './formatters/runtime-fields';
+import { resetRuntimeFieldSelection, setRuntimeFieldSelection } from './formatters/runtime-fields';
 import type { OutputFormat } from './types';
 import { loadSettings } from './utils/settings';
 
@@ -145,7 +145,7 @@ export function createProgram(argv: string[] = process.argv): Command {
     .option('--raw', 'Output raw JSON data only (no pagination info)')
     .option('-v, --verbose', 'Enable verbose output')
     .option('-q, --quiet', 'Suppress non-essential output (dotenv logs)')
-    .option('--fields <fields>', 'Comma-separated list of fields to display', parseFieldsOption)
+    .option('--fields <fields>', 'Comma-separated list of fields to display')
     .option('--request-timeout-ms <ms>', 'Request timeout in milliseconds (overrides MONICA_REQUEST_TIMEOUT_MS)', parseRequestTimeoutMs)
     .hook('preAction', (thisCommand: Command, actionCommand: Command) => {
       const target = actionCommand || thisCommand;
@@ -153,9 +153,10 @@ export function createProgram(argv: string[] = process.argv): Command {
         applyFormatToCommandChain(target, defaultFormat);
       }
       const opts = (target as Command & { optsWithGlobals?: () => Record<string, unknown> }).optsWithGlobals?.() || target.opts();
+      resetRuntimeFieldSelection();
       setRuntimeFieldSelection(opts.fields as string[] | undefined);
       if (hasExplicitFormatFlag(argv) && typeof opts.format === 'string') {
-        applyFormatToCommandChain(target, parseOutputFormat(opts.format));
+        applyFormatToCommandChain(target, opts.format as OutputFormat);
       }
       applyRequestTimeoutOverride(opts.requestTimeoutMs as number | undefined);
       if (opts.raw) {

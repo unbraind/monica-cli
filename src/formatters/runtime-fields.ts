@@ -7,3 +7,7 @@ export function setRuntimeFieldSelection(fields?: string[]): void {
 export function getRuntimeFieldSelection(): string[] | undefined {
   return runtimeFieldSelection;
 }
+
+export function resetRuntimeFieldSelection(): void {
+  runtimeFieldSelection = undefined;
+}
