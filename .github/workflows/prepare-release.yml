@@ -64,7 +64,7 @@ jobs:
           } > RELEASE_PREP.md
 
       - name: Upload preparation artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-prep-${{ github.run_id }}
           path: |
