@@ -55,7 +55,7 @@
   },
   "homepage": "https://github.com/unbraind/monica-cli#readme",
   "dependencies": {
-    "commander": "^11.1.0",
+    "commander": "^14.0.3",
     "dotenv": "^17.3.1",
     "yaml": "^2.8.2"
   },
