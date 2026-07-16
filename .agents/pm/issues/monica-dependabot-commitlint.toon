@@ -1,0 +1,46 @@
+id: monica-dependabot-commitlint
+title: Commit lint rejects generated Dependabot bodies
+description: Dependabot commit bodies contain long generated URLs that violate body-max-line-length and fail every dependency PR.
+type: Issue
+status: in_progress
+priority: 1
+tags[3]: ci,commitlint,dependabot
+created_at: "2026-07-16T16:58:08.932Z"
+updated_at: "2026-07-16T16:58:08.932Z"
+deadline: "2026-07-18T16:58:08.932Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 90
+acceptance_criteria: Dependabot commits pass; malformed Conventional Commit subjects still fail; policy is explicit in a committed config
+definition_of_ready: A failed Commit Message Lint log identifies body-max-line-length as the only violation.
+parent: monica-security-modernization
+reviewer: unbraind
+risk: medium
+confidence: 100
+sprint: 2026-07-security-modernization
+release: next
+reporter: Repository audit
+severity: medium
+environment: GitHub Actions pull_request commit-message job
+repro_steps: Inspect run 26767553085; generated Vitest URL exceeds 100 characters.
+expected_result: Bot dependency commits pass subject lint.
+actual_result: All generated update PRs fail body-max-line-length.
+affected_version: 2026.3.6-2
+component: ci-policy
+regression: false
+customer_impact: Automated maintenance is blocked by a formatting-only failure.
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-security-modernization,related,"2026-07-16T16:58:08.932Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:58:08.932Z",codex-root,The fix must not disable commit lint wholesale.
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:58:08.932Z",codex-root,Add an explicit commitlint config that disables body line length only.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:58:08.932Z",codex-root,Generated URLs are not meaningfully wrappable by Dependabot; subject convention is the valuable policy.
+files[1]{path,scope,note}:
+  .github/workflows/ci.yml,project,commit lint job
+tests[1]{command,scope,note}:
+  npx commitlint --from origin/master --to HEAD,project,commit subject policy
+docs[1]{path,scope,note}:
+  CONTRIBUTING.md,project,commit convention
+body: The commit message gate should retain Conventional Commit subject validation while allowing machine-generated dependency metadata and URLs in bodies.

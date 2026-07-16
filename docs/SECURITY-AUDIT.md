@@ -57,3 +57,13 @@ The payload includes:
 3. Run `monica --json audit` before `git commit`/`git push`.
 4. Run `bun run audit:history` before release candidates and after any history rewrite.
 5. In CI, use both gitleaks and `bun run audit:history`.
+
+## Credential File Guarantees
+
+On POSIX systems, every settings save repairs the settings directory to `0700`
+and the settings file to `0600`, including paths that already existed with more
+permissive modes. Windows relies on the platform ACL model.
+
+The CLI never prints raw API keys. Diagnostic output uses a one-way SHA-256
+fingerprint plus key length so operators can distinguish configured keys without
+recovering credential material.

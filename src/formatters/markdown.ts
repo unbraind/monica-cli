@@ -27,8 +27,10 @@ function formatMarkdownTable(items: unknown[], fields?: string[]): string {
 
 function formatMarkdownCell(value: unknown): string {
   if (value === null || value === undefined) return '';
-  if (typeof value === 'object') return JSON.stringify(value).substring(0, 40).replace(/\|/g, '\\|');
-  return String(value).substring(0, 60).replace(/\|/g, '\\|');
+  const cell = typeof value === 'object'
+    ? JSON.stringify(value).substring(0, 40)
+    : String(value).substring(0, 60);
+  return cell.replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 }
 
 function formatMarkdownObject(obj: Record<string, unknown>, fields?: string[]): string {

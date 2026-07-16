@@ -1,0 +1,269 @@
+id: monica-platform
+title: "Make monica-cli secure, dependable, and agent-ready"
+description: "Long-lived product program for a secure, maintained, well-tested Monica CRM CLI with durable project context."
+type: Epic
+status: open
+priority: 0
+tags[4]: agent-ux,product,reliability,security
+created_at: "2026-07-16T16:56:16.513Z"
+updated_at: "2026-07-16T17:09:53.540Z"
+deadline: "2027-07-16T16:56:16.513Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 9600
+acceptance_criteria: No open critical or high dependency vulnerabilities; supported dependencies and Actions stay current; required CI and security workflows pass; public commands remain documented and covered; tracker health remains valid
+definition_of_ready: Repository baseline and GitHub state are inventoried; changes have acceptance tests and rollback-aware scope.
+goal: trusted-monica-cli
+objective: secure-maintainable-agent-cli
+value: Reliable automation over personal CRM data
+impact: Reduces security exposure and maintenance drag while preserving predictable agent workflows
+outcome: A continuously healthy CLI with actionable project context and verified releases
+why_now: A critical Vitest advisory and a backlog of failing Dependabot upgrades require immediate consolidation
+reviewer: unbraind
+risk: high
+confidence: 90
+sprint: 2026-07-security-modernization
+release: next
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:56:16.513Z",codex-root,"GitHub inventory on 2026-07-16 found no ordinary issues, 13 open dependency PRs, one critical Dependabot alert, no secret alerts, and only dismissed CodeQL alerts."
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:56:16.513Z",codex-root,Authoritative tracker state is repository-local under .agents/pm and must only be changed through pm CLI.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:56:16.513Z",codex-root,"All dependency PR failures appear to share a repository gate or compatibility surface, so updates should be integrated and verified as one coherent modernization tranche."
+files[230]{path,scope,note}:
+  .env.example,project,public configuration example ownership
+  .github/dependabot.yml,project,repository automation configuration ownership
+  .github/release-drafter.yml,project,repository automation configuration ownership
+  .github/workflows/ci.yml,project,required CI contract
+  .github/workflows/prepare-release.yml,project,CI security and release automation ownership
+  .github/workflows/release-draft.yml,project,CI security and release automation ownership
+  .github/workflows/release-publish.yml,project,CI security and release automation ownership
+  .github/workflows/security.yml,project,CI security and release automation ownership
+  .gitignore,project,repository hygiene ownership
+  AGENTS.md,project,repository policy and public documentation ownership
+  bun.lock,project,authoritative dependency lock
+  CHANGELOG.md,project,repository policy and public documentation ownership
+  CODE_OF_CONDUCT.md,project,repository policy and public documentation ownership
+  commitlint.config.mjs,project,commit policy configuration ownership
+  CONTRIBUTING.md,project,repository policy and public documentation ownership
+  docs/api-reference.json,project,product documentation ownership
+  docs/API.md,project,product documentation ownership
+  docs/COMMANDS.md,project,product documentation ownership
+  docs/CONFIGURATION.md,project,product documentation ownership
+  docs/DEVELOPMENT.md,project,product documentation ownership
+  docs/FIRST-RELEASE-CHECKLIST.md,project,product documentation ownership
+  docs/INSTALLATION.md,project,product documentation ownership
+  docs/INSTANCE-COMPATIBILITY.md,project,product documentation ownership
+  docs/monica-api-reference.json,project,product documentation ownership
+  docs/OUTPUT-SCHEMAS.md,project,product documentation ownership
+  docs/README.md,project,product documentation ownership
+  docs/RELEASE-MANAGEMENT.md,project,product documentation ownership
+  docs/SECURITY-AUDIT.md,project,product documentation ownership
+  eslint.config.cjs,project,tooling configuration ownership
+  LICENSE,project,project license ownership
+  package.json,project,dependency and release contract
+  README.md,project,repository policy and public documentation ownership
+  scripts/audit-version-history.mjs,project,build release and audit tooling ownership
+  scripts/e2e-help.ts,project,build release and audit tooling ownership
+  scripts/e2e-output-validation.ts,project,build release and audit tooling ownership
+  scripts/e2e-readonly-commands.ts,project,build release and audit tooling ownership
+  scripts/e2e-readonly.ts,project,build release and audit tooling ownership
+  scripts/scan-history-secrets.mjs,project,build release and audit tooling ownership
+  scripts/set-version.mjs,project,build release and audit tooling ownership
+  scripts/smoke-bunx.mjs,project,build release and audit tooling ownership
+  scripts/smoke-npx.mjs,project,build release and audit tooling ownership
+  scripts/with-npm-version.mjs,project,build release and audit tooling ownership
+  SECURITY.md,project,repository policy and public documentation ownership
+  src/api/activities.ts,project,canonical product source ownership
+  src/api/addresses.ts,project,canonical product source ownership
+  src/api/audit-logs.ts,project,canonical product source ownership
+  src/api/calls.ts,project,canonical product source ownership
+  src/api/capabilities.ts,project,canonical product source ownership
+  src/api/client.ts,project,canonical product source ownership
+  src/api/companies.ts,project,canonical product source ownership
+  src/api/contacts.ts,project,canonical product source ownership
+  src/api/conversations.ts,project,canonical product source ownership
+  src/api/debts.ts,project,canonical product source ownership
+  src/api/documents.ts,project,canonical product source ownership
+  src/api/gifts.ts,project,canonical product source ownership
+  src/api/groups.ts,project,canonical product source ownership
+  src/api/index.ts,project,canonical product source ownership
+  src/api/journal.ts,project,canonical product source ownership
+  src/api/notes.ts,project,canonical product source ownership
+  src/api/occupations.ts,project,canonical product source ownership
+  src/api/pet-categories.ts,project,canonical product source ownership
+  src/api/pets.ts,project,canonical product source ownership
+  src/api/photos.ts,project,canonical product source ownership
+  src/api/reference.ts,project,canonical product source ownership
+  src/api/relationships.ts,project,canonical product source ownership
+  src/api/reminders.ts,project,canonical product source ownership
+  src/api/request-utils.ts,project,canonical product source ownership
+  src/api/tags.ts,project,canonical product source ownership
+  src/api/tasks.ts,project,canonical product source ownership
+  src/commands/activities.ts,project,canonical product source ownership
+  src/commands/activity-type-categories.ts,project,canonical product source ownership
+  src/commands/activity-types.ts,project,canonical product source ownership
+  src/commands/addresses.ts,project,canonical product source ownership
+  src/commands/agent-runbook.ts,project,canonical product source ownership
+  src/commands/agent-tools-shared.ts,project,canonical product source ownership
+  src/commands/agent-tools.ts,project,canonical product source ownership
+  src/commands/api-research-actions.ts,project,canonical product source ownership
+  src/commands/api-research-backlog.ts,project,canonical product source ownership
+  src/commands/api-research-probe.ts,project,canonical product source ownership
+  src/commands/api-research-shared.ts,project,canonical product source ownership
+  src/commands/api-research-summary.ts,project,canonical product source ownership
+  src/commands/api-research-types.ts,project,canonical product source ownership
+  src/commands/api-research.ts,project,canonical product source ownership
+  src/commands/audit-logs.ts,project,canonical product source ownership
+  src/commands/audit.ts,project,canonical product source ownership
+  src/commands/bulk.ts,project,canonical product source ownership
+  src/commands/calls.ts,project,canonical product source ownership
+  src/commands/command-catalog.ts,project,canonical product source ownership
+  src/commands/companies.ts,project,canonical product source ownership
+  src/commands/compliance.ts,project,canonical product source ownership
+  src/commands/config-capability-probe.ts,project,canonical product source ownership
+  src/commands/config-connection.ts,project,canonical product source ownership
+  src/commands/config-doctor.ts,project,canonical product source ownership
+  src/commands/config-output.ts,project,canonical product source ownership
+  src/commands/config-setup.ts,project,canonical product source ownership
+  src/commands/config.ts,project,canonical product source ownership
+  src/commands/contact-field-types.ts,project,canonical product source ownership
+  src/commands/contact-fields.ts,project,canonical product source ownership
+  src/commands/contact-related-lists.ts,project,canonical product source ownership
+  src/commands/contacts.ts,project,canonical product source ownership
+  src/commands/conversations.ts,project,canonical product source ownership
+  src/commands/countries.ts,project,canonical product source ownership
+  src/commands/currencies.ts,project,canonical product source ownership
+  src/commands/debts.ts,project,canonical product source ownership
+  src/commands/documents.ts,project,canonical product source ownership
+  src/commands/genders.ts,project,canonical product source ownership
+  src/commands/gifts.ts,project,canonical product source ownership
+  src/commands/github-star.ts,project,canonical product source ownership
+  src/commands/global-options.ts,project,canonical product source ownership
+  src/commands/groups.ts,project,canonical product source ownership
+  src/commands/help-ux.ts,project,canonical product source ownership
+  src/commands/index.ts,project,canonical product source ownership
+  src/commands/info-capabilities.ts,project,canonical product source ownership
+  src/commands/info-instance-profile.ts,project,canonical product source ownership
+  src/commands/info.ts,project,canonical product source ownership
+  src/commands/journal.ts,project,canonical product source ownership
+  src/commands/notes.ts,project,canonical product source ownership
+  src/commands/occupations.ts,project,canonical product source ownership
+  src/commands/output-format.ts,project,canonical product source ownership
+  src/commands/pet-categories.ts,project,canonical product source ownership
+  src/commands/pets.ts,project,canonical product source ownership
+  src/commands/photos.ts,project,canonical product source ownership
+  src/commands/relationships.ts,project,canonical product source ownership
+  src/commands/reminders.ts,project,canonical product source ownership
+  src/commands/schema-example.ts,project,canonical product source ownership
+  src/commands/schema-registry-agent.ts,project,canonical product source ownership
+  src/commands/schema-registry-api-research-coverage.ts,project,canonical product source ownership
+  src/commands/schema-registry-api-research.ts,project,canonical product source ownership
+  src/commands/schema-registry-extra.ts,project,canonical product source ownership
+  src/commands/schema-registry.ts,project,canonical product source ownership
+  src/commands/schema-validator.ts,project,canonical product source ownership
+  src/commands/schemas.ts,project,canonical product source ownership
+  src/commands/search.ts,project,canonical product source ownership
+  src/commands/setup.ts,project,canonical product source ownership
+  src/commands/tags.ts,project,canonical product source ownership
+  src/commands/tasks.ts,project,canonical product source ownership
+  src/commands/user.ts,project,canonical product source ownership
+  src/formatters/helpers.ts,project,canonical product source ownership
+  src/formatters/index.ts,project,canonical product source ownership
+  src/formatters/markdown.ts,project,canonical product source ownership
+  src/formatters/runtime-fields.ts,project,canonical product source ownership
+  src/formatters/toon.ts,project,canonical product source ownership
+  src/formatters/yaml.ts,project,canonical product source ownership
+  src/index.ts,project,canonical product source ownership
+  src/program.ts,project,canonical product source ownership
+  src/types/activity.ts,project,canonical product source ownership
+  src/types/common.ts,project,canonical product source ownership
+  src/types/company.ts,project,canonical product source ownership
+  src/types/contact-related.ts,project,canonical product source ownership
+  src/types/contact.ts,project,canonical product source ownership
+  src/types/conversation.ts,project,canonical product source ownership
+  src/types/index.ts,project,canonical product source ownership
+  src/types/note.ts,project,canonical product source ownership
+  src/types/pet.ts,project,canonical product source ownership
+  src/types/reference.ts,project,canonical product source ownership
+  src/types/reminder.ts,project,canonical product source ownership
+  src/types/tag.ts,project,canonical product source ownership
+  src/types/task.ts,project,canonical product source ownership
+  src/utils/capability-cache.ts,project,canonical product source ownership
+  src/utils/settings.ts,project,canonical product source ownership
+  src/utils/versioning.ts,project,canonical product source ownership
+  tests/activities.test.ts,project,canonical regression suite ownership
+  tests/addresses.test.ts,project,canonical regression suite ownership
+  tests/agent-runbook-command.test.ts,project,canonical regression suite ownership
+  tests/agent-tools-command.test.ts,project,canonical regression suite ownership
+  tests/api-research-command.test.ts,project,canonical regression suite ownership
+  tests/api-research-coverage-command.test.ts,project,canonical regression suite ownership
+  tests/audit-command.test.ts,project,canonical regression suite ownership
+  tests/audit-logs.test.ts,project,canonical regression suite ownership
+  tests/bulk-command.test.ts,project,canonical regression suite ownership
+  tests/calls.test.ts,project,canonical regression suite ownership
+  tests/capabilities.test.ts,project,canonical regression suite ownership
+  tests/client-readonly-mode.test.ts,project,canonical regression suite ownership
+  tests/commands-1.test.ts,project,canonical regression suite ownership
+  tests/commands-2.test.ts,project,canonical regression suite ownership
+  tests/commands-3.test.ts,project,canonical regression suite ownership
+  tests/companies.test.ts,project,canonical regression suite ownership
+  tests/compliance-command.test.ts,project,canonical regression suite ownership
+  tests/config-command.test.ts,project,canonical regression suite ownership
+  tests/config-setup.test.ts,project,canonical regression suite ownership
+  tests/contact-fields-command.test.ts,project,canonical regression suite ownership
+  tests/contacts-command-actions.test.ts,project,canonical regression suite ownership
+  tests/contacts.test.ts,project,canonical regression suite ownership
+  tests/conversations.test.ts,project,canonical regression suite ownership
+  tests/debts.test.ts,project,canonical regression suite ownership
+  tests/documents.test.ts,project,canonical regression suite ownership
+  tests/e2e-output-validation.test.ts,project,canonical regression suite ownership
+  tests/e2e-readonly-commands.test.ts,project,canonical regression suite ownership
+  tests/formatters.test.ts,project,canonical regression suite ownership
+  tests/gifts.test.ts,project,canonical regression suite ownership
+  tests/github-star.test.ts,project,canonical regression suite ownership
+  tests/global-options.test.ts,project,canonical regression suite ownership
+  tests/groups-command.test.ts,project,canonical regression suite ownership
+  tests/groups.test.ts,project,canonical regression suite ownership
+  tests/help-tree.test.ts,project,canonical regression suite ownership
+  tests/help-ux.test.ts,project,canonical regression suite ownership
+  tests/info-agent-context.test.ts,project,canonical regression suite ownership
+  tests/info-capabilities-source.test.ts,project,canonical regression suite ownership
+  tests/info-command-catalog.test.ts,project,canonical regression suite ownership
+  tests/info-command-ux.test.ts,project,canonical regression suite ownership
+  tests/info-instance-profile.test.ts,project,canonical regression suite ownership
+  tests/journal.test.ts,project,canonical regression suite ownership
+  tests/mocks/command-helpers.ts,project,canonical regression suite ownership
+  tests/notes.test.ts,project,canonical regression suite ownership
+  tests/occupations.test.ts,project,canonical regression suite ownership
+  tests/pet-categories-command.test.ts,project,canonical regression suite ownership
+  tests/pet-categories.test.ts,project,canonical regression suite ownership
+  tests/pets.test.ts,project,canonical regression suite ownership
+  tests/photos.test.ts,project,canonical regression suite ownership
+  tests/program-format-validation.test.ts,project,canonical regression suite ownership
+  tests/program-pagination-validation.test.ts,project,canonical regression suite ownership
+  tests/reference.test.ts,project,canonical regression suite ownership
+  tests/relationships-command-actions.test.ts,project,canonical regression suite ownership
+  tests/relationships.test.ts,project,canonical regression suite ownership
+  tests/reminders.test.ts,project,canonical regression suite ownership
+  tests/request-utils.test.ts,project,canonical regression suite ownership
+  tests/schema-example.test.ts,project,canonical regression suite ownership
+  tests/schema-validator.test.ts,project,canonical regression suite ownership
+  tests/schemas-command-creation.test.ts,project,canonical regression suite ownership
+  tests/schemas-command.test.ts,project,canonical regression suite ownership
+  tests/search-command.test.ts,project,canonical regression suite ownership
+  tests/settings.test.ts,project,canonical regression suite ownership
+  tests/setup-command.test.ts,project,canonical regression suite ownership
+  tests/setup.ts,project,canonical regression suite ownership
+  tests/tags.test.ts,project,canonical regression suite ownership
+  tests/tasks.test.ts,project,canonical regression suite ownership
+  tests/test-utils.ts,project,canonical regression suite ownership
+  tests/versioning.test.ts,project,canonical regression suite ownership
+  tsconfig.json,project,project configuration ownership
+  vitest.config.ts,project,root TypeScript configuration ownership
+tests[1]{command,scope,note}:
+  "bun run verify:release",project,full release verification
+docs[2]{path,scope,note}:
+  docs/DEVELOPMENT.md,project,contributor verification workflow
+  README.md,project,public product overview
+body: "Own the full monica-cli lifecycle: security posture, dependencies, CI/CD, CLI correctness, documentation, releases, and agent-oriented usability. GitHub and pm evidence must remain synchronized."

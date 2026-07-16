@@ -1,0 +1,48 @@
+id: monica-vulnerable-vitest
+title: Critical Vitest advisory remains open
+description: The resolved Vitest 1.6.1 is vulnerable to GHSA-5xrq-8626-4rwp and must be upgraded with its coverage provider.
+type: Issue
+status: in_progress
+priority: 0
+tags[4]: dependabot,ghsa-5xrq-8626-4rwp,security,vitest
+created_at: "2026-07-16T16:58:07.814Z"
+updated_at: "2026-07-16T16:58:07.814Z"
+deadline: "2026-07-18T16:58:07.814Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 180
+acceptance_criteria: Vitest and @vitest/coverage-v8 resolve to a patched matched version; full tests and coverage pass; GitHub alert closes after merge
+definition_of_ready: "Alert metadata, vulnerable range, patched floor, and current lock resolution are captured."
+parent: monica-security-modernization
+reviewer: unbraind
+risk: critical
+confidence: 100
+sprint: 2026-07-security-modernization
+release: next
+reporter: GitHub Dependabot
+severity: critical
+environment: development and CI dependency graph
+repro_steps: Inspect bun.lock or run bun pm ls vitest; observe 1.6.1 below patched 3.2.6.
+expected_result: No dependency resolves a vulnerable Vitest version.
+actual_result: Vitest 1.6.1 is committed and alert #3 is open.
+affected_version: 2026.3.6-2
+component: test-toolchain
+regression: false
+customer_impact: Indirect supply-chain and contributor-environment risk; production dependency set is unaffected.
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-security-modernization,related,"2026-07-16T16:58:07.814Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:58:07.814Z",codex-root,"Source: GitHub security/dependabot/3, severity critical, CVE-2026-47429."
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:58:07.814Z",codex-root,Upgrade coverage-v8 atomically with Vitest to preserve peer compatibility.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:58:07.814Z",codex-root,The prior separate Dependabot PRs could not succeed because only one side of the Vitest/coverage pairing was updated.
+files[2]{path,scope,note}:
+  package.json,project,vulnerable declarations
+  bun.lock,project,vulnerable resolution
+tests[2]{command,scope,note}:
+  bun run test,project,unit and command regression suite
+  "bun run test:coverage",project,coverage-provider compatibility
+docs[1]{path,scope,note}:
+  docs/SECURITY-AUDIT.md,project,record remediation
+body: "GitHub Dependabot alert #3 reports arbitrary file read and execution when the Vitest UI server listens. The production runtime is not directly exposed, but contributor and CI environments must not retain a critical vulnerable dev dependency."

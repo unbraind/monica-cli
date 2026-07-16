@@ -161,7 +161,8 @@ function formatPrimitive(value: unknown): string {
   if (typeof value === 'string') {
     const truncated = value.length > 60 ? `${value.substring(0, 60)}...` : value;
     if (/^[a-zA-Z0-9_\-./:@]+$/.test(truncated)) return truncated;
-    return `"${truncated.replace(/"/g, '\\"')}"`;
+    const escaped = truncated.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    return `"${escaped}"`;
   }
   return String(value);
 }

@@ -6,11 +6,23 @@ import type { MonicaConfig } from '../types';
 
 export const GLOBAL_SETTINGS_PATH = path.join(os.homedir(), '.monica-cli', 'settings.json');
 
+export function ensurePrivateDirectory(dir: string): void {
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  if (process.platform !== 'win32') {
+    fs.chmodSync(dir, 0o700);
+  }
+}
+
+export function writePrivateFile(filePath: string, content: string): void {
+  fs.writeFileSync(filePath, content, { mode: 0o600 });
+  if (process.platform !== 'win32') {
+    fs.chmodSync(filePath, 0o600);
+  }
+}
+
 export function ensureSettingsDir(): void {
   const dir = path.dirname(GLOBAL_SETTINGS_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
-  }
+  ensurePrivateDirectory(dir);
 }
 
 export function loadSettings(): Partial<MonicaConfig> | null {
@@ -27,7 +39,7 @@ export function loadSettings(): Partial<MonicaConfig> | null {
 
 export function saveSettings(config: Partial<MonicaConfig>): void {
   ensureSettingsDir();
-  fs.writeFileSync(GLOBAL_SETTINGS_PATH, JSON.stringify(normalizeSettings(config), null, 2), { mode: 0o600 });
+  writePrivateFile(GLOBAL_SETTINGS_PATH, JSON.stringify(normalizeSettings(config), null, 2));
 }
 
 export function normalizeSettings(config: Partial<MonicaConfig>): Partial<MonicaConfig> {

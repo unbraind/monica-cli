@@ -64,6 +64,11 @@ describe('formatToon', () => {
     const result = formatToon({ text: longStr });
     expect(result).toContain('...');
   });
+
+  it('escapes backslashes before quotes in quoted strings', () => {
+    expect(formatToon({ text: 'path\\to "quoted"' }))
+      .toBe('text: "path\\\\to \\"quoted\\""');
+  });
 });
 
 describe('resolveOutputFormat', () => {
@@ -404,6 +409,11 @@ describe('formatMarkdown', () => {
     expect(result).toContain('| --- | --- |');
     expect(result).toContain('| 1 | Alice |');
     expect(result).toContain('| 2 | Bob |');
+  });
+
+  it('escapes existing backslashes before markdown table pipes', () => {
+    const result = formatMarkdown([{ value: 'left\\|right' }], ['value']);
+    expect(result).toContain(String.raw`left\\\|right`);
   });
 
   it('formats single object as markdown list', () => {

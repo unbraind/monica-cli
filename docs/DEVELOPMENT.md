@@ -2,7 +2,7 @@
 
 ## Package Manager
 
-This project uses [bun](https://bun.sh) as the primary package manager and runtime. Bun is significantly faster than npm and provides better developer experience.
+This project uses [Bun](https://bun.sh) 1.3.11 or newer as the authoritative package manager and lockfile owner. Node.js 22.13 or newer is required for npm/npx compatibility smoke tests. Do not commit `package-lock.json`; dependency declarations and `bun.lock` must be updated together.
 
 ### Installing Bun
 
@@ -54,6 +54,7 @@ MONICA_API_KEY=your-jwt-token
 | `bun run typecheck` | Type check without emitting |
 | `bun run lint` | Run baseline ESLint checks on `src/**/*.ts` |
 | `bun run lint:strict` | Run stricter ESLint checks on the hardened module set |
+| `bun run lint:commits` | Validate branch commits using the same Conventional Commit policy as CI |
 | `bun run smoke:npx` | Verify packed artifact runs with npx |
 | `bun run smoke:bunx` | Verify packed artifact runs with bunx |
 | `bun run audit:history` | Scan all git commits for likely leaked secrets |

@@ -1,0 +1,47 @@
+id: monica-output-escaping
+title: Agent output escaping is incomplete
+description: TOON quoted strings and Markdown table cells escape delimiters without first escaping existing backslashes.
+type: Issue
+status: in_progress
+priority: 1
+tags[4]: agent-ux,codeql,correctness,formatters
+created_at: "2026-07-16T16:59:36.808Z"
+updated_at: "2026-07-16T16:59:36.808Z"
+deadline: "2026-07-19T16:59:36.808Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 90
+acceptance_criteria: TOON escapes backslashes and quotes deterministically; Markdown escapes backslashes and pipes; existing formatter snapshots remain compatible
+definition_of_ready: Dismissed CodeQL alerts #6 and #7 are reproduced at the formatter helper level.
+parent: monica-security-modernization
+reviewer: unbraind
+risk: medium
+confidence: 95
+sprint: 2026-07-security-modernization
+release: next
+reporter: Source security audit
+severity: medium
+environment: all formatted CLI output
+repro_steps: Format a value containing backslash followed by quote or pipe.
+expected_result: Rendered output has unambiguous escaped literals and no unintended table delimiter.
+actual_result: "Only quotes or pipes are escaped, leaving pre-existing backslashes untreated."
+affected_version: 2026.3.6-2
+component: formatters
+regression: false
+customer_impact: Machine consumers can misparse edge-case CRM text.
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-security-modernization,related,"2026-07-16T16:59:36.808Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:59:36.808Z",codex-root,This is correctness hardening; the dismissed security classification does not remove the malformed-output risk.
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:59:36.808Z",codex-root,Escape backslash first to avoid escaping the escape inserted for the delimiter.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:59:36.808Z",codex-root,Output formats consumed by agents need deterministic escaping even when the content is not rendered as executable code.
+files[2]{path,scope,note}:
+  src/formatters/toon.ts,project,TOON escaping
+  src/formatters/markdown.ts,project,Markdown escaping
+tests[1]{command,scope,note}:
+  bun test tests/formatters.test.ts,project,formatter regression suite
+docs[1]{path,scope,note}:
+  docs/OUTPUT-SCHEMAS.md,project,machine output contract
+body: Values such as backslash-quote in TOON or backslash-pipe in Markdown can remain ambiguous or malformed. Escape backslashes before quotes or pipes and add exact regression tests.

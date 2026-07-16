@@ -1,0 +1,35 @@
+id: monica-8e2a
+title: Review TypeScript 7 compatibility
+description: Scheduled governance reminder to revisit the deferred TypeScript 7 compatibility spike.
+type: Reminder
+status: open
+priority: 2
+tags[2]: dependency-review,typescript
+created_at: "2026-07-16T17:08:56.584Z"
+updated_at: "2026-07-16T17:09:44.268Z"
+deadline: "2026-08-15T17:09:44.239Z"
+reminders[1]{at,text}:
+  "2026-08-15T17:08:56.584Z",Check whether @typescript-eslint now supports TypeScript 7 and update monica-typescript7-spike evidence.
+assignee: codex-root
+author: codex-root
+estimated_minutes: 15
+acceptance_criteria: The linked spike contains a current peer-range check and an explicit execute-or-defer note
+parent: monica-typescript7-spike
+reviewer: unbraind
+risk: low
+confidence: 90
+sprint: future-maintenance
+release: future
+comments[1]{created_at,author,text}:
+  "2026-07-16T17:09:44.239Z",codex-root,Strict metadata added after lightweight reminder creation.
+notes[1]{created_at,author,text}:
+  "2026-07-16T17:09:44.239Z",codex-root,This reminder does not authorize an upgrade when peer ranges remain incompatible.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T17:09:44.239Z",codex-root,Scheduled review prevents intentional compatibility holds from becoming forgotten dependency drift.
+files[1]{path,scope,note}:
+  package.json,project,versions to review
+tests[1]{command,scope,note}:
+  bun run typecheck,project,eventual compatibility gate
+docs[1]{path,scope,note}:
+  docs/DEVELOPMENT.md,project,toolchain policy
+body: "Check current TypeScript-ESLint peer ranges, update the linked spike with evidence, and reschedule or execute only when the ecosystem supports TypeScript 7."

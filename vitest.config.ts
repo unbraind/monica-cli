@@ -11,15 +11,16 @@ export default defineConfig({
     restoreMocks: true,
     mockReset: true,
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        isolate: true,
-      },
-    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.ts'],
+      thresholds: {
+        statements: 50,
+        branches: 50,
+        functions: 65,
+        lines: 50,
+      },
     },
   },
 });
