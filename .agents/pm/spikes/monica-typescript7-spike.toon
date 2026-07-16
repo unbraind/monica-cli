@@ -1,0 +1,42 @@
+id: monica-typescript7-spike
+title: Re-evaluate TypeScript 7 ecosystem compatibility
+description: Check whether TypeScript-ESLint and the CLI toolchain support TypeScript 7 without peer-range violations or behavior regressions.
+type: Spike
+status: open
+priority: 2
+tags[4]: dependencies,follow-up,research,typescript
+created_at: "2026-07-16T17:08:56.033Z"
+updated_at: "2026-07-16T17:08:56.033Z"
+deadline: "2026-10-14T17:08:56.033Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 120
+acceptance_criteria: Peer ranges permit TypeScript 7; typecheck/lint/build/tests pass in an isolated branch; migration notes and decision are recorded
+definition_of_ready: @typescript-eslint publishes a release whose TypeScript peer range includes 7.x.
+goal: trusted-monica-cli
+objective: current-compatible-typescript
+value: Avoid indefinite toolchain drift
+impact: Keeps type tooling current without forcing unsupported combinations
+outcome: Evidence-backed adopt-or-defer decision
+why_now: TypeScript 7 is registry-latest but incompatible with the current linter peer contract
+parent: monica-platform
+reviewer: unbraind
+risk: medium
+confidence: 60
+sprint: future-maintenance
+release: future
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-toolchain-decision,discovered_from,"2026-07-16T17:08:56.033Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T17:08:56.033Z",codex-root,Created from the July 2026 modernization decision; not required to close the critical advisory.
+notes[1]{created_at,author,text}:
+  "2026-07-16T17:08:56.033Z",codex-root,Start by querying @typescript-eslint parser and plugin peerDependencies.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T17:08:56.033Z",codex-root,Registry latest and ecosystem-compatible latest can differ across coupled compiler/linter releases.
+files[1]{path,scope,note}:
+  package.json,project,compiler and linter versions
+tests[1]{command,scope,note}:
+  bun run typecheck,project,compiler migration gate
+docs[1]{path,scope,note}:
+  docs/DEVELOPMENT.md,project,toolchain policy
+body: "This is a bounded follow-up, not part of the critical remediation. Upgrade only after @typescript-eslint supports TypeScript 7 and the full Bun/npm verification matrix passes."

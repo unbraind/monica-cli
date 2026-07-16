@@ -124,7 +124,8 @@ export function createPetCategoriesCommand(): Command {
 
           if (isPetCategoryEndpointUnavailable(error)) {
             throw new Error(
-              'Pet category endpoint is unavailable on this Monica instance. Use: monica pet-categories list --scan-pets [--pet-max-pages <n>] or monica pets list --limit 50'
+              'Pet category endpoint is unavailable on this Monica instance. Use: monica pet-categories list --scan-pets [--pet-max-pages <n>] or monica pets list --limit 50',
+              { cause: error }
             );
           }
 

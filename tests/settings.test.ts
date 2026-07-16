@@ -5,8 +5,10 @@ import * as os from 'os';
 import {
   GLOBAL_SETTINGS_PATH,
   ensureSettingsDir,
+  ensurePrivateDirectory,
   loadSettings,
   saveSettings,
+  writePrivateFile,
   normalizeSettings,
   maskApiKey,
   maskPassword,
@@ -51,6 +53,29 @@ describe('settings utility', () => {
     it('masks long keys', () => {
       const longKey = 'fake.jwt.token.' + 'x'.repeat(100);
       expect(maskApiKey(longKey)).toMatch(/^\[hidden:115:sha256:[0-9a-f]{8}\]$/);
+    });
+  });
+
+  (process.platform === 'win32' ? describe.skip : describe)('private path permissions', () => {
+    it('repairs existing directory and file modes', () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'monica-settings-'));
+      const settingsDir = path.join(root, 'config');
+      const settingsPath = path.join(settingsDir, 'settings.json');
+
+      try {
+        fs.mkdirSync(settingsDir, { mode: 0o777 });
+        fs.writeFileSync(settingsPath, '{}', { mode: 0o666 });
+        fs.chmodSync(settingsDir, 0o777);
+        fs.chmodSync(settingsPath, 0o666);
+
+        ensurePrivateDirectory(settingsDir);
+        writePrivateFile(settingsPath, '{"readOnlyMode":true}');
+
+        expect(fs.statSync(settingsDir).mode & 0o777).toBe(0o700);
+        expect(fs.statSync(settingsPath).mode & 0o777).toBe(0o600);
+      } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+      }
     });
   });
 

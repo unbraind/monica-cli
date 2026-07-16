@@ -17,6 +17,7 @@ coverage/
 
 # Sensitive configuration files
 settings.json
+!.agents/pm/settings.json
 credentials.json
 *.pem
 *.key
@@ -31,3 +32,9 @@ credentials.json
 
 # OS files
 Thumbs.db
+
+# pm-cli:runtime-cache:start
+.agents/pm/runtime/
+.agents/pm/search/
+.agents/pm/locks/
+# pm-cli:runtime-cache:end

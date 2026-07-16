@@ -1,0 +1,47 @@
+id: monica-bun-dependabot
+title: Dependabot updates do not maintain bun.lock
+description: The npm ecosystem updater creates package-lock.json changes while the required Bun frozen install consumes bun.lock.
+type: Issue
+status: in_progress
+priority: 0
+tags[4]: automation,bun,ci,dependabot
+created_at: "2026-07-16T16:58:08.386Z"
+updated_at: "2026-07-16T16:58:08.386Z"
+deadline: "2026-07-18T16:58:08.386Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 120
+acceptance_criteria: Dependabot uses Bun ecosystem support; dependency PRs update bun.lock; CI does not create or rely on package-lock.json
+definition_of_ready: Failure log and official ecosystem support are confirmed.
+parent: monica-security-modernization
+reviewer: unbraind
+risk: high
+confidence: 100
+sprint: 2026-07-security-modernization
+release: next
+reporter: Repository audit
+severity: high
+environment: GitHub Actions Dependabot pull requests
+repro_steps: "Open any npm Dependabot PR and inspect Validate (Bun): lockfile had changes but lockfile is frozen."
+expected_result: Automated dependency PRs update the repository's authoritative Bun lockfile.
+actual_result: Dependabot emits npm lock state and leaves bun.lock stale.
+affected_version: 2026.3.6-2
+component: dependency-automation
+regression: false
+customer_impact: Security and maintenance updates remain unmergeable.
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-security-modernization,related,"2026-07-16T16:58:08.386Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:58:08.386Z",codex-root,Confirmed in Actions runs 26767553085 and 26744281604.
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:58:08.386Z",codex-root,Switch .github/dependabot.yml from npm to bun; do not add package-lock.json to a Bun-owned repository.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:58:08.386Z",codex-root,"Dependabot Bun support requires the modern text bun.lock, which this repo already uses."
+files[2]{path,scope,note}:
+  .github/dependabot.yml,project,ecosystem configuration
+  bun.lock,project,authoritative lock
+tests[1]{command,scope,note}:
+  bun install --frozen-lockfile,project,lock consistency
+docs[1]{path,scope,note}:
+  docs/DEVELOPMENT.md,project,package-manager policy
+body: "Every open npm Dependabot PR fails Validate (Bun) at bun install --frozen-lockfile because bun.lock is left stale. GitHub now officially supports package-ecosystem bun for text bun.lock files, so the repository should use its declared package manager end to end."

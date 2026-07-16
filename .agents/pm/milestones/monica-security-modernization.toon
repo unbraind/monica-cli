@@ -1,0 +1,44 @@
+id: monica-security-modernization
+title: Security and dependency modernization tranche
+description: "Consolidate the July 2026 security alert, stale dependencies, failing update automation, and adjacent repository hardening."
+type: Milestone
+status: in_progress
+priority: 0
+tags[4]: ci,dependencies,release,security
+created_at: "2026-07-16T16:56:33.170Z"
+updated_at: "2026-07-16T17:11:40.035Z"
+deadline: "2026-07-23T16:56:33.170Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 960
+acceptance_criteria: Critical advisory closed; dependency and Actions upgrades integrated; CI/security green; pm tracker and history committed; superseded Dependabot PRs reconciled
+definition_of_ready: GitHub alert/PR inventory captured and baseline commands reproduced.
+goal: trusted-monica-cli
+objective: close-july-2026-risk
+value: Remove known critical development-tool exposure and restore automated maintenance
+impact: Re-establishes a green dependency-update path
+outcome: One current dependency set with passing Bun and npm validation
+why_now: Critical GHSA-5xrq-8626-4rwp is open
+parent: monica-platform
+reviewer: unbraind
+risk: critical
+confidence: 85
+sprint: 2026-07-security-modernization
+release: next
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-platform,related,"2026-07-16T16:56:33.170Z",null,null
+comments[2]{created_at,author,text}:
+  "2026-07-16T16:56:33.170Z",codex-root,This milestone intentionally absorbs the overlapping open Dependabot PRs into one compatibility-tested change set.
+  "2026-07-16T17:11:40.012Z",codex-root,"Draft PR #45 opened at https://github.com/unbraind/monica-cli/pull/45 from commit 535451d9cd17cff3e4827a218c70acfc34c7153a; awaiting exact-head CI and security checks."
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:56:33.170Z",codex-root,Do not close or supersede Dependabot PRs until the replacement branch is pushed and verified.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:56:33.170Z",codex-root,Vitest and coverage must move in lockstep to avoid mismatched major versions.
+files[2]{path,scope,note}:
+  bun.lock,project,authoritative Bun resolution
+  package.json,project,dependency declarations
+tests[1]{command,scope,note}:
+  "bun run verify:release",project,release-grade acceptance gate
+docs[1]{path,scope,note}:
+  docs/SECURITY-AUDIT.md,project,security posture record
+body: "Deliver a single verified modernization branch covering dependency upgrades, Actions upgrades, security findings, source audit, documentation, and pm governance bootstrap."

@@ -4,7 +4,45 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-- No changes yet.
+### Added
+
+- Added strict repository-local `pm` governance with committed project settings,
+  schema, bundled packages, detailed roadmap items, `.toon` state, and `.jsonl`
+  history.
+- Added explicit Conventional Commit configuration and local commit-lint tooling.
+- Added regression coverage for formatter escaping and settings permission repair.
+- Added coverage floors for the Vitest 4 coverage baseline.
+
+### Changed
+
+- Upgraded the runtime and development toolchain, including Commander 15,
+  ESLint 10, TypeScript 6, and Vitest 4 with its matching coverage provider.
+- Raised the supported Node.js floor to 22.13 and the Bun floor to 1.3.11.
+- Switched Dependabot from npm lockfile semantics to native Bun support and
+  grouped compatible minor/patch updates.
+- Upgraded checkout, setup-node, upload-artifact, CodeQL, and release-drafter
+  Actions to their Node 24-capable major versions.
+- Made Node and web platform types explicit for TypeScript 6 and preserved
+  original errors as `cause` when wrapping request or fallback failures.
+
+### Fixed
+
+- Fixed Dependabot PRs failing because `bun.lock` was not updated.
+- Fixed generated Dependabot commit bodies failing the body line-length rule
+  while retaining Conventional Commit subject validation.
+- Fixed TOON and Markdown output ambiguity when values contain backslashes next
+  to quotes or table delimiters.
+- Fixed settings saves leaving pre-existing files or directories with permissive
+  POSIX modes.
+- Simplified pagination termination to remove a stale assignment exposed by
+  ESLint 10.
+
+### Security
+
+- Removed the critically vulnerable Vitest 1.6 dependency reported as
+  GHSA-5xrq-8626-4rwp / CVE-2026-47429.
+- Verified zero production vulnerabilities through both Bun and isolated npm
+  audit paths.
 
 ## [2026.3.6-2] - 2026-03-06
 

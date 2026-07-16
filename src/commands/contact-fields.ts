@@ -133,7 +133,8 @@ export function createContactFieldsCommand(): Command {
 
           if (isGlobalEndpointUnavailable(error)) {
             throw new Error(
-              'Global contact field listing is unavailable on this Monica instance. Use: monica contact-fields list <contact-id> or monica contact-fields list --scan-contacts'
+              'Global contact field listing is unavailable on this Monica instance. Use: monica contact-fields list <contact-id> or monica contact-fields list --scan-contacts',
+              { cause: error }
             );
           }
 

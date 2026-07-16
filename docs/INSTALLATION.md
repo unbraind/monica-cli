@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- [bun](https://bun.sh) 1.0 or higher (recommended)
-- Node.js 18 or higher (alternative)
+- [Bun](https://bun.sh) 1.3.11 or higher (recommended)
+- Node.js 22.13 or higher (for npm/npx usage)
 - Monica CRM instance with API access
 
 ## Installation Methods

@@ -20,6 +20,6 @@ export async function verifyConfigConnection(settings: Partial<MonicaConfig>): P
   try {
     return await api.getUser();
   } catch (error) {
-    throw new Error(`Connection to ${settings.apiUrl} failed: ${(error as Error).message}`);
+    throw new Error(`Connection to ${settings.apiUrl} failed: ${(error as Error).message}`, { cause: error });
   }
 }

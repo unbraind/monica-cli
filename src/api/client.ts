@@ -162,7 +162,7 @@ export async function request<T>(
       response = await fetch(url, { ...fetchOptions, signal: timeoutController.signal });
     } catch (error) {
       if (isAbortError(error)) {
-        throw new Error(`Request timed out after ${requestTimeoutMs}ms: ${method} ${endpoint}`);
+        throw new Error(`Request timed out after ${requestTimeoutMs}ms: ${method} ${endpoint}`, { cause: error });
       }
       throw error;
     } finally {
@@ -233,7 +233,7 @@ export async function upload<T>(
     });
   } catch (error) {
     if (isAbortError(error)) {
-      throw new Error(`Request timed out after ${requestTimeoutMs}ms: POST ${endpoint}`);
+      throw new Error(`Request timed out after ${requestTimeoutMs}ms: POST ${endpoint}`, { cause: error });
     }
     throw error;
   } finally {
@@ -258,20 +258,18 @@ export async function* paginate<T>(
   maxPages?: number
 ): AsyncGenerator<T[], void, unknown> {
   let page = 1;
-  let pageCount = 1;
-  
-  do {
+
+  while (true) {
     const response = await get<PaginatedResponse<T>>(endpoint, {
       ...params,
       page,
     });
-    
-    pageCount = response.meta.last_page;
+
     yield response.data;
-    
+
+    if ((maxPages !== undefined && page >= maxPages) || page >= response.meta.last_page) break;
     page++;
-    if (maxPages && page > maxPages) break;
-  } while (page <= pageCount);
+  }
 }
 
 export async function getAllPages<T>(

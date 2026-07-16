@@ -1,0 +1,46 @@
+id: monica-settings-permissions
+title: Settings saves do not repair permissive filesystem modes
+description: Secure mode options only affect newly created settings paths; existing permissive paths can remain exposed after save.
+type: Issue
+status: in_progress
+priority: 1
+tags[4]: credentials,filesystem,security,settings
+created_at: "2026-07-16T16:59:37.486Z"
+updated_at: "2026-07-16T16:59:37.486Z"
+deadline: "2026-07-19T16:59:37.486Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 120
+acceptance_criteria: Existing settings directory is repaired to 0700; existing or new settings file is 0600 after save; Windows behavior remains supported; tests use isolated temp paths
+definition_of_ready: Current fs mkdir/write mode semantics and audit expectations are reviewed.
+parent: monica-security-modernization
+reviewer: unbraind
+risk: high
+confidence: 95
+sprint: 2026-07-security-modernization
+release: next
+reporter: Source security audit
+severity: high
+environment: local user settings filesystem
+repro_steps: "Create settings directory/file with permissive mode, call saveSettings, and inspect mode."
+expected_result: Every save restores private permissions.
+actual_result: Mode is only specified for creation and does not necessarily repair existing paths.
+affected_version: 2026.3.6-2
+component: settings-storage
+regression: false
+customer_impact: Local API credentials may retain overly broad read permissions.
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-security-modernization,related,"2026-07-16T16:59:37.486Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:59:37.486Z",codex-root,CodeQL password-hash/logging alerts remain false positives because the API key is only SHA-256 fingerprinted for masking and never logged raw.
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:59:37.486Z",codex-root,Use chmod only on non-Windows platforms and isolate permission helpers for testing.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:59:37.486Z",codex-root,Secure creation flags are insufficient when users can migrate or pre-create configuration paths.
+files[1]{path,scope,note}:
+  src/utils/settings.ts,project,credential storage
+tests[1]{command,scope,note}:
+  bun test tests/settings.test.ts,project,isolated permission repair tests
+docs[1]{path,scope,note}:
+  docs/SECURITY-AUDIT.md,project,settings permission guarantee
+body: "The settings file can contain API keys and passwords. Each save must enforce directory 0700 and file 0600 on POSIX, including pre-existing paths, while remaining portable."

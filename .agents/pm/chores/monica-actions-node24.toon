@@ -1,0 +1,36 @@
+id: monica-actions-node24
+title: Upgrade GitHub Actions to Node 24 generations
+description: Replace deprecated Node 20 action majors and validate workflow permissions and behavior.
+type: Chore
+status: in_progress
+priority: 1
+tags[4]: ci,github-actions,maintenance,security
+created_at: "2026-07-16T16:58:09.577Z"
+updated_at: "2026-07-16T16:58:09.577Z"
+deadline: "2026-07-19T16:58:09.577Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 180
+acceptance_criteria: All action references use supported majors; workflows preserve least privilege; CI and security checks pass
+definition_of_ready: Open Dependabot Actions PRs and all workflow references are inventoried.
+parent: monica-security-modernization
+reviewer: unbraind
+risk: medium
+confidence: 90
+sprint: 2026-07-security-modernization
+release: next
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-security-modernization,related,"2026-07-16T16:58:09.577Z",null,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T16:58:09.577Z",codex-root,GitHub runner warns Node 20 actions will be forced to Node 24 and removed in September 2026.
+notes[1]{created_at,author,text}:
+  "2026-07-16T16:58:09.577Z",codex-root,"Update every workflow occurrence, not only the five open PR branch diffs."
+learnings[1]{created_at,author,text}:
+  "2026-07-16T16:58:09.577Z",codex-root,Consolidating Actions majors avoids serial conflicts across generated PRs.
+files[1]{path,scope,note}:
+  .github/workflows,project,all workflow action references
+tests[1]{command,scope,note}:
+  "bun run audit:history",project,security workflow companion gate
+docs[1]{path,scope,note}:
+  docs/RELEASE-MANAGEMENT.md,project,release workflow contract
+body: "Adopt the open Actions updates for checkout v6, setup-node v6, upload-artifact v7, CodeQL v4, and release-drafter v7 across all workflows."

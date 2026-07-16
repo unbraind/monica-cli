@@ -4,8 +4,8 @@ Thanks for contributing.
 
 ## Prerequisites
 
-- Bun `1.3.5`+
-- Node.js `18+`
+- Bun `1.3.11`+
+- Node.js `22.13+`
 - Git
 
 ## Local setup
@@ -18,6 +18,7 @@ bun test
 npm run smoke:npx
 bun run smoke:bunx
 bun run audit:history
+bun run lint:commits
 ```
 
 ## Branch and PR flow
@@ -42,6 +43,8 @@ Use Conventional Commits:
 - `chore: ...`
 
 PR commit messages are linted in CI.
+Generated dependency metadata and URLs may exceed the body line-length guideline;
+Conventional Commit subject validation remains mandatory.
 
 ## Versioning policy
 

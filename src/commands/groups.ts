@@ -134,7 +134,8 @@ export function createGroupsCommand(): Command {
 
           if (isGroupEndpointUnavailable(error)) {
             throw new Error(
-              'Groups endpoint is unavailable on this Monica instance. Use: monica groups list --scan-tags [--tag-max-pages <n>] or monica tags list --limit 50'
+              'Groups endpoint is unavailable on this Monica instance. Use: monica groups list --scan-tags [--tag-max-pages <n>] or monica tags list --limit 50',
+              { cause: error }
             );
           }
 
