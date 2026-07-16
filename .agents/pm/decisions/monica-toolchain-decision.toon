@@ -2,13 +2,13 @@ id: monica-toolchain-decision
 title: Adopt current Bun and Node 22 toolchain with constrained TypeScript
 description: "Choose dependency majors that are current and mutually compatible, with explicit runtime and package-manager ownership."
 type: Decision
-status: in_progress
+status: closed
 priority: 1
 tags[5]: bun,decision,node,toolchain,typescript
 created_at: "2026-07-16T17:04:32.096Z"
-updated_at: "2026-07-16T17:04:32.096Z"
+updated_at: "2026-07-16T17:19:32.855Z"
 deadline: "2026-07-19T17:04:32.096Z"
-assignee: codex-root
+closed_at: "2026-07-16T17:19:32.854Z"
 author: codex-root
 estimated_minutes: 60
 acceptance_criteria: Declared engines satisfy all direct dependencies; type/lint/test/build pass; constraints and revisit trigger are documented
@@ -25,10 +25,14 @@ risk: medium
 confidence: 100
 sprint: 2026-07-security-modernization
 release: next
+resolution: "Adopted Node >=22.13, Bun 1.3.11, TypeScript 6.0.3, ESLint 10, Commander 15, matching Node 22 declarations, and explicit automation constraints for incompatible future majors."
+expected_result: Declared engines and peer ranges are mutually compatible and all verification paths pass.
+actual_result: "Bun and isolated npm paths pass typecheck, lint, build, 542 tests, audits, and package smokes; PRs #48/#49 supplied live evidence for the intentional constraints."
 dependencies[1]{id,kind,created_at,author,source_kind}:
   monica-security-modernization,related,"2026-07-16T17:04:32.096Z",null,null
-comments[1]{created_at,author,text}:
+comments[2]{created_at,author,text}:
   "2026-07-16T17:04:32.096Z",codex-root,Commander 15 requires Node >=22.12; ESLint 10.7 requires >=22.13 on the Node 22 line.
+  "2026-07-16T17:19:06.884Z",codex-root,Post-merge Dependabot PR #49 proposed @types/node 26.1.1. It passed mechanically but was closed because the declared runtime remains Node 22; >=23 type-major updates are ignored to preserve runtime/type alignment.
 notes[1]{created_at,author,text}:
   "2026-07-16T17:04:32.096Z",codex-root,TypeScript 7.0.2 is intentionally deferred because @typescript-eslint 8.64.0 declares TypeScript <6.1.0.
 learnings[1]{created_at,author,text}:
@@ -41,4 +45,5 @@ tests[2]{command,scope,note}:
   bun run typecheck,project,TypeScript compatibility
 docs[1]{path,scope,note}:
   docs/DEVELOPMENT.md,project,toolchain policy
+close_reason: Compatible current toolchain adopted and enforced
 body: "Adopt Bun 1.3.11, Node >=22.13, Commander 15, ESLint 10, Vitest 4, and TypeScript 6.0.3. Do not adopt TypeScript 7 until TypeScript-ESLint expands its peer range beyond <6.1.0; retain @types/node 22 to model the supported Node line rather than unrelated Node 26 APIs."

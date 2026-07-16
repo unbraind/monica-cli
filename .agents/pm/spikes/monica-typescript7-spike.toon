@@ -6,7 +6,7 @@ status: open
 priority: 2
 tags[4]: dependencies,follow-up,research,typescript
 created_at: "2026-07-16T17:08:56.033Z"
-updated_at: "2026-07-16T17:08:56.033Z"
+updated_at: "2026-07-16T17:19:06.369Z"
 deadline: "2026-10-14T17:08:56.033Z"
 assignee: codex-root
 author: codex-root
@@ -27,8 +27,9 @@ sprint: future-maintenance
 release: future
 dependencies[1]{id,kind,created_at,author,source_kind}:
   monica-toolchain-decision,discovered_from,"2026-07-16T17:08:56.033Z",null,null
-comments[1]{created_at,author,text}:
+comments[2]{created_at,author,text}:
   "2026-07-16T17:08:56.033Z",codex-root,Created from the July 2026 modernization decision; not required to close the critical advisory.
+  "2026-07-16T17:19:06.369Z",codex-root,"Dependabot PR #48 confirmed the current incompatibility on 2026-07-16: TypeScript 7.0.2 failed both Validate (Bun) and Validate (Node + npm/npx). PR closed and >=7 updates ignored until the definition-of-ready peer range is satisfied."
 notes[1]{created_at,author,text}:
   "2026-07-16T17:08:56.033Z",codex-root,Start by querying @typescript-eslint parser and plugin peerDependencies.
 learnings[1]{created_at,author,text}:
