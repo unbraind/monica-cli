@@ -21,9 +21,9 @@ All notable changes to this project will be documented in this file.
 - Switched Dependabot from npm lockfile semantics to native Bun support and
   grouped compatible minor/patch updates, with scoped holds for TypeScript 7
   and Node type majors that exceed the supported toolchain.
-- Upgraded checkout, setup-node, upload-artifact, CodeQL, and release-drafter
-  Actions to their Node 24-capable major versions, including Gitleaks 3 for
-  secret scanning.
+- Upgraded checkout, setup-node, upload-artifact, CodeQL, dependency review,
+  release-drafter, and GitHub release Actions to their current Node 24-capable
+  majors, including an immutable Gitleaks 3 pin for secret scanning.
 - Made Node and web platform types explicit for TypeScript 6 and preserved
   original errors as `cause` when wrapping request or fallback failures.
 
