@@ -1,0 +1,44 @@
+id: monica-gitleaks-node24
+title: Upgrade Gitleaks action to Node 24 generation
+description: Replace gitleaks/gitleaks-action@v2 after merged-head security workflow emitted the GitHub runner Node 20 deprecation warning.
+type: Chore
+status: in_progress
+priority: 1
+tags[4]: ci,github-actions,gitleaks,security
+created_at: "2026-07-16T17:25:17.411Z"
+updated_at: "2026-07-16T17:27:34.411Z"
+deadline: "2026-07-18T17:25:17.411Z"
+assignee: codex-root
+author: codex-root
+estimated_minutes: 45
+acceptance_criteria: Security workflow uses Gitleaks action v3; secret scan and repository history scan pass; merged master run has no Gitleaks Node 20 deprecation warning
+definition_of_ready: Merged-head run 29519584624 identifies the exact action and upstream v3 release is confirmed.
+goal: trusted-monica-cli
+objective: remove-node20-action-warning
+value: Keep secret scanning on a supported action runtime
+impact: Avoid future workflow breakage when GitHub stops forcing Node 20 actions onto Node 24
+outcome: Clean secret-scan job on the current Gitleaks action generation
+why_now: Master security run reports gitleaks/gitleaks-action@v2 as deprecated
+parent: monica-platform
+reviewer: unbraind
+risk: high
+confidence: 100
+sprint: 2026-07-security-modernization
+release: next
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-platform,related,"2026-07-16T17:25:17.411Z",codex-root,null
+comments[3]{created_at,author,text}:
+  "2026-07-16T17:25:17.411Z",codex-root,"Discovered after #50 merged: Security run 29519584624 warned that gitleaks/gitleaks-action@v2 targets deprecated Node 20."
+  "2026-07-16T17:25:33.367Z",codex-root,"Upstream release evidence: https://github.com/gitleaks/gitleaks-action/releases/tag/v3.0.0; tag v3 resolves to e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e."
+  "2026-07-16T17:27:34.411Z",codex-root,PR #54 review recommended an immutable security-action reference. Updated Gitleaks to commit e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e with v3.0.0 annotation instead of floating v3.
+notes[1]{created_at,author,text}:
+  "2026-07-16T17:25:17.411Z",codex-root,"Upstream latest release is v3.0.0, published 2026-05-30; preserve the existing least-privilege permissions and scan steps."
+learnings[1]{created_at,author,text}:
+  "2026-07-16T17:25:17.411Z",codex-root,A green workflow can still contain a future-breaking runtime deprecation; merged-head annotations are part of completion evidence.
+files[1]{path,scope,note}:
+  .github/workflows/security.yml,project,secret scan action reference
+tests[1]{command,scope,note}:
+  gh run watch <master-security-run-id> --exit-status,project,merged-head workflow proof
+docs[1]{path,scope,note}:
+  CHANGELOG.md,project,Unreleased action upgrade
+body: Upgrade only the action generation; preserve permissions and both the upstream Gitleaks scan and repository history scan. Close only after the merged master job is green without the deprecation annotation.
