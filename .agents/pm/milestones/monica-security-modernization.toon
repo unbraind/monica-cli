@@ -2,13 +2,13 @@ id: monica-security-modernization
 title: Security and dependency modernization tranche
 description: "Consolidate the July 2026 security alert, stale dependencies, failing update automation, and adjacent repository hardening."
 type: Milestone
-status: in_progress
+status: closed
 priority: 0
 tags[4]: ci,dependencies,release,security
 created_at: "2026-07-16T16:56:33.170Z"
-updated_at: "2026-07-16T17:11:40.035Z"
+updated_at: "2026-07-16T17:19:51.770Z"
 deadline: "2026-07-23T16:56:33.170Z"
-assignee: codex-root
+closed_at: "2026-07-16T17:19:51.770Z"
 author: codex-root
 estimated_minutes: 960
 acceptance_criteria: Critical advisory closed; dependency and Actions upgrades integrated; CI/security green; pm tracker and history committed; superseded Dependabot PRs reconciled
@@ -25,11 +25,15 @@ risk: critical
 confidence: 85
 sprint: 2026-07-security-modernization
 release: next
+resolution: "Consolidated the critical advisory fix, current compatible dependencies, Bun-native automation, action upgrades, formatter and credential hardening, documentation, and repository governance across merged PRs #45-#47."
+expected_result: "Critical advisory closed; automation, CI, and security green; authoritative pm state committed; all dependency PRs reconciled."
+actual_result: "GitHub alert #3 is fixed, three delivery PRs merged, all current compatible updates landed, incompatible majors are tracked and suppressed, and every milestone child is terminal with evidence."
 dependencies[1]{id,kind,created_at,author,source_kind}:
   monica-platform,related,"2026-07-16T16:56:33.170Z",null,null
-comments[2]{created_at,author,text}:
+comments[3]{created_at,author,text}:
   "2026-07-16T16:56:33.170Z",codex-root,This milestone intentionally absorbs the overlapping open Dependabot PRs into one compatibility-tested change set.
   "2026-07-16T17:11:40.012Z",codex-root,"Draft PR #45 opened at https://github.com/unbraind/monica-cli/pull/45 from commit 535451d9cd17cff3e4827a218c70acfc34c7153a; awaiting exact-head CI and security checks."
+  "2026-07-16T17:19:07.567Z",codex-root,"Merged PRs #45, #46, and #47. GitHub alert #3 is fixed; eleven superseded legacy update PRs were closed; incompatible PRs #48 and #49 were closed with explicit TypeScript peer-range and Node-runtime rationale."
 notes[1]{created_at,author,text}:
   "2026-07-16T16:56:33.170Z",codex-root,Do not close or supersede Dependabot PRs until the replacement branch is pushed and verified.
 learnings[1]{created_at,author,text}:
@@ -41,4 +45,5 @@ tests[1]{command,scope,note}:
   "bun run verify:release",project,release-grade acceptance gate
 docs[1]{path,scope,note}:
   docs/SECURITY-AUDIT.md,project,security posture record
+close_reason: Security and dependency modernization delivered
 body: "Deliver a single verified modernization branch covering dependency upgrades, Actions upgrades, security findings, source audit, documentation, and pm governance bootstrap."

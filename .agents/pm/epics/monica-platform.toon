@@ -6,7 +6,7 @@ status: open
 priority: 0
 tags[4]: agent-ux,product,reliability,security
 created_at: "2026-07-16T16:56:16.513Z"
-updated_at: "2026-07-16T17:09:53.540Z"
+updated_at: "2026-07-16T17:20:57.557Z"
 deadline: "2027-07-16T16:56:16.513Z"
 assignee: codex-root
 author: codex-root
@@ -30,7 +30,7 @@ notes[1]{created_at,author,text}:
   "2026-07-16T16:56:16.513Z",codex-root,Authoritative tracker state is repository-local under .agents/pm and must only be changed through pm CLI.
 learnings[1]{created_at,author,text}:
   "2026-07-16T16:56:16.513Z",codex-root,"All dependency PR failures appear to share a repository gate or compatibility surface, so updates should be integrated and verified as one coherent modernization tranche."
-files[230]{path,scope,note}:
+files[235]{path,scope,note}:
   .env.example,project,public configuration example ownership
   .github/dependabot.yml,project,repository automation configuration ownership
   .github/release-drafter.yml,project,repository automation configuration ownership
@@ -261,6 +261,11 @@ files[230]{path,scope,note}:
   tests/versioning.test.ts,project,canonical regression suite ownership
   tsconfig.json,project,project configuration ownership
   vitest.config.ts,project,root TypeScript configuration ownership
+  .github/CODEOWNERS,project,repository ownership policy
+  .github/ISSUE_TEMPLATE/bug_report.yml,project,bug intake template
+  .github/ISSUE_TEMPLATE/config.yml,project,issue chooser policy
+  .github/ISSUE_TEMPLATE/feature_request.yml,project,feature intake template
+  .github/pull_request_template.md,project,pull request governance template
 tests[1]{command,scope,note}:
   "bun run verify:release",project,full release verification
 docs[2]{path,scope,note}:

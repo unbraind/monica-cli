@@ -2,13 +2,13 @@ id: monica-dependabot-commitlint
 title: Commit lint rejects generated Dependabot bodies
 description: Dependabot commit bodies contain long generated URLs that violate body-max-line-length and fail every dependency PR.
 type: Issue
-status: in_progress
+status: closed
 priority: 1
 tags[3]: ci,commitlint,dependabot
 created_at: "2026-07-16T16:58:08.932Z"
-updated_at: "2026-07-16T16:58:08.932Z"
+updated_at: "2026-07-16T17:19:30.467Z"
 deadline: "2026-07-18T16:58:08.932Z"
-assignee: codex-root
+closed_at: "2026-07-16T17:19:30.466Z"
 author: codex-root
 estimated_minutes: 90
 acceptance_criteria: Dependabot commits pass; malformed Conventional Commit subjects still fail; policy is explicit in a committed config
@@ -23,8 +23,9 @@ reporter: Repository audit
 severity: medium
 environment: GitHub Actions pull_request commit-message job
 repro_steps: Inspect run 26767553085; generated Vitest URL exceeds 100 characters.
-expected_result: Bot dependency commits pass subject lint.
-actual_result: All generated update PRs fail body-max-line-length.
+resolution: Added committed Conventional Commit configuration that disables only body-max-line-length while preserving subject validation; CI now checks out the config before linting.
+expected_result: Dependabot commit bodies pass while malformed subjects remain rejected.
+actual_result: Dependabot PRs #46 through #49 passed Commit Message Lint; local negative-subject proof still rejects invalid Conventional Commit subjects.
 affected_version: 2026.3.6-2
 component: ci-policy
 regression: false
@@ -43,4 +44,5 @@ tests[1]{command,scope,note}:
   npx commitlint --from origin/master --to HEAD,project,commit subject policy
 docs[1]{path,scope,note}:
   CONTRIBUTING.md,project,commit convention
+close_reason: Commit policy repaired and proven by generated bot commits
 body: The commit message gate should retain Conventional Commit subject validation while allowing machine-generated dependency metadata and URLs in bodies.

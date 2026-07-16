@@ -2,13 +2,13 @@ id: monica-vulnerable-vitest
 title: Critical Vitest advisory remains open
 description: The resolved Vitest 1.6.1 is vulnerable to GHSA-5xrq-8626-4rwp and must be upgraded with its coverage provider.
 type: Issue
-status: in_progress
+status: closed
 priority: 0
 tags[4]: dependabot,ghsa-5xrq-8626-4rwp,security,vitest
 created_at: "2026-07-16T16:58:07.814Z"
-updated_at: "2026-07-16T16:58:07.814Z"
+updated_at: "2026-07-16T17:19:28.890Z"
 deadline: "2026-07-18T16:58:07.814Z"
-assignee: codex-root
+closed_at: "2026-07-16T17:19:28.890Z"
 author: codex-root
 estimated_minutes: 180
 acceptance_criteria: Vitest and @vitest/coverage-v8 resolve to a patched matched version; full tests and coverage pass; GitHub alert closes after merge
@@ -23,8 +23,9 @@ reporter: GitHub Dependabot
 severity: critical
 environment: development and CI dependency graph
 repro_steps: Inspect bun.lock or run bun pm ls vitest; observe 1.6.1 below patched 3.2.6.
-expected_result: No dependency resolves a vulnerable Vitest version.
-actual_result: Vitest 1.6.1 is committed and alert #3 is open.
+resolution: "Upgraded Vitest and @vitest/coverage-v8 together to 4.1.10; GitHub marked Dependabot alert #3 fixed at 2026-07-16T17:13:49Z."
+expected_result: No dependency resolves a vulnerable Vitest version; tests and coverage remain green.
+actual_result: "bun.lock resolves Vitest 4.1.10, 542 tests and coverage gates pass, production audits report zero vulnerabilities, and GHSA-5xrq-8626-4rwp is fixed."
 affected_version: 2026.3.6-2
 component: test-toolchain
 regression: false
@@ -45,4 +46,5 @@ tests[2]{command,scope,note}:
   "bun run test:coverage",project,coverage-provider compatibility
 docs[1]{path,scope,note}:
   docs/SECURITY-AUDIT.md,project,record remediation
+close_reason: Patched and verified in merged PR #45
 body: "GitHub Dependabot alert #3 reports arbitrary file read and execution when the Vitest UI server listens. The production runtime is not directly exposed, but contributor and CI environments must not retain a critical vulnerable dev dependency."
