@@ -1,0 +1,48 @@
+id: monica-actions-remaining-majors
+title: Integrate remaining current GitHub Actions majors
+description: Review and merge the newly generated dependency-review-action 5 and action-gh-release 3 updates after the modernization landed.
+type: Chore
+status: closed
+priority: 1
+tags[4]: ci,dependabot,github-actions,release
+created_at: "2026-07-16T17:34:14.618Z"
+updated_at: "2026-07-16T17:34:28.438Z"
+deadline: "2026-07-18T17:34:14.618Z"
+closed_at: "2026-07-16T17:34:28.436Z"
+author: codex-root
+estimated_minutes: 45
+acceptance_criteria: PRs #52 and #53 merge from current heads; Bun/npm/security checks pass; master release draft and security workflows remain green
+definition_of_ready: Dependabot generated isolated one-line major updates with release metadata and green initial checks.
+goal: trusted-monica-cli
+objective: current-actions-majors
+value: Finish current action maintenance without leaving generated PR backlog
+impact: Keeps dependency review and publishing workflows on supported current generations
+outcome: No open actionable GitHub Actions update PR remains
+why_now: Native GitHub Actions Dependabot surfaced current majors immediately after configuration repair
+parent: monica-platform
+reviewer: unbraind
+risk: medium
+confidence: 100
+sprint: 2026-07-security-modernization
+release: next
+resolution: Merged dependency-review-action 5 in PR #52 and action-gh-release 3 in PR #53 after sequential current-master updates and exact-head validation.
+expected_result: Both current majors merge with green validation and no actionable Actions update PR remains.
+actual_result: "PR #52 merged as 47ae077 and #53 as cdef5a8; master CI and Release Draft passed, master Security run passed npm audit, secret scan, and CodeQL, and the open PR inventory is empty."
+dependencies[1]{id,kind,created_at,author,source_kind}:
+  monica-platform,related,"2026-07-16T17:34:14.618Z",codex-root,null
+comments[1]{created_at,author,text}:
+  "2026-07-16T17:34:14.618Z",codex-root,PR #52 updates actions/dependency-review-action 4 to 5; PR #53 updates softprops/action-gh-release 2 to 3.
+notes[1]{created_at,author,text}:
+  "2026-07-16T17:34:14.618Z",codex-root,Both PRs were updated onto the latest protected master and revalidated after each preceding merge.
+learnings[1]{created_at,author,text}:
+  "2026-07-16T17:34:14.618Z",codex-root,A repaired Dependabot configuration can expose a second wave of legitimate updates; delivery is complete only after that live queue is reconciled.
+files[2]{path,scope,note}:
+  .github/workflows/security.yml,project,dependency review action
+  .github/workflows/release-publish.yml,project,release publishing action
+tests[2]{command,scope,note}:
+  gh pr checks 52 --watch,project,dependency review action exact-head checks
+  gh pr checks 53 --watch,project,release action exact-head checks
+docs[1]{path,scope,note}:
+  CHANGELOG.md,project,Unreleased Actions inventory
+close_reason: Remaining current Actions majors merged and verified
+body: "Treat each generated PR as an exact-head update: refresh onto current master, require Bun/npm/security checks, merge sequentially, then record the final master commit and release/security proof."

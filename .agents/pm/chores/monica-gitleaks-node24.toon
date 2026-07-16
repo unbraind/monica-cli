@@ -2,13 +2,13 @@ id: monica-gitleaks-node24
 title: Upgrade Gitleaks action to Node 24 generation
 description: Replace gitleaks/gitleaks-action@v2 after merged-head security workflow emitted the GitHub runner Node 20 deprecation warning.
 type: Chore
-status: in_progress
+status: closed
 priority: 1
 tags[4]: ci,github-actions,gitleaks,security
 created_at: "2026-07-16T17:25:17.411Z"
-updated_at: "2026-07-16T17:27:34.411Z"
+updated_at: "2026-07-16T17:34:27.728Z"
 deadline: "2026-07-18T17:25:17.411Z"
-assignee: codex-root
+closed_at: "2026-07-16T17:34:27.726Z"
 author: codex-root
 estimated_minutes: 45
 acceptance_criteria: Security workflow uses Gitleaks action v3; secret scan and repository history scan pass; merged master run has no Gitleaks Node 20 deprecation warning
@@ -25,6 +25,9 @@ risk: high
 confidence: 100
 sprint: 2026-07-security-modernization
 release: next
+resolution: Replaced Gitleaks v2 with the immutable v3.0.0 commit e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e and retained both secret-scanning stages.
+expected_result: Secret scan passes on a Node 24-capable Gitleaks action without the Node 20 deprecation annotation.
+actual_result: PR #54 merged as cd40170; master Security run 29520167654 secret-scan passed in 13 seconds and returned zero annotations.
 dependencies[1]{id,kind,created_at,author,source_kind}:
   monica-platform,related,"2026-07-16T17:25:17.411Z",codex-root,null
 comments[3]{created_at,author,text}:
@@ -41,4 +44,5 @@ tests[1]{command,scope,note}:
   gh run watch <master-security-run-id> --exit-status,project,merged-head workflow proof
 docs[1]{path,scope,note}:
   CHANGELOG.md,project,Unreleased action upgrade
+close_reason: Gitleaks v3.0.0 immutable pin delivered in PR #54
 body: Upgrade only the action generation; preserve permissions and both the upstream Gitleaks scan and repository history scan. Close only after the merged master job is green without the deprecation annotation.
