@@ -143,6 +143,24 @@ describe('config setup wizard', () => {
     }, {})).rejects.toThrow('Invalid user email');
   });
 
+  it.each([
+    `${'a'.repeat(245)}@example.com`,
+    'user name@example.com',
+    'user@@example.com',
+    '@example.com',
+    'user@',
+    'user@example',
+    'user@.example',
+    'user@example.',
+  ])('rejects malformed user email %s', async (userEmail) => {
+    await expect(resolveSetupConfig({
+      apiUrl: 'http://example.local/api',
+      apiKey: 'token',
+      userEmail,
+      nonInteractive: true,
+    }, {})).rejects.toThrow('Invalid user email');
+  });
+
   it('throws when user password is provided without user email', async () => {
     await expect(resolveSetupConfig({
       apiUrl: 'http://example.local/api',

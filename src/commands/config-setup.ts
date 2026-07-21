@@ -17,8 +17,6 @@ export interface ConfigSetupOptions {
   skipCapabilityProbe?: boolean;
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
-
 function parseBooleanEnv(value: string | undefined): boolean | undefined {
   if (!value) return undefined;
   const normalized = value.trim().toLowerCase();
@@ -52,7 +50,18 @@ function validateApiKey(apiKey: string): void {
 }
 
 function validateOptionalCredentials(config: Partial<MonicaConfig>): void {
-  if (config.userEmail && !EMAIL_PATTERN.test(config.userEmail)) {
+  const emailParts = config.userEmail?.split('@');
+  const emailDomain = emailParts?.[1];
+  if (config.userEmail && (
+    config.userEmail.length > 254
+    || /\s/u.test(config.userEmail)
+    || emailParts?.length !== 2
+    || !emailParts[0]
+    || !emailDomain
+    || !emailDomain.includes('.')
+    || emailDomain.startsWith('.')
+    || emailDomain.endsWith('.')
+  )) {
     throw new Error(`Invalid user email: "${config.userEmail}"`);
   }
   if (config.userPassword && !config.userEmail) {

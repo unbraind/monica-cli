@@ -1,5 +1,5 @@
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import process from 'node:process';
 import ts from 'typescript';
 
@@ -12,10 +12,15 @@ const DECLARATION_KINDS = new Set([
   ts.SyntaxKind.VariableStatement,
 ]);
 
-const files = execFileSync('rg', ['--files', 'src', 'tests', '-g', '*.ts'], { encoding: 'utf8' })
-  .trim()
-  .split('\n')
-  .filter(Boolean);
+function collectTypeScriptFiles(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = join(directory, entry.name);
+    if (entry.isDirectory()) return collectTypeScriptFiles(entryPath);
+    return entry.isFile() && entry.name.endsWith('.ts') ? [entryPath] : [];
+  });
+}
+
+const files = ['src', 'tests'].flatMap(collectTypeScriptFiles).sort();
 const failures = [];
 let documented = 0;
 let exported = 0;
