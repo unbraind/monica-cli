@@ -104,6 +104,13 @@ run:
    create or update the `Auto Release blocked: scheduled run failed` issue;
    the next successful scheduled publication closes it.
 
+Development CI checks the normal `Unreleased` changelog projection with
+`changelog:pm:check`. After release preparation moves those entries into the
+dated section, both the preparation pipeline and tag workflow instead run
+`changelog:pm:check:release --release-version <version>`, followed by the shared
+`verify:release:gates` suite. This keeps the two valid pm-changelog projections
+from being compared against the wrong generator context.
+
 ## Manual release and recovery checklist
 
 1. Dispatch `Auto Release` with `dry_run=true`, `push=false` and review all

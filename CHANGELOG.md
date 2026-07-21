@@ -19,6 +19,7 @@
 
 ### Fixed
 
+- Validate prepared release changelog in release context ([monica-prepared-changelog-check](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-prepared-changelog-check.toon))
 - Configure RELEASE_PAT for protected-master auto-release pushes ([monica-release-pat-secret](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-release-pat-secret.toon))
 - Simplified pagination termination to remove a stale assignment exposed by ESLint 10 ([monica-changelog-pagination-cleanup](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-pagination-cleanup.toon))
 - Added formatter escaping and settings permissions regression coverage ([monica-changelog-regression-coverage](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-regression-coverage.toon))

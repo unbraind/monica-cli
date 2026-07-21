@@ -2,13 +2,13 @@ id: monica-prepared-changelog-check
 title: Validate prepared release changelog in release context
 description: "Production Auto Release generated the dated changelog correctly, then the normal unreleased-mode changelog check rejected it before commit, tag, or publication."
 type: Issue
-status: in_progress
+status: closed
 priority: 0
 tags[4]: changelog,github-actions,regression,release
 created_at: "2026-07-21T18:15:06.892Z"
-updated_at: "2026-07-21T18:17:19.847Z"
+updated_at: "2026-07-21T18:19:12.775Z"
 deadline: "2026-07-22T18:15:06.892Z"
-assignee: codex-auto-release
+closed_at: "2026-07-21T18:18:46.682Z"
 author: codex-auto-release
 estimated_minutes: 45
 acceptance_criteria: Prepared release validation checks CHANGELOG.md with the target release version and retains every remaining release gate; Tag-triggered publication uses the same release-context check; A non-pushing production-path integration proof creates the expected release commit and tag
@@ -21,16 +21,20 @@ reporter: codex-auto-release
 severity: high
 environment: GitHub Actions Auto Release run 29856125639 on merged master 1b971187
 repro_steps: "Dispatch Auto Release with push=true and dry_run=false; preparation creates the dated section, then bun run verify:release invokes the unreleased-mode changelog check and exits before commit."
-expected_result: "The prepared dated changelog is validated with --release-version and the pipeline proceeds through all gates to commit, tag, and publication."
-actual_result: The prepared dated changelog was compared against unreleased-mode generator output and rejected; no release refs or registry package were created.
+resolution: Separated reusable release gates from changelog projection checks and applied explicit release-version validation during preparation and tag publication; made preservation projection-neutral.
+expected_result: Prepared release and tag validation use the target release version while normal CI retains unreleased-mode drift checking.
+actual_result: "Both contexts are separated and an isolated production path created a clean v2026.7.21 commit/tag after all gates, including npm and Bun smoke tests."
 customer_impact: The first automatic publication was safely blocked before any partial release state.
 dependencies[1]{id,kind,created_at,author,source_kind}:
   monica-auto-release,related,"2026-07-21T18:15:06.892Z",codex-auto-release,null
-comments[2]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-07-21T18:15:06.892Z",codex-auto-release,"Live production run 29856125639 failed safely at changelog verification after version and changelog preparation. Logs contain no exposed credential values,and npm plus GitHub have no 2026.7.21 release artifact."
   "2026-07-21T18:17:19.827Z",codex-auto-release,The first isolated proof invocation was launched from the source checkout instead of the clone and was immediately corrected by regenerating the development changelog from pm data. It also showed the preservation guard incorrectly required the development-only Unreleased heading; the guard now enforces historical headings plus all evidence item links in either valid projection.
-notes[1]{created_at,author,text}:
+  "2026-07-21T18:18:45.898Z",codex-auto-release,"Isolated non-pushing production-path proof passed in a fresh clone: target 2026.7.21 was prepared, release-context changelog validation passed, all 547 tests and every release gate passed, npx and bunx both reported 2026.7.21, history audits passed, and a clean v2026.7.21 release commit/tag was created only inside the clone."
+  "2026-07-21T18:19:12.755Z",codex-auto-release,"The release runbook now documents the separate Unreleased and dated release projections, the commands used for each, and the shared gate suite."
+notes[2]{created_at,author,text}:
   "2026-07-21T18:15:06.892Z",codex-auto-release,"No tag or registry artifact existed after the failed run,so retry remains safe after a merged fix."
+  "2026-07-21T18:18:45.898Z",codex-auto-release,"Proof clone: /tmp/monica-prepared-release-proof.L5HSnu. This path is local evidence only and contains no credentials or pushed refs."
 learnings[1]{created_at,author,text}:
   "2026-07-21T18:15:06.892Z",codex-auto-release,A generated release changelog and an unreleased development changelog are two valid projections of the same pm data and must be checked with matching generator context.
 files[4]{path,scope,note}:
@@ -48,4 +52,5 @@ tests[2]:
     timeout_seconds: 300
 docs[1]{path,scope,note}:
   docs/RELEASE-MANAGEMENT.md,project,Prepared release validation contract
+close_reason: Prepared release validation now uses the target-version projection and the full non-pushing production path passes in isolation.
 body: "Separate the normal development changelog drift contract from prepared-release validation. Keep the normal CI command unchanged; add an explicit release-context check used by both release preparation and tag publication, then prove the mutation path without pushing."
