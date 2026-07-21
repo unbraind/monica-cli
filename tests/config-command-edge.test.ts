@@ -30,7 +30,7 @@ import { createConfigCommand, runConfigSetup } from '../src/commands/config';
 import * as settings from '../src/utils/settings';
 
 describe('config command edge contracts', () => {
-  let log: ReturnType<typeof vi.spyOn>;
+  let stdout: ReturnType<typeof vi.spyOn>;
   let error: ReturnType<typeof vi.spyOn>;
   const load = settings.loadSettings as unknown as ReturnType<typeof vi.fn>;
   const save = settings.saveSettings as unknown as ReturnType<typeof vi.fn>;
@@ -40,14 +40,14 @@ describe('config command edge contracts', () => {
     vi.clearAllMocks();
     state.settings = null;
     load.mockImplementation(() => state.settings);
-    log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     getUser.mockResolvedValue({ data: { id: 1, account: { id: 2 } } });
   });
   afterEach(() => vi.restoreAllMocks());
 
   function payload(): Record<string, unknown> {
-    return JSON.parse(String(log.mock.calls.at(-1)?.[0])) as Record<string, unknown>;
+    return JSON.parse(String(stdout.mock.calls.at(-1)?.[0])) as Record<string, unknown>;
   }
 
   it('reports missing, unknown, and all-key config reads', async () => {

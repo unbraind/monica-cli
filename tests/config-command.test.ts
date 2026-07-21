@@ -72,7 +72,7 @@ import * as setupCapabilityProbe from '../src/commands/config-capability-probe';
 import { createConfigCommand } from '../src/commands/config';
 
 describe('config command', () => {
-  let logSpy: ReturnType<typeof vi.spyOn>;
+  let stdoutSpy: ReturnType<typeof vi.spyOn>;
   const getUserMock = api.getUser as unknown as ReturnType<typeof vi.fn>;
   const setConfigMock = api.setConfig as unknown as ReturnType<typeof vi.fn>;
   const runSetupCapabilityProbeMock = setupCapabilityProbe.runSetupCapabilityProbe as unknown as ReturnType<typeof vi.fn>;
@@ -85,7 +85,7 @@ describe('config command', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     settingsState.value = {
       apiUrl: 'http://example.local/api',
@@ -131,23 +131,25 @@ describe('config command', () => {
   });
 
   it('prints structured JSON for config get', async () => {
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     const cmd = createConfigCommand();
     await cmd.parseAsync(['--format', 'json', 'get'], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(payload.config.apiUrl).toBe('http://example.local/api');
     expect(payload.config.apiKey).toBe('[hidden:36:sha256:testhash]');
     expect(payload.config.userPassword).toBe('[hidden]');
     expect(payload.config.defaultFormat).toBe('toon');
     expect(payload.config.readOnlyMode).toBe(true);
+    expect(consoleLog).not.toHaveBeenCalled();
   });
 
   it('prints structured JSON for config get <key>', async () => {
     const cmd = createConfigCommand();
     await cmd.parseAsync(['--format', 'json', 'get', 'api-key'], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload).toEqual({ key: 'api-key', value: '[hidden:36:sha256:testhash]' });
   });
 
@@ -158,7 +160,7 @@ describe('config command', () => {
     expect(saveSettingsMock).toHaveBeenCalledWith(expect.objectContaining({
       defaultFormat: 'md',
     }));
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(payload.config.defaultFormat).toBe('md');
   });
@@ -168,7 +170,7 @@ describe('config command', () => {
     await cmd.parseAsync(['--format', 'json', 'test'], { from: 'user' });
 
     expect(setConfigMock).toHaveBeenCalled();
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(payload.apiUrl).toBe('http://example.local/api');
     expect(payload.user.accountId).toBe(42);
@@ -180,7 +182,7 @@ describe('config command', () => {
     const cmd = createConfigCommand();
     await cmd.parseAsync(['--format', 'json', 'show'], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(false);
     expect(payload.connection.ok).toBe(false);
     expect(payload.connection.error).toContain('Connection to http://example.local/api failed');
@@ -207,7 +209,7 @@ describe('config command', () => {
       readOnlyMode: true,
     }));
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(payload.config.apiUrl).toBe('http://example.local/api');
     expect(payload.config.defaultFormat).toBe('yaml');
@@ -230,7 +232,7 @@ describe('config command', () => {
 
     expect(saveSettingsMock).not.toHaveBeenCalled();
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(payload.persisted).toBe(false);
     expect(payload.message).toContain('dry-run');
@@ -251,7 +253,7 @@ describe('config command', () => {
       '--skip-capability-probe',
     ], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(runSetupCapabilityProbeMock).toHaveBeenCalledTimes(1);
     expect(runSetupCapabilityProbeMock.mock.calls[0]?.[1]).toEqual({ enabled: false });
@@ -261,7 +263,7 @@ describe('config command', () => {
     const cmd = createConfigCommand();
     await cmd.parseAsync(['--format', 'json', 'doctor'], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
     expect(payload.summary.fail).toBe(0);
     expect(payload.summary.pass).toBeGreaterThanOrEqual(3);
@@ -278,7 +280,7 @@ describe('config command', () => {
     const cmd = createConfigCommand();
     await cmd.parseAsync(['--format', 'json', 'doctor'], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     const readOnlyCheck = payload.checks.find((check: { id: string }) => check.id === 'read-only-mode');
     expect(readOnlyCheck.status).toBe('warn');
   });
@@ -291,7 +293,7 @@ describe('config command', () => {
     const cmd = createConfigCommand();
     await cmd.parseAsync(['--format', 'json', 'doctor'], { from: 'user' });
 
-    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    const payload = JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(false);
     expect(payload.message).toContain('No configuration found');
     expect(payload.summary.fail).toBe(1);

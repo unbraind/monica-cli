@@ -26,7 +26,7 @@ import {
 export type { ConfigSetOptions } from './config-types';
 function printFormatted(command: Command, payload: unknown): void {
   const format = getConfigOutputFormat(command);
-  console.log(fmt.formatOutput(payload, format));
+  process.stdout.write(`${fmt.formatOutput(payload, format)}\n`);
 }
 /** Creates config command. */
 export function createConfigCommand(): Command {
