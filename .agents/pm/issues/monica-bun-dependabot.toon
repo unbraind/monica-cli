@@ -1,12 +1,12 @@
 id: monica-bun-dependabot
-title: Dependabot updates do not maintain bun.lock
+title: Fixed Dependabot updates so bun.lock is maintained
 description: The npm ecosystem updater creates package-lock.json changes while the required Bun frozen install consumes bun.lock.
 type: Issue
 status: closed
 priority: 0
 tags[4]: automation,bun,ci,dependabot
 created_at: "2026-07-16T16:58:08.386Z"
-updated_at: "2026-07-16T17:19:29.669Z"
+updated_at: "2026-07-21T17:27:11.432Z"
 deadline: "2026-07-18T16:58:08.386Z"
 closed_at: "2026-07-16T17:19:29.667Z"
 author: codex-root

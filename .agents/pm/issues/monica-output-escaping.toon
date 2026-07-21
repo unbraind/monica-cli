@@ -1,12 +1,12 @@
 id: monica-output-escaping
-title: Agent output escaping is incomplete
+title: Fixed TOON and Markdown output ambiguity for backslashes next to quotes or table delimiters
 description: TOON quoted strings and Markdown table cells escape delimiters without first escaping existing backslashes.
 type: Issue
 status: closed
 priority: 1
 tags[4]: agent-ux,codeql,correctness,formatters
 created_at: "2026-07-16T16:59:36.808Z"
-updated_at: "2026-07-16T17:19:31.615Z"
+updated_at: "2026-07-21T17:27:13.092Z"
 deadline: "2026-07-19T16:59:36.808Z"
 closed_at: "2026-07-16T17:19:31.613Z"
 author: codex-root

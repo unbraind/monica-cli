@@ -120,6 +120,22 @@ function getPublishedReleaseCountForDate(versionDate) {
   return max;
 }
 
+function currentVersionTagPointsAtHead(version) {
+  try {
+    const tagCommit = execSync(`git rev-list -n 1 v${version}`, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+    const headCommit = execSync('git rev-parse HEAD', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+    return tagCommit.length > 0 && tagCommit === headCommit;
+  } catch {
+    return false;
+  }
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
   const packageJsonPath = path.resolve(process.cwd(), 'package.json');
@@ -146,6 +162,10 @@ function main() {
   const expectedVersion = buildDateReleaseVersion(versionDate, nextReleaseNumber);
 
   if (options.check) {
+    if (isValidInternalVersion(packageJson.version) && currentVersionTagPointsAtHead(packageJson.version)) {
+      console.log(`Version check passed for tagged release: ${packageJson.version}`);
+      return;
+    }
     if (packageJson.version !== expectedVersion) {
       throw new Error(
         `Version mismatch: package.json has "${packageJson.version}", expected "${expectedVersion}" based on ${publishedReleaseCount} tagged release(s) on ${versionDate}.`

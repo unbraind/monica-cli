@@ -1,0 +1,25 @@
+id: monica-hist-2026-3-6-2-info-ux
+title: "Improved monica info missing-subcommand UX with structured guidance, subcommand descriptions, and an example invocation"
+description: Historical changelog backfill for the v2026.3.6-2 user-facing CLI change.
+type: Chore
+status: closed
+priority: 2
+tags[5]: changed,changelog-backfill,historical,info,ux
+created_at: "2026-07-21T17:23:49.977Z"
+updated_at: "2026-07-21T17:46:22.268Z"
+closed_at: "2026-07-21T17:23:49.977Z"
+author: codex-auto-release
+estimated_minutes: 10
+acceptance_criteria: The generated full-history changelog retains this fact in its correct release window.
+parent: monica-auto-release
+reviewer: unbraind
+risk: low
+confidence: high
+sprint: changelog-migration
+release: v2026.3.6-2
+resolution: Backfilled from the existing human-maintained changelog and verified against tag v2026.3.6-2.
+expected_result: Generated full-history changelog retains this fact under v2026.3.6-2.
+actual_result: The closed pm item carries the exact historical fact and explicit release metadata.
+fixed_version: 2026.3.6-2
+close_reason: Backfill v2026.3.6-2 info UX changelog evidence
+body: Preserves the exact existing CHANGELOG.md fact so pm-changelog can become the authoritative generator without losing pre-tracker release history.
