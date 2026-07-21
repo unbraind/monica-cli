@@ -6,7 +6,7 @@ status: in_progress
 priority: 0
 tags[4]: api,implementation,monica-4x,release
 created_at: "2026-07-21T19:03:39.106Z"
-updated_at: "2026-07-21T22:13:51.927Z"
+updated_at: "2026-07-21T22:18:21.376Z"
 deadline: "2026-07-24T19:03:39.106Z"
 assignee: codex-monica-api
 author: codex-monica-api
@@ -38,11 +38,12 @@ tests[1]{command,scope,timeout_seconds,note}:
   "bun run verify:release",project,2400,Release gate
 docs[1]{path,scope,note}:
   docs/COMMANDS.md,project,CLI surface documentation
-plan_validation[4]{text,command,expected}:
+plan_validation[5]{text,command,expected}:
   Exact all-source coverage and production release gate passed.,"bun run verify:release:gates",830 tests and 100/100/100/100 coverage; 273 help checks; typecheck lint JSDoc LOC duplication build smoke workflow and history gates pass.
   Actual installed CLI remained read-only against the configured private instance.,"MONICA_E2E_TIMEOUT_MS=3000 MONICA_E2E_REQUEST_TIMEOUT_MS=1000 bun run test:e2e:readonly","95 total, 42 pass, 53 expected unavailable, 0 fail, mutation guards pass, settings restored."
   Dependency audit is clean after fixed transitive overrides.,bun audit,No vulnerabilities found.
   PR round-one CI findings fixed locally.,"bun run lint:source-quality && bun run typecheck && bun run test:coverage && bun audit",Portable Node-only quality discovery; 838 tests at exact coverage; zero vulnerabilities.
+  Built artifact help audit is clean-runner portable.,"bun run build && bun run test:e2e:help",273/273 command help checks execute dist/index.js without a global link.
 plan_decisions[1]{ts,author,decision,rationale,evidence}:
   "2026-07-21T19:03:55.583Z",codex-monica-api,Use Monica stable 4.x source routes as the authoritative parity baseline while retaining documented legacy variants as compatibility fallbacks.,Self-hosted versions drift; source-first primary routes plus narrow 404/405 fallbacks maximize correctness without masking server failures.,monicahq/monica routes/api.php at 32028ce and official monicahq.com/api docs
 plan_discoveries[2]{ts,author,text}:

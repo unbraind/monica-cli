@@ -6,7 +6,7 @@ status: in_progress
 priority: 0
 tags[7]: agent-ux,api,diagnostics,documentation,monica-4x,read-only-safety,typescript
 created_at: "2026-07-21T19:01:30.917Z"
-updated_at: "2026-07-21T22:13:51.285Z"
+updated_at: "2026-07-21T22:18:20.835Z"
 deadline: "2026-07-24T19:01:30.917Z"
 assignee: codex-monica-api
 author: codex-monica-api
@@ -33,7 +33,7 @@ dependencies[7]{id,kind,created_at,author,source_kind}:
   monica-output-escaping,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
   monica-prepared-changelog-check,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
   monica-security-modernization,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
-comments[8]{created_at,author,text}:
+comments[9]{created_at,author,text}:
   "2026-07-21T19:01:30.917Z",codex-monica-api,Duplicate-safe all-status search and dedupe-audit found no existing API parity item. Monica stable 4.x source exposes statistics places lifeevents reminders/upcoming me/contact and contact work food introduction routes missing or drifted from the current reference.
   "2026-07-21T19:14:19.373Z",codex-monica-api,"User elevated repo-wide code quality to the highest priority: forbid any except documented necessity; forbid inline/dynamic imports and non-erasable TypeScript syntax; inline trivial single-use helpers; derive external types from installed declarations; enforce source LOC and high-quality docstring coverage; require honest 100/100/100/100 source coverage with efficient non-duplicative tests across unit, integration, functional, smoke, read-only E2E/dogfood, performance, acceptance and PM validation; strengthen mandatory CI quality/security/duplication gates without exclusion-based or synthetic coverage cheating."
   "2026-07-21T19:31:45.010Z",codex-monica-api,"Re-verified the authoritative Monica 4.x source live on 2026-07-21: head remains 32028ce3ce79cef38df5d27a297e5b20680f0065. routes/api.php plus Place, LifeEvent, Reminder, Avatar, Me controllers/services/resources confirm statistics, places, lifeevents, reminders/upcoming/{month}, POST/DELETE me/contact, PUT contact work/food/introduction/avatar and their request/response fields."
@@ -42,6 +42,7 @@ comments[8]{created_at,author,text}:
   "2026-07-21T22:01:19.225Z",codex-monica-api,"Read-only acceptance is green: 95 actual monica command checks, 42 locally verifiable passes, 53 expected API-dependent failures after an independent unhealthy capability preflight, zero unexplained failures, five mutation guards blocked locally, and private settings restored. The server remains unavailable because Laravel cannot write storage logs; no Monica data was changed."
   "2026-07-21T22:06:22.969Z",codex-monica-api,"Version policy selected 2026.7.21-2 because one release tag already exists for 2026-07-21; package, lockfile, and PM release metadata are aligned."
   "2026-07-21T22:13:51.284Z",codex-monica-api,"PR #59 CI round 1 found two actionable portability/security issues: GitHub runners lacked rg for the source-quality script, and CodeQL flagged the unbounded email regex. Replaced discovery with Node filesystem traversal and email validation with linear bounded string checks; added eight malformed-email cases. Local proof is 838 tests at exact 100/100/100/100 and zero dependency vulnerabilities."
+  "2026-07-21T22:18:20.832Z",codex-monica-api,"PR #59 CI round 2 found the help audit depended on a workstation-global monica link. It now executes the freshly built dist/index.js via the current Bun runtime with argument arrays; clean-runner-equivalent build and all 273 help commands pass locally, with 838 exact-coverage tests."
 notes[5]{created_at,author,text}:
   "2026-07-21T19:01:30.917Z",codex-monica-api,The supplied instance currently fails every API request with HTTP 500 because Laravel cannot append storage/logs/laravel-2026-07-21.log and also reports Cloudflare trust-proxy loading failure. Treat this as systemic instance health not 31 unsupported resources; do not store credentials in pm.
   "2026-07-21T19:14:49.780Z",codex-monica-api,"Decision: coverage, docstrings, LOC, strict TypeScript syntax, duplication, PM lint, and reproducible security/quality checks are release-blocking gates. Existing violations are in scope repo-wide, including pre-existing oversized source and test files."
