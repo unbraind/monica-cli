@@ -180,7 +180,9 @@ function prepareRelease(targetVersion) {
   }
   run('bun', ['install', '--lockfile-only']);
   generateChangelog('CHANGELOG.md', targetVersion);
-  run('bun', ['run', 'verify:release']);
+  run('bun', ['run', 'version:check']);
+  run('bun', ['run', 'changelog:pm:check:release', '--release-version', targetVersion]);
+  run('bun', ['run', 'verify:release:gates']);
 }
 
 function releaseIdentity(author) {
