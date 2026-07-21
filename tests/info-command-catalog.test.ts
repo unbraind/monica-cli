@@ -34,10 +34,18 @@ function findNode(root: CatalogNode, path: string[]): CatalogNode | undefined {
 }
 
 describe('info command-catalog command', () => {
-  let logSpy: ReturnType<typeof vi.spyOn>;
+  let writeSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    writeSpy = vi.spyOn(process.stdout, 'write').mockImplementation(((
+      _chunk: unknown,
+      encodingOrCallback?: unknown,
+      callback?: unknown,
+    ) => {
+      const done = typeof encodingOrCallback === 'function' ? encodingOrCallback : callback;
+      if (typeof done === 'function') done();
+      return true;
+    }) as typeof process.stdout.write);
     vi.spyOn(fmt, 'formatOutput').mockReturnValue('FORMATTED_CATALOG');
   });
 
@@ -70,7 +78,7 @@ describe('info command-catalog command', () => {
     expect(infoMe?.usage.startsWith(infoMe?.fullCommand ?? '')).toBe(true);
     expect(infoMe?.helpCommand).toBe(`${infoMe?.fullCommand} --help`);
 
-    expect(logSpy).toHaveBeenCalledWith('FORMATTED_CATALOG');
+    expect(writeSpy).toHaveBeenCalledWith('FORMATTED_CATALOG\n', expect.any(Function));
   });
 
   it('attaches instance capability availability metadata when requested', async () => {

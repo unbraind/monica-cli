@@ -171,7 +171,9 @@ export function createInfoCommand(): Command {
           },
           commandTree: buildCommandCatalog(root, '', { capabilitySupportByCommandRoot }),
         };
-        console.log(fmt.formatOutput(catalog, format));
+        await new Promise<void>((resolveDrain) => {
+          process.stdout.write(`${fmt.formatOutput(catalog, format)}\n`, () => resolveDrain());
+        });
       } catch (error) {
         console.error(fmt.formatError(error as Error));
         process.exit(1);

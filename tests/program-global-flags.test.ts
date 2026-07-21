@@ -8,6 +8,15 @@ describe('program global flag propagation', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(process.stdout, 'write').mockImplementation(((
+      _chunk: unknown,
+      encodingOrCallback?: unknown,
+      callback?: unknown,
+    ) => {
+      const done = typeof encodingOrCallback === 'function' ? encodingOrCallback : callback;
+      if (typeof done === 'function') done();
+      return true;
+    }) as typeof process.stdout.write);
     vi.spyOn(settings, 'loadSettings').mockReturnValue(null);
   });
   afterEach(() => vi.restoreAllMocks());
