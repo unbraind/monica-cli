@@ -60,7 +60,9 @@ jobs:
           fi
           echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
-          bun run verify:release
+          bun run version:check
+          bun run changelog:pm:check:release --release-version "${version}"
+          bun run verify:release:gates
 
       - name: Build release tarball
         run: node scripts/with-npm-version.mjs npm pack
