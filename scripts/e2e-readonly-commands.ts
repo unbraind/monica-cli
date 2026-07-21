@@ -16,11 +16,15 @@ export function buildWriteGuardCommands(contactId: number | null): string[] {
     "monica contacts create --first-name 'read-only-guard' --gender-id 1",
     "monica tags create --name 'read-only-guard'",
     "monica companies create --name 'read-only-guard'",
+    "monica places create --city 'read-only-guard'",
+    "monica life-events create --contact 1 --type-id 1 --date 2026-01-01",
   ];
 
   if (contactId !== null) {
     checks.push(`monica tasks create --title 'read-only-guard' --contact ${contactId}`);
     checks.push(`monica notes create --body 'read-only-guard' --contact ${contactId}`);
+    checks.push(`monica user set-contact ${contactId}`);
+    checks.push(`monica contacts avatar ${contactId} --source default`);
   }
 
   return checks;
@@ -54,6 +58,7 @@ export function buildBaseCommandChecks(input: BuildBaseCommandChecksInput): Comm
     { command: `monica ${baseFlags} notes list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} tasks list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} reminders list --limit 2`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} reminders upcoming 0`, outputValidation: 'json' },
     { command: `monica ${baseFlags} tags list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} companies list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} calls list --limit 2`, outputValidation: 'json' },
@@ -80,6 +85,9 @@ export function buildBaseCommandChecks(input: BuildBaseCommandChecksInput): Comm
     { command: `monica ${baseFlags} audit-logs list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} pets list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} pet-categories list --limit 2`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} places list --limit 2`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} life-events list --limit 2`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} statistics get`, outputValidation: 'json' },
     { command: `monica ${baseFlags} search "${searchQuery}" --type all --limit 2 --max-pages 1`, outputValidation: 'json' },
     { command: `monica ${baseFlags} api-research summary --instance-aware`, outputValidation: 'json' },
     { command: `monica ${baseFlags} api-research coverage --instance-aware`, outputValidation: 'json' },

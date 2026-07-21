@@ -10,3 +10,4 @@ export { Tag, TagCreateInput, TagUpdateInput, SetTagsInput, UnsetTagInput } from
 export * from './company';
 export * from './reference';
 export * from './pet';
+export * from './stable-api';

@@ -1,18 +1,21 @@
 import { Command } from 'commander';
-import type { CapabilityReport } from '../api';
+import { getCapabilityState, type CapabilityReport } from '../api';
 
+/** Describes the command option descriptor data contract. */
 export interface CommandOptionDescriptor {
   flags: string;
   description: string;
   defaultValue?: unknown;
 }
 
+/** Describes the command argument descriptor data contract. */
 export interface CommandArgumentDescriptor {
   name: string;
   required: boolean;
   variadic: boolean;
 }
 
+/** Describes the command catalog node data contract. */
 export interface CommandCatalogNode {
   name: string;
   fullCommand: string;
@@ -27,12 +30,14 @@ export interface CommandCatalogNode {
   subcommands: CommandCatalogNode[];
 }
 
+/** Describes the command safety descriptor data contract. */
 export interface CommandSafetyDescriptor {
   operation: 'read' | 'write' | 'mixed' | 'meta';
   mutatesData: boolean;
   readOnlyCompatible: boolean;
 }
 
+/** Describes the command availability descriptor data contract. */
 export interface CommandAvailabilityDescriptor {
   supportedOnInstance: boolean;
   statusCode: number;
@@ -40,6 +45,7 @@ export interface CommandAvailabilityDescriptor {
   message: string;
 }
 
+/** Describes the command capability support data contract. */
 export interface CommandCapabilitySupport {
   supported: boolean;
   statusCode: number;
@@ -47,6 +53,7 @@ export interface CommandCapabilitySupport {
   message: string;
 }
 
+/** Describes the build command catalog options data contract. */
 export interface BuildCommandCatalogOptions {
   capabilitySupportByCommandRoot?: Record<string, CommandCapabilitySupport>;
 }
@@ -167,14 +174,16 @@ function mergeSafety(commandName: string, childSafety: CommandSafetyDescriptor[]
   };
 }
 
+/** Builds capability support index. */
 export function buildCapabilitySupportIndex(report: CapabilityReport): Record<string, CommandCapabilitySupport> {
   const index: Record<string, CommandCapabilitySupport> = {};
   report.probes.forEach((probe) => {
+    if (getCapabilityState(probe) === 'unavailable') return;
     const root = probe.command.split(' ')[0];
     const existing = index[root];
     if (!existing) {
       index[root] = {
-        supported: probe.supported,
+        supported: probe.supported === true,
         statusCode: probe.statusCode,
         endpoint: probe.endpoint,
         message: probe.message,
@@ -194,6 +203,7 @@ export function buildCapabilitySupportIndex(report: CapabilityReport): Record<st
   return index;
 }
 
+/** Builds command catalog. */
 export function buildCommandCatalog(command: Command, parentPath = '', buildOptions?: BuildCommandCatalogOptions): CommandCatalogNode {
   const commandName = command.name();
   const fullCommand = parentPath ? `${parentPath} ${commandName}` : commandName;

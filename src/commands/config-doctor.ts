@@ -28,8 +28,7 @@ function buildCheck(
   return { id, status, message, details };
 }
 
-function getModeInfo(stats: Stats | null): { mode: string | null; worldReadable: boolean } {
-  if (!stats) return { mode: null, worldReadable: false };
+function getModeInfo(stats: Stats): { mode: string; worldReadable: boolean } {
   const mode = stats.mode & 0o777;
   return {
     mode: `0o${mode.toString(8).padStart(3, '0')}`,
@@ -141,6 +140,7 @@ async function evaluateConnectionCheck(settings: Partial<MonicaConfig>): Promise
   }
 }
 
+/** Runs config doctor. */
 export async function runConfigDoctor(settings: Partial<MonicaConfig> | null): Promise<Record<string, unknown>> {
   if (!settings) {
     return {

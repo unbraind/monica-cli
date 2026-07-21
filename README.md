@@ -107,7 +107,7 @@ Run the full pre-release gate locally:
 bun run verify:release
 ```
 
-This validates type safety, build, tests, packed-artifact execution via both `npx` and `bunx`, full git-history secret scanning, and version-history policy compliance.
+This validates type safety, build, exact 100/100/100/100 coverage, 100% exported-declaration JSDoc coverage, the 300-code-line limit, duplication limits, packed-artifact execution via both `npx` and `bunx`, full git-history secret scanning, and version-history policy compliance.
 
 ## Usage
 
@@ -140,6 +140,17 @@ monica contacts list
 
 # Get a contact
 monica contacts get 1
+
+# Stable Monica 4.x resources
+monica places list
+monica life-events list
+monica statistics get
+monica reminders upcoming 0
+
+# Stable Monica 4.x contact profile operations
+monica contacts introduction 1 --info "Met at a conference"
+monica contacts avatar 1 --source gravatar
+monica contacts career 1 --job "Engineer" --company "Acme"
 
 # Check endpoint support on your Monica server version
 monica info capabilities

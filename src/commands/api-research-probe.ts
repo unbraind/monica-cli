@@ -24,7 +24,7 @@ interface EndpointProbe {
   probePath: string;
   probeParams?: Record<string, string | number>;
   parameterized: boolean;
-  status: 'supported' | 'unsupported' | 'unknown-id' | 'error';
+  status: 'supported' | 'unsupported' | 'unknown-id' | 'unavailable' | 'error';
   supported: boolean | null;
   statusCode: number;
   message: string;
@@ -35,6 +35,7 @@ interface ProbeRequest {
   params?: Record<string, string | number>;
 }
 
+/** Describes the api research probe options data contract. */
 export interface ApiResearchProbeOptions {
   resource?: string;
   source?: string;
@@ -42,6 +43,7 @@ export interface ApiResearchProbeOptions {
   idReplacement?: number;
 }
 
+/** Describes the api research probe payload data contract. */
 export interface ApiResearchProbePayload {
   generatedAt: string;
   sourceFile: string;
@@ -56,17 +58,15 @@ export interface ApiResearchProbePayload {
     supported: number;
     unsupported: number;
     unknownId: number;
+    unavailable: number;
     errors: number;
+    healthy: boolean;
   };
   probes: EndpointProbe[];
 }
 
 function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
-}
-
-function getActionCommand(command?: Command): Command {
-  return command || new Command();
 }
 
 function hasPathParameter(endpointPath: string): boolean {
@@ -162,9 +162,9 @@ async function probeEndpoint(
         probeParams,
         parameterized,
         status: 'error',
-        supported: false,
+        supported: null,
         statusCode: 0,
-        message: (error as Error).message || 'Unknown error',
+        message: error instanceof Error && error.message ? error.message : 'Unknown error',
       };
     }
 
@@ -184,6 +184,7 @@ async function probeEndpoint(
       };
     }
 
+    const unsupported = apiError.statusCode === 404 || apiError.statusCode === 405;
     return {
       resource,
       key,
@@ -192,14 +193,15 @@ async function probeEndpoint(
       probePath,
       probeParams,
       parameterized,
-      status: 'unsupported',
-      supported: false,
+      status: unsupported ? 'unsupported' : 'unavailable',
+      supported: unsupported ? false : null,
       statusCode: apiError.statusCode,
       message: apiError.message,
     };
   }
 }
 
+/** Builds probe payload. */
 export async function buildProbePayload(options: ApiResearchProbeOptions): Promise<ApiResearchProbePayload> {
   const sourceSelection: ReferenceSelection = parseSourceOption(options.source || 'auto');
   const doc = loadSelectedReference(sourceSelection);
@@ -216,12 +218,16 @@ export async function buildProbePayload(options: ApiResearchProbeOptions): Promi
     ));
   }
 
+  const unavailable = results.filter((result) => result.status === 'unavailable').length;
+  const errors = results.filter((result) => result.status === 'error').length;
   const summary = {
     total: results.length,
     supported: results.filter((result) => result.status === 'supported').length,
     unsupported: results.filter((result) => result.status === 'unsupported').length,
     unknownId: results.filter((result) => result.status === 'unknown-id').length,
-    errors: results.filter((result) => result.status === 'error').length,
+    unavailable,
+    errors,
+    healthy: unavailable === 0 && errors === 0,
   };
 
   return {
@@ -238,6 +244,7 @@ export async function buildProbePayload(options: ApiResearchProbeOptions): Promi
   };
 }
 
+/** Executes the attach api research probe subcommand operation. */
 export function attachApiResearchProbeSubcommand(cmd: Command): void {
   cmd
     .command('probe')
@@ -247,17 +254,24 @@ export function attachApiResearchProbeSubcommand(cmd: Command): void {
     .option('--include-parameterized', 'Probe GET endpoints with :id-style path params by replacing params with --id-replacement')
     .option('--id-replacement <id>', 'Replacement id used for parameterized endpoint probing (default: 1)', parsePositiveInt, 1)
     .option('--fail-on-unsupported', 'Exit with code 1 when unsupported endpoints are detected')
+    .option('--fail-on-unavailable', 'Exit with code 1 when instance/auth/network failures prevent support detection')
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
 
       try {
-        const options = actionCommand.opts() as ApiResearchProbeOptions & { failOnUnsupported?: boolean };
+        const options = actionCommand.opts() as ApiResearchProbeOptions & {
+          failOnUnsupported?: boolean;
+          failOnUnavailable?: boolean;
+        };
         const payload = await buildProbePayload(options);
 
         console.log(fmt.formatOutput(payload, format));
 
         if (options.failOnUnsupported && payload.summary.unsupported > 0) {
+          process.exit(1);
+        }
+        if (options.failOnUnavailable && (payload.summary.unavailable > 0 || payload.summary.errors > 0)) {
           process.exit(1);
         }
       } catch (error) {

@@ -11,6 +11,7 @@ import type {
 } from '../types';
 import { get, post, put, del, getAllPages } from './client';
 
+/** Executes the list conversations operation. */
 export async function listConversations(params?: {
   limit?: number;
   page?: number;
@@ -18,14 +19,17 @@ export async function listConversations(params?: {
   return get<PaginatedResponse<Conversation>>('/conversations', params);
 }
 
+/** Executes the list all conversations operation. */
 export async function listAllConversations(maxPages?: number): Promise<Conversation[]> {
   return getAllPages<Conversation>('/conversations', undefined, maxPages);
 }
 
+/** Gets conversation. */
 export async function getConversation(id: number): Promise<ApiResponse<Conversation>> {
   return get<ApiResponse<Conversation>>(`/conversations/${id}`);
 }
 
+/** Executes the list contact conversations operation. */
 export async function listContactConversations(
   contactId: number,
   params?: { limit?: number; page?: number }
@@ -33,12 +37,14 @@ export async function listContactConversations(
   return get<PaginatedResponse<Conversation>>(`/contacts/${contactId}/conversations`, params);
 }
 
+/** Creates conversation. */
 export async function createConversation(
   data: ConversationCreateInput
 ): Promise<ApiResponse<Conversation>> {
   return post<ApiResponse<Conversation>>('/conversations', data);
 }
 
+/** Executes the update conversation operation. */
 export async function updateConversation(
   id: number,
   data: ConversationUpdateInput
@@ -46,10 +52,12 @@ export async function updateConversation(
   return put<ApiResponse<Conversation>>(`/conversations/${id}`, data);
 }
 
+/** Executes the delete conversation operation. */
 export async function deleteConversation(id: number): Promise<DeleteResponse> {
   return del<DeleteResponse>(`/conversations/${id}`);
 }
 
+/** Executes the list conversation messages operation. */
 export async function listConversationMessages(
   conversationId: number,
   params?: { limit?: number; page?: number }
@@ -60,6 +68,7 @@ export async function listConversationMessages(
   );
 }
 
+/** Creates conversation message. */
 export async function createConversationMessage(
   conversationId: number,
   data: ConversationMessageCreateInput
@@ -70,6 +79,7 @@ export async function createConversationMessage(
   );
 }
 
+/** Executes the update conversation message operation. */
 export async function updateConversationMessage(
   conversationId: number,
   messageId: number,
@@ -81,6 +91,7 @@ export async function updateConversationMessage(
   );
 }
 
+/** Executes the delete conversation message operation. */
 export async function deleteConversationMessage(
   conversationId: number,
   messageId: number

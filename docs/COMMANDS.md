@@ -1,5 +1,51 @@
 # Command Reference
 
+## Stable Monica 4.x additions
+
+These command families are sourced from Monica's maintained `4.x` API route inventory. Every leaf supports `--help`; global output flags may be placed before the command root.
+
+### places
+
+```bash
+monica places list [--all] [--sort <field>]
+monica places get <id>
+monica places create [--street <street>] [--city <city>] [--province <province>] [--postal-code <code>] [--country <code>] [--latitude <number>] [--longitude <number>]
+monica places update <id> [place options]
+monica places delete <id>
+```
+
+### life-events
+
+```bash
+monica life-events list [--all] [--sort <field>]
+monica life-events get <id>
+monica life-events create --contact <id> --type-id <id> --date <YYYY-MM-DD> [--name <name>] [--note <text>] [--reminder] [--month-unknown] [--day-unknown]
+monica life-events update <id> --type-id <id> --date <YYYY-MM-DD> [--name <name>] [--note <text>]
+monica life-events delete <id>
+```
+
+### statistics and upcoming reminders
+
+```bash
+monica statistics get
+monica reminders upcoming [month-offset]
+```
+
+`statistics get` is read-only and uses Monica's public statistics route when enabled. The reminder offset is a non-negative integer (`0` is the current month).
+
+### Current user and contact profile
+
+```bash
+monica user set-contact <contact-id>
+monica user unset-contact
+monica contacts introduction <id> [introduction options]
+monica contacts food-preferences <id> --preferences <text>
+monica contacts avatar <id> --source <default|adorable|gravatar|photo> [--photo-id <id>]
+monica contacts career <id> [--job <title>] [--company <name>]
+```
+
+Use the leaf `--help` output for the complete introduction date/reminder option set.
+
 Complete reference for all Monica CLI commands.
 
 ## Global Options

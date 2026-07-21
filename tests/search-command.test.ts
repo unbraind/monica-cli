@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as api from '../src/api';
 import * as formatters from '../src/formatters';
 import { createSearchCommand } from '../src/commands/search';
+import { Command } from 'commander';
 
 describe('search command', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
@@ -86,6 +87,63 @@ describe('search command', () => {
     );
   });
 
+  it('renders absent optional contact text fields safely', async () => {
+    mockSearchContacts.mockResolvedValue({ data: [{ id: 1, first_name: null, last_name: null }] as never });
+    await createSearchCommand().parseAsync(['john', '--type', 'contacts'], { from: 'user' });
+    const payload = mockFormatOutput.mock.calls[0]?.[0] as { results: unknown[] };
+    expect(payload.results).toEqual([
+      { type: 'contact', id: 1, title: 'Unnamed', subtitle: undefined },
+    ]);
+  });
+
+  it('normalizes sparse and alternate result shapes for every resource type', async () => {
+    mockListAllActivities.mockResolvedValue([
+      { id: 1, summary: '', description: 'john description', happened_at: '2026-01-01' },
+      { id: 2, summary: '', description: '', happened_at: '2026-01-02' },
+    ]);
+    await createSearchCommand().parseAsync(['john', '--type', 'activities'], { from: 'user' });
+    expect((mockFormatOutput.mock.calls.at(-1)?.[0] as { results: Array<{ title: string }> }).results[0].title)
+      .toBe('Untitled');
+
+    mockListAllNotes.mockResolvedValue([
+      { id: 3, body: `john ${'x'.repeat(60)}`, contact: undefined },
+      { id: 4, body: undefined, contact: undefined },
+    ] as never);
+    await createSearchCommand().parseAsync(['john', '--type', 'notes'], { from: 'user' });
+    expect((mockFormatOutput.mock.calls.at(-1)?.[0] as { results: Array<{ title: string }> }).results[0].title)
+      .toContain('...');
+
+    mockListAllTasks.mockResolvedValue([
+      { id: 5, title: '', description: 'john task', completed: true },
+      { id: 6, title: '', description: '', completed: false },
+    ]);
+    await createSearchCommand().parseAsync(['john', '--type', 'tasks'], { from: 'user' });
+    expect((mockFormatOutput.mock.calls.at(-1)?.[0] as { results: Array<{ title: string; subtitle: string }> }).results[0])
+      .toMatchObject({ title: 'Untitled', subtitle: 'Completed' });
+
+    mockListAllReminders.mockResolvedValue([
+      { id: 7, title: '', description: 'john initial', initial_date: '2026-01-01' },
+      { id: 8, title: '', description: 'john next', next_expected_date: '2026-02-01' },
+      { id: 9, title: '', description: 'john unknown' },
+    ] as never);
+    await createSearchCommand().parseAsync(['john', '--type', 'reminders'], { from: 'user' });
+    const reminders = (mockFormatOutput.mock.calls.at(-1)?.[0] as {
+      results: Array<{ title: string; subtitle: string }>;
+    }).results;
+    expect(reminders.map((item) => item.subtitle)).toEqual([
+      'Next: 2026-01-01', 'Next: 2026-02-01', 'Next: unknown',
+    ]);
+  });
+
+  it('normalizes non-Error search failures in best-effort mode', async () => {
+    mockListAllActivities.mockRejectedValue(null);
+    await createSearchCommand().parseAsync(['john', '--type', 'activities'], { from: 'user' });
+    expect(mockFormatOutput).toHaveBeenLastCalledWith(expect.objectContaining({
+      partial: true, errors: [{ type: 'activities', message: 'Unknown error' }],
+    }), 'toon');
+  });
+
+
   it('formats invalid search type errors', async () => {
     const cmd = createSearchCommand();
     await expect(
@@ -114,6 +172,15 @@ describe('search command', () => {
       }),
       'yaml'
     );
+  });
+
+  it('emits raw result arrays from an inherited global flag', async () => {
+    mockSearchContacts.mockResolvedValue({ data: [{ id: 1, first_name: 'John' }] });
+    const root = new Command('monica').option('--raw');
+    root.addCommand(createSearchCommand());
+    await root.parseAsync(['--raw', 'search', 'john'], { from: 'user' });
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('"type": "contact"'));
+    expect(mockFormatOutput).not.toHaveBeenCalled();
   });
 
   it('supports yml output format alias', async () => {

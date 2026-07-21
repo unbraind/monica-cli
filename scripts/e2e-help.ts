@@ -1,4 +1,5 @@
-import { execSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
 
 interface CommandNode {
   fullCommand: string;
@@ -14,9 +15,23 @@ interface AuditFailure {
   reason: string;
 }
 
+const CLI_ENTRYPOINT = resolve('dist/index.js');
+
+function runCli(args: string[]): ReturnType<typeof spawnSync> {
+  return spawnSync(process.execPath, [CLI_ENTRYPOINT, ...args], {
+    encoding: 'utf8',
+    timeout: 45000,
+    maxBuffer: 4 * 1024 * 1024,
+    env: process.env,
+  });
+}
+
 function loadCommandCatalog(): CommandCatalogPayload {
-  const stdout = execSync('monica --json info command-catalog', { encoding: 'utf8' });
-  return JSON.parse(stdout) as CommandCatalogPayload;
+  const result = runCli(['--json', 'info', 'command-catalog']);
+  if (result.status !== 0) {
+    throw new Error(`Unable to load built command catalog: ${result.stderr || result.error?.message || 'unknown error'}`);
+  }
+  return JSON.parse(result.stdout as string) as CommandCatalogPayload;
 }
 
 function collectCommands(node: CommandNode, acc: string[] = []): string[] {
@@ -32,12 +47,7 @@ function shouldRequireInheritedFooter(command: string): boolean {
 }
 
 function runHelp(command: string): { ok: boolean; output: string; reason?: string } {
-  const result = spawnSync('bash', ['-lc', `${command} --help`], {
-    encoding: 'utf8',
-    timeout: 45000,
-    maxBuffer: 4 * 1024 * 1024,
-    env: process.env,
-  });
+  const result = runCli([...command.split(' ').slice(1), '--help']);
 
   if (result.error) {
     return { ok: false, output: `${result.stdout || ''}\n${result.stderr || ''}`.trim(), reason: result.error.message };

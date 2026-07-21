@@ -1,5 +1,6 @@
 import type { CommandCatalogNode, CommandOptionDescriptor } from './command-catalog';
 
+/** Describes the open ai function parameter data contract. */
 export interface OpenAIFunctionParameter {
   type: string;
   description?: string;
@@ -10,6 +11,7 @@ export interface OpenAIFunctionParameter {
   default?: unknown;
 }
 
+/** Describes the open ai function schema data contract. */
 export interface OpenAIFunctionSchema {
   name: string;
   description: string;
@@ -55,6 +57,7 @@ function buildSchemaParameter(option: CommandOptionDescriptor): { name: string; 
   return { name, parameter, required };
 }
 
+/** Executes the command to open ai function operation. */
 export function commandToOpenAIFunction(
   name: string,
   description: string,
@@ -84,6 +87,7 @@ export function commandToOpenAIFunction(
   };
 }
 
+/** Executes the walk command catalog operation. */
 export function walkCommandCatalog(
   node: CommandCatalogNode,
   visitor: (node: CommandCatalogNode) => void
@@ -92,6 +96,7 @@ export function walkCommandCatalog(
   node.subcommands.forEach((subcommand) => walkCommandCatalog(subcommand, visitor));
 }
 
+/** Collects leaf commands. */
 export function collectLeafCommands(node: CommandCatalogNode): CommandCatalogNode[] {
   const leaves: CommandCatalogNode[] = [];
   walkCommandCatalog(node, (entry) => {

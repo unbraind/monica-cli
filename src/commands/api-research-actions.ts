@@ -65,6 +65,7 @@ function summarizeActions(actions: ApiResearchActionsPayload['actions']): ApiRes
   };
 }
 
+/** Builds actions payload. */
 export function buildActionsPayload(
   payload: ApiResearchBacklogPayload,
   filter: ActionFilter = {}

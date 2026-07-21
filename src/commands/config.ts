@@ -15,6 +15,7 @@ import {
 import { maybePromptGitHubStar } from './github-star';
 import { runConfigDoctor } from './config-doctor';
 import { parseOutputFormat } from './global-options';
+import type { ConfigSetOptions } from './config-types';
 import {
   loadSettings,
   saveSettings,
@@ -22,26 +23,12 @@ import {
   VALID_UNSET_KEYS,
   KEY_MAP,
 } from '../utils/settings';
-export interface ConfigSetOptions {
-  apiUrl?: string;
-  apiKey?: string;
-  userEmail?: string;
-  userPassword?: string;
-  defaultFormat?: string;
-  readOnly?: boolean;
-  readWrite?: boolean;
-  dryRun?: boolean;
-  nonInteractive?: boolean;
-  probeCapabilities?: boolean;
-  skipCapabilityProbe?: boolean;
-}
-function getActionCommand(command?: Command): Command {
-  return command || new Command();
-}
+export type { ConfigSetOptions } from './config-types';
 function printFormatted(command: Command, payload: unknown): void {
   const format = getConfigOutputFormat(command);
   console.log(fmt.formatOutput(payload, format));
 }
+/** Creates config command. */
 export function createConfigCommand(): Command {
   const cmd = new Command('config')
     .description('Manage Monica CLI configuration')
@@ -61,7 +48,7 @@ export function createConfigCommand(): Command {
     .option('--skip-capability-probe', 'Skip capability probe after setup')
     .addHelpText('after', '\nSetup behavior: flags > saved config > MONICA_* env; interactive prompts only on TTY; base host URLs normalize to /api; read-only defaults on; saves to ~/.monica-cli/settings.json (chmod 600).')
     .action(async function (this: Command, options: ConfigSetOptions): Promise<void> {
-      await saveAndTestConfig(options, getActionCommand(this));
+      await saveAndTestConfig(options, this);
     });
   cmd.command('set')
     .description('Set individual configuration values')
@@ -75,19 +62,19 @@ export function createConfigCommand(): Command {
     .option('--non-interactive', 'Do not prompt for GitHub star flow')
     .action(async function (this: Command, options: ConfigSetOptions): Promise<void> {
       if (!options.apiUrl && !options.apiKey && !options.userEmail && !options.userPassword && !options.defaultFormat && !options.readOnly && !options.readWrite) {
-        printFormatted(getActionCommand(this), {
+        printFormatted(this, {
           ok: false,
           message: 'Usage: monica config set --<option> <value>',
           options: ['--api-url', '--api-key', '--user-email', '--user-password', '--default-format', '--read-only', '--read-write'],
         });
         return;
       }
-      await updateConfig(options, getActionCommand(this));
+      await updateConfig(options, this);
     });
   cmd.command('get [key]')
     .description('Get configuration value(s)')
     .action(function (this: Command, key?: string): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const settings = loadSettings();
       if (!settings) {
         printFormatted(actionCommand, missingConfigPayload());
@@ -115,7 +102,7 @@ export function createConfigCommand(): Command {
   cmd.command('show')
     .description('Show current configuration with connection test')
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const settings = loadSettings();
       if (!settings?.apiUrl || !settings?.apiKey) {
         printFormatted(actionCommand, missingConfigPayload());
@@ -146,7 +133,7 @@ export function createConfigCommand(): Command {
   cmd.command('test')
     .description('Test connection to Monica API')
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const settings = loadSettings();
       if (!settings?.apiUrl || !settings?.apiKey) {
         printFormatted(actionCommand, missingConfigPayload());
@@ -168,7 +155,7 @@ export function createConfigCommand(): Command {
   cmd.command('doctor')
     .description('Run configuration diagnostics for agent-safe operations')
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const payload = await runConfigDoctor(loadSettings());
       printFormatted(actionCommand, payload);
     });
@@ -177,7 +164,7 @@ export function createConfigCommand(): Command {
     .description('Remove all configuration')
     .option('--force', 'Skip confirmation')
     .action(function (this: Command, options: { force?: boolean }): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       if (!options.force) {
         printFormatted(actionCommand, {
           ok: false,
@@ -196,13 +183,13 @@ export function createConfigCommand(): Command {
   cmd.command('location')
     .description('Show configuration file location')
     .action(function (this: Command): void {
-      printFormatted(getActionCommand(this), getLocationPayload());
+      printFormatted(this, getLocationPayload());
     });
 
   cmd.command('unset <key>')
     .description('Remove a specific configuration value')
     .action(function (this: Command, key: string): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const settings = loadSettings();
       if (!settings) {
         printFormatted(actionCommand, missingConfigPayload());
@@ -263,6 +250,7 @@ async function saveAndTestConfig(options: ConfigSetOptions, command: Command): P
     process.exit(1);
   }
 }
+/** Runs config setup. */
 export async function runConfigSetup(options: ConfigSetOptions, command: Command): Promise<void> {
   await saveAndTestConfig(options, command);
 }

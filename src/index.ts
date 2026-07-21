@@ -3,13 +3,17 @@
 import { createProgram } from './program';
 import { maybePromptGitHubStarOnCliRun } from './commands/github-star';
 
-async function main(): Promise<void> {
-  await maybePromptGitHubStarOnCliRun(process.argv);
-  await createProgram(process.argv).parseAsync(process.argv);
+/** Runs the Monica CLI startup hooks and parses the supplied process arguments. */
+export async function main(argv: string[] = process.argv): Promise<void> {
+  await maybePromptGitHubStarOnCliRun(argv);
+  await createProgram(argv).parseAsync(argv);
 }
 
-void main().catch((error: unknown) => {
+/** Reports a fatal CLI startup error and terminates with a failure status. */
+export function reportFatalError(error: unknown): void {
   const message = error instanceof Error ? error.message : String(error);
   console.error(message);
   process.exit(1);
-});
+}
+
+void main().catch(reportFatalError);

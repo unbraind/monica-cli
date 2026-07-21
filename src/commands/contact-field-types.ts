@@ -1,127 +1,56 @@
-import { Command } from 'commander';
-import type { OutputFormat } from '../types';
+import type { Command } from 'commander';
+import type {
+  ContactFieldType,
+  ContactFieldTypeCreateInput,
+  ContactFieldTypeUpdateInput,
+} from '../types';
 import * as api from '../api';
-import * as fmt from '../formatters';
+import { createCrudCommand } from './crud-command';
 
-const ContactFieldTypeFields = ['id', 'name', 'type', 'delible', 'protocol'];
+const CONTACT_FIELD_TYPE_FIELDS = ['id', 'name', 'type', 'delible', 'protocol'];
 
-export function createContactFieldTypesCommand(): Command {
-  const cmd = new Command('contact-field-types')
-    .description('Manage contact field types')
-    .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
-    .option('-p, --page <page>', 'Page number', parseInt)
-    .option('-l, --limit <limit>', 'Items per page', parseInt);
-
-  cmd
-    .command('list')
-    .description('List all contact field types')
-    .action(async (_options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.listContactFieldTypes({
-          page: parentOpts.page,
-          limit: parentOpts.limit,
-        });
-        console.log(fmt.formatPaginatedResponse(result, format, ContactFieldTypeFields));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('get <id>')
-    .description('Get a specific contact field type')
-    .action(async (id, _options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.getContactFieldType(parseInt(id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('create')
-    .description('Create a new contact field type')
+/** Add contact-field-type metadata options to a command. */
+function addContactFieldTypeOptions(command: Command): Command {
+  return command
     .requiredOption('--name <name>', 'Contact field type name')
     .option('--icon <icon>', 'FontAwesome icon class')
-    .option('--protocol <protocol>', 'Protocol (e.g., mailto:, tel:)')
-    .option('--delible', 'Can be deleted', false)
-    .option('--type <type>', 'Type identifier')
-    .action(async (options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.createContactFieldType({
-          name: options.name,
-          fontawesome_icon: options.icon,
-          protocol: options.protocol,
-          delible: options.delible ? 1 : 0,
-          type: options.type,
-        });
-        console.log(fmt.formatSuccess('Contact field type created', result.data.id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
+    .option('--protocol <protocol>', 'Protocol (for example mailto: or tel:)')
+    .option('--delible', 'Can be deleted')
+    .option('--type <type>', 'Type identifier');
+}
 
-  cmd
-    .command('update <id>')
-    .description('Update a contact field type')
-    .requiredOption('--name <name>', 'Contact field type name')
-    .option('--icon <icon>', 'FontAwesome icon class')
-    .option('--protocol <protocol>', 'Protocol (e.g., mailto:, tel:)')
-    .option('--delible', 'Can be deleted', false)
-    .option('--type <type>', 'Type identifier')
-    .action(async (id, options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.updateContactFieldType(parseInt(id), {
-          name: options.name,
-          fontawesome_icon: options.icon,
-          protocol: options.protocol,
-          delible: options.delible ? 1 : 0,
-          type: options.type,
-        });
-        console.log(fmt.formatSuccess('Contact field type updated', result.data.id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('delete <id>')
-    .description('Delete a contact field type')
-    .action(async (id, _options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.deleteContactFieldType(parseInt(id));
-        if (format === 'json') {
-          console.log(JSON.stringify(result));
-        } else {
-          console.log(fmt.formatDeleted(result.id));
-        }
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  return cmd;
+/** Build the contact-field-type CRUD command family. */
+export function createContactFieldTypesCommand() {
+  return createCrudCommand<
+    ContactFieldType,
+    ContactFieldTypeCreateInput,
+    ContactFieldTypeUpdateInput
+  >({
+    name: 'contact-field-types',
+    description: 'Manage contact field types',
+    singular: 'contact field type',
+    label: 'Contact field type',
+    fields: CONTACT_FIELD_TYPE_FIELDS,
+    listPage: api.listContactFieldTypes,
+    get: api.getContactFieldType,
+    create: api.createContactFieldType,
+    update: api.updateContactFieldType,
+    remove: api.deleteContactFieldType,
+    configureCreate: addContactFieldTypeOptions,
+    configureUpdate: addContactFieldTypeOptions,
+    buildCreateInput: (options) => ({
+      name: options.name as string,
+      fontawesome_icon: options.icon as string | undefined,
+      protocol: options.protocol as string | undefined,
+      delible: options.delible === true ? 1 : 0,
+      type: options.type as string | undefined,
+    }),
+    buildUpdateInput: (options) => ({
+      name: options.name as string,
+      fontawesome_icon: options.icon as string | undefined,
+      protocol: options.protocol as string | undefined,
+      delible: options.delible === true ? 1 : 0,
+      type: options.type as string | undefined,
+    }),
+  });
 }

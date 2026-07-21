@@ -14,7 +14,8 @@ import {
 
 const GLOBAL_SETTINGS_PATH = path.join(os.homedir(), '.monica-cli', 'settings.json');
 
-function loadGlobalSettings(): Partial<MonicaConfig> | null {
+/** Load normalized global settings without exposing or mutating credentials. */
+export function loadGlobalSettings(): Partial<MonicaConfig> | null {
   try {
     if (fs.existsSync(GLOBAL_SETTINGS_PATH)) {
       const content = fs.readFileSync(GLOBAL_SETTINGS_PATH, 'utf-8');
@@ -28,6 +29,7 @@ function loadGlobalSettings(): Partial<MonicaConfig> | null {
 
 let config: MonicaConfig | null = null;
 
+/** Resolves read only mode. */
 export function resolveReadOnlyMode(
   envValue: string | undefined,
   globalSettings?: Partial<MonicaConfig> | null
@@ -42,6 +44,7 @@ function getReadOnlyMode(globalSettings?: Partial<MonicaConfig> | null): boolean
   return resolveReadOnlyMode(process.env.MONICA_READ_ONLY, globalSettings);
 }
 
+/** Gets config. */
 export function getConfig(): MonicaConfig {
   if (!config) {
     const globalSettings = loadGlobalSettings();
@@ -64,10 +67,17 @@ export function getConfig(): MonicaConfig {
   return config;
 }
 
+/** Executes the set config operation. */
 export function setConfig(newConfig: MonicaConfig): void {
   config = newConfig;
 }
 
+/** Clear cached client configuration so subsequent reads reload environment and settings. */
+export function resetConfig(): void {
+  config = null;
+}
+
+/** Implements the monica api error service. */
 export class MonicaApiError extends Error {
   public readonly errorCode: number;
   public readonly statusCode: number;
@@ -103,13 +113,14 @@ async function parseResponseBody(response: Response): Promise<unknown> {
 
 function toMonicaApiError(responseData: unknown, status: number): MonicaApiError {
   const data = responseData as ApiError;
-  const message =
-    data?.error?.message ||
+  const rawMessage = data?.error?.message || data?.message ||
     (typeof responseData === 'string' && responseData.trim() ? responseData : `HTTP ${status}`);
-  const errorCode = data?.error?.error_code || 0;
+  const message = rawMessage.split('\n', 1)[0].slice(0, 500);
+  const errorCode = data?.error?.error_code ?? 0;
   return new MonicaApiError(message, errorCode, status);
 }
 
+/** Requests . */
 export async function request<T>(
   endpoint: string,
   options: RequestOptions = {}
@@ -185,6 +196,7 @@ export async function request<T>(
   }
 }
 
+/** Gets . */
 export async function get<T>(
   endpoint: string,
   params?: Record<string, string | number | undefined>
@@ -192,18 +204,22 @@ export async function get<T>(
   return request<T>(endpoint, { method: 'GET', params });
 }
 
+/** Executes the post operation. */
 export async function post<T>(endpoint: string, body?: unknown): Promise<T> {
   return request<T>(endpoint, { method: 'POST', body });
 }
 
+/** Executes the put operation. */
 export async function put<T>(endpoint: string, body?: unknown): Promise<T> {
   return request<T>(endpoint, { method: 'PUT', body });
 }
 
+/** Executes the del operation. */
 export async function del<T>(endpoint: string): Promise<T> {
   return request<T>(endpoint, { method: 'DELETE' });
 }
 
+/** Executes the upload operation. */
 export async function upload<T>(
   endpoint: string,
   formData: FormData
@@ -244,14 +260,15 @@ export async function upload<T>(
 
   if (!response.ok) {
     const apiError = responseData as ApiError;
-    const message = apiError.error?.message || `HTTP ${response.status}`;
-    const errorCode = apiError.error?.error_code || 0;
+    const message = apiError.error?.message || apiError.message || `HTTP ${response.status}`;
+    const errorCode = apiError.error?.error_code ?? 0;
     throw new MonicaApiError(message, errorCode, response.status);
   }
 
   return responseData as T;
 }
 
+/** Executes the paginate operation. */
 export async function* paginate<T>(
   endpoint: string,
   params: Record<string, string | number | undefined> = {},
@@ -272,6 +289,7 @@ export async function* paginate<T>(
   }
 }
 
+/** Gets all pages. */
 export async function getAllPages<T>(
   endpoint: string,
   params: Record<string, string | number | undefined> = {},

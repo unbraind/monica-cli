@@ -15,9 +15,6 @@ function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
 }
 
-function getActionCommand(command?: Command): Command {
-  return command || new Command();
-}
 
 function resolveInputFormat(inputPath: string | undefined, inputFormat: InputFormat): Exclude<InputFormat, 'auto'> {
   if (inputFormat !== 'auto') return inputFormat;
@@ -58,6 +55,7 @@ function readValidationInput(inputPath: string | undefined, inputFormat: InputFo
   }
 }
 
+/** Creates schemas command. */
 export function createSchemasCommand(): Command {
   const cmd = new Command('schemas')
     .description('Machine-readable output schemas for automation and agents')
@@ -67,7 +65,7 @@ export function createSchemasCommand(): Command {
     .command('list')
     .description('List available output schema descriptors')
     .action(function (this: Command): void {
-      const format = getOutputFormat(getActionCommand(this));
+      const format = getOutputFormat(this);
       const schemas = OUTPUT_SCHEMAS.map((schema) => ({
         id: schema.id,
         title: schema.title,
@@ -80,7 +78,7 @@ export function createSchemasCommand(): Command {
     .command('get <schema-id>')
     .description('Get a specific output schema descriptor')
     .action(function (this: Command, schemaId: string): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
       const schema = findSchema(schemaId);
 
@@ -103,7 +101,7 @@ export function createSchemasCommand(): Command {
     .command('sample <schema-id>')
     .description('Generate a deterministic example payload for a registered schema')
     .action(function (this: Command, schemaId: string): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
       const schema = findSchema(schemaId);
 
@@ -128,11 +126,11 @@ export function createSchemasCommand(): Command {
     .description('Validate input payload (JSON/YAML from file or stdin) against a registered schema')
     .option('--input-format <format>', 'Input payload format (auto|json|yaml|yml)', 'auto')
     .action(function (this: Command, schemaId: string, inputPath?: string): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
       const schema = findSchema(schemaId);
       const optionBag = actionCommand.opts() as { inputFormat?: string };
-      const inputFormat = (optionBag.inputFormat || 'auto').toLowerCase() as InputFormat;
+      const inputFormat = (optionBag.inputFormat as string).toLowerCase() as InputFormat;
 
       if (!schema) {
         console.log(fmt.formatOutput({

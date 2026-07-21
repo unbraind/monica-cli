@@ -77,4 +77,20 @@ describe('documents API', () => {
       expect(result.data.id).toBe(1);
     });
   });
+
+  it('maps every read and delete endpoint', async () => {
+    mockGet.mockResolvedValue({ data: [] });
+    mockGetAllPages.mockResolvedValue([]);
+    mockDel.mockResolvedValue({ id: 7, deleted: true });
+    await documents.listDocuments({ page: 2, limit: 5 });
+    await documents.listAllDocuments(3);
+    await documents.getDocument(7);
+    await documents.listContactDocuments(9, { limit: 4 });
+    await documents.deleteDocument(7);
+    expect(mockGet).toHaveBeenNthCalledWith(1, '/documents', { page: 2, limit: 5 });
+    expect(mockGetAllPages).toHaveBeenCalledWith('/documents', undefined, 3);
+    expect(mockGet).toHaveBeenNthCalledWith(2, '/documents/7');
+    expect(mockGet).toHaveBeenNthCalledWith(3, '/contacts/9/documents', { limit: 4 });
+    expect(mockDel).toHaveBeenCalledWith('/documents/7');
+  });
 });

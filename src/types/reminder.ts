@@ -1,5 +1,7 @@
+/** Describes the reminder frequency type data contract. */
 export type ReminderFrequencyType = 'one_time' | 'week' | 'month' | 'year';
 
+/** Describes the reminder data contract. */
 export interface Reminder {
   id: number;
   object: string;
@@ -8,7 +10,8 @@ export interface Reminder {
   frequency_type: ReminderFrequencyType;
   frequency_number: number | null;
   last_triggered_date: string | null;
-  next_expected_date: string;
+  initial_date?: string;
+  next_expected_date?: string;
   account?: { id: number };
   contact?: {
     id: number;
@@ -30,13 +33,15 @@ export interface Reminder {
   updated_at: string;
 }
 
+/** Describes the reminder create input data contract. */
 export interface ReminderCreateInput {
   title: string;
   description?: string;
-  next_expected_date: string;
+  initial_date: string;
   frequency_type: ReminderFrequencyType;
   frequency_number?: number;
   contact_id: number;
 }
 
+/** Describes the reminder update input data contract. */
 export interface ReminderUpdateInput extends ReminderCreateInput {}

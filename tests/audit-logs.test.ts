@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   setConfig: vi.fn(),
@@ -11,6 +12,7 @@ vi.mock('../src/api/client', () => ({
 import * as client from '../src/api/client';
 import {
   listAuditLogs,
+  listContactAuditLogs,
 } from '../src/api/audit-logs';
 
 const mockGet = client.get as ReturnType<typeof vi.fn>;
@@ -25,7 +27,7 @@ describe('audit-logs API', () => {
 
   describe('listAuditLogs', () => {
     it('calls GET /logs with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await listAuditLogs({ page: 1, limit: 10 });
@@ -35,7 +37,7 @@ describe('audit-logs API', () => {
     });
 
     it('calls GET /logs without params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await listAuditLogs();
@@ -43,5 +45,11 @@ describe('audit-logs API', () => {
       expect(mockGet).toHaveBeenCalledWith('/logs', undefined);
       expect(result).toEqual(mockResponse);
     });
+  });
+
+  it('lists audit logs scoped to a contact', async () => {
+    mockGet.mockResolvedValue(emptyPaginatedResponse());
+    await listContactAuditLogs(7, { page: 2 });
+    expect(mockGet).toHaveBeenCalledWith('/contacts/7/logs', { page: 2 });
   });
 });

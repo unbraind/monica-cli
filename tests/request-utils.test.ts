@@ -70,6 +70,14 @@ describe('request utils', () => {
     expect(getRetryDelayMs(response, 2)).toBe(1000);
   });
 
+  it('falls back for invalid dates and clamps past Retry-After dates', () => {
+    expect(getRetryDelayMs(new Response('', { headers: { 'Retry-After': 'invalid' } }), 0)).toBe(250);
+    vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2030-01-01T00:00:00Z'));
+    expect(getRetryDelayMs(new Response('', {
+      headers: { 'Retry-After': 'Wed, 01 Jan 2020 00:00:00 GMT' },
+    }), 0)).toBe(0);
+  });
+
   it('delay returns immediately for non-positive values', async () => {
     await expect(delay(0)).resolves.toBeUndefined();
     await expect(delay(-5)).resolves.toBeUndefined();

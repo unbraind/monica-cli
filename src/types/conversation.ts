@@ -1,3 +1,4 @@
+/** Describes the conversation data contract. */
 export interface Conversation {
   id: number;
   object: string;
@@ -22,6 +23,7 @@ export interface Conversation {
   updated_at: string;
 }
 
+/** Describes the conversation message data contract. */
 export interface ConversationMessage {
   id: number;
   object: string;
@@ -39,16 +41,19 @@ export interface ConversationMessage {
   updated_at: string;
 }
 
+/** Describes the conversation create input data contract. */
 export interface ConversationCreateInput {
   contact_id: number;
   happened_at: string;
   contact_field_type_id: number;
 }
 
+/** Describes the conversation update input data contract. */
 export interface ConversationUpdateInput {
   happened_at: string;
 }
 
+/** Describes the conversation message create input data contract. */
 export interface ConversationMessageCreateInput {
   written_at: string;
   written_by_me: boolean;
@@ -56,6 +61,7 @@ export interface ConversationMessageCreateInput {
   contact_id: number;
 }
 
+/** Describes the conversation message update input data contract. */
 export interface ConversationMessageUpdateInput {
   written_at?: string;
   written_by_me?: boolean;

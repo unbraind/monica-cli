@@ -1,5 +1,6 @@
 import type { JsonSchema } from './schema-validator';
 import { ADDITIONAL_OUTPUT_SCHEMAS } from './schema-registry-extra';
+/** Describes the output schema descriptor data contract. */
 export interface OutputSchemaDescriptor { id: string; title: string; description: string; schema: JsonSchema; }
 const CORE_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
   {
@@ -257,5 +258,7 @@ const CORE_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
     },
   },
 ];
+/** Provides the output schemas value. */
 export const OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [...CORE_OUTPUT_SCHEMAS, ...ADDITIONAL_OUTPUT_SCHEMAS];
+/** Finds schema. */
 export function findSchema(schemaId: string): OutputSchemaDescriptor | undefined { return OUTPUT_SCHEMAS.find((schema) => schema.id === schemaId); }

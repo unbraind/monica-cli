@@ -121,4 +121,31 @@ describe('pet-categories command', () => {
       message: expect.stringContaining('Pet category endpoint is unavailable'),
     }));
   });
+
+  it('validates scan pages and deduplicates id-less category names', async () => {
+    const cmd = createPetCategoriesCommand();
+    cmd.exitOverride();
+    await expect(cmd.parseAsync([
+      'list', '--scan-pets', '--pet-max-pages', '0',
+    ], { from: 'user' })).rejects.toThrow('Invalid positive integer');
+
+    vi.spyOn(api, 'listPetCategories').mockRejectedValue({ statusCode: 405 });
+    vi.spyOn(api, 'listAllPets').mockResolvedValue([
+      { id: 1, pet_category: { name: 'Bird' } },
+      { id: 2, pet_category: { name: ' bird ' } },
+      { id: 3, pet_category: { name: '' } },
+    ] as never);
+    await createPetCategoriesCommand().parseAsync([
+      'list', '--scan-pets',
+    ], { from: 'user' });
+    expect(api.listAllPets).toHaveBeenCalledWith(10);
+  });
+
+  it('reports get failures through the standard error path', async () => {
+    vi.spyOn(api, 'getPetCategory').mockRejectedValue(new Error('offline'));
+    await expect(createPetCategoriesCommand().parseAsync([
+      'get', '1',
+    ], { from: 'user' })).rejects.toThrow('process.exit');
+    expect(errorSpy).toHaveBeenCalledWith('FORMATTED_ERROR');
+  });
 });

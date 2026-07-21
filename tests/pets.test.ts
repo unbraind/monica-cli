@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   setConfig: vi.fn(),
@@ -6,6 +7,7 @@ vi.mock('../src/api/client', () => ({
   post: vi.fn(),
   put: vi.fn(),
   del: vi.fn(),
+  getAllPages: vi.fn(),
 }));
 
 import * as client from '../src/api/client';
@@ -23,6 +25,7 @@ const mockGet = client.get as ReturnType<typeof vi.fn>;
 const mockPost = client.post as ReturnType<typeof vi.fn>;
 const mockPut = client.put as ReturnType<typeof vi.fn>;
 const mockDel = client.del as ReturnType<typeof vi.fn>;
+const mockGetAllPages = client.getAllPages as ReturnType<typeof vi.fn>;
 
 describe('pets API', () => {
   beforeEach(() => {
@@ -31,7 +34,7 @@ describe('pets API', () => {
 
   describe('listPets', () => {
     it('calls GET /pets with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await listPets({ page: 1, limit: 10 });
@@ -43,7 +46,7 @@ describe('pets API', () => {
 
   describe('listContactPets', () => {
     it('calls GET /contacts/:id/pets', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await listContactPets(1);
@@ -51,6 +54,12 @@ describe('pets API', () => {
       expect(mockGet).toHaveBeenCalledWith('/contacts/1/pets', undefined);
       expect(result).toEqual(mockResponse);
     });
+  });
+
+  it('lists every pet page with a safety cap', async () => {
+    mockGetAllPages.mockResolvedValue([]);
+    await listAllPets(3);
+    expect(mockGetAllPages).toHaveBeenCalledWith('/pets', undefined, 3);
   });
 
   describe('getPet', () => {

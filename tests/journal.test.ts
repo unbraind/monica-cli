@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   get: vi.fn(),
@@ -24,7 +25,7 @@ describe('journal API', () => {
 
   describe('listJournalEntries', () => {
     it('calls GET /journal with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
 
       const result = await journal.listJournalEntries({ page: 1, limit: 10 });

@@ -1,3 +1,4 @@
+/** Describes the json schema data contract. */
 export interface JsonSchema {
   type?: string;
   enum?: unknown[];
@@ -6,6 +7,7 @@ export interface JsonSchema {
   items?: JsonSchema;
 }
 
+/** Describes the validation error data contract. */
 export interface ValidationError {
   path: string;
   message: string;
@@ -36,6 +38,7 @@ function isTypeMatch(value: unknown, schemaType: string): boolean {
   }
 }
 
+/** Validates value against schema. */
 export function validateValueAgainstSchema(value: unknown, schema: JsonSchema, path = '$'): ValidationError[] {
   const errors: ValidationError[] = [];
 

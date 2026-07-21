@@ -2,6 +2,7 @@ const DEFAULT_MAX_GET_RETRIES = 2;
 const DEFAULT_RETRY_DELAY_MS = 250;
 const DEFAULT_REQUEST_TIMEOUT_MS = 15000;
 
+/** Gets max get retries. */
 export function getMaxGetRetries(): number {
   const raw = process.env.MONICA_MAX_GET_RETRIES;
   if (!raw) return DEFAULT_MAX_GET_RETRIES;
@@ -23,17 +24,20 @@ function parseRetryAfterMs(headerValue: string | null): number | null {
   return delta > 0 ? delta : 0;
 }
 
+/** Gets retry delay ms. */
 export function getRetryDelayMs(response: Response, attempt: number): number {
   const retryAfterMs = parseRetryAfterMs(response.headers.get('Retry-After'));
   if (retryAfterMs !== null) return retryAfterMs;
   return DEFAULT_RETRY_DELAY_MS * Math.pow(2, attempt);
 }
 
+/** Executes the delay operation. */
 export async function delay(ms: number): Promise<void> {
   if (ms <= 0) return;
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Gets request timeout ms. */
 export function getRequestTimeoutMs(): number {
   const raw = process.env.MONICA_REQUEST_TIMEOUT_MS;
   if (!raw) return DEFAULT_REQUEST_TIMEOUT_MS;
@@ -42,6 +46,7 @@ export function getRequestTimeoutMs(): number {
   return parsed;
 }
 
+/** Creates request timeout controller. */
 export function createRequestTimeoutController(timeoutMs: number): { signal?: AbortSignal; cleanup: () => void } {
   if (timeoutMs <= 0) return { signal: undefined, cleanup: () => undefined };
   const controller = new AbortController();
@@ -52,6 +57,7 @@ export function createRequestTimeoutController(timeoutMs: number): { signal?: Ab
   };
 }
 
+/** Checks whether abort error. */
 export function isAbortError(error: unknown): boolean {
   return !!error && typeof error === 'object' && (error as { name?: string }).name === 'AbortError';
 }

@@ -13,6 +13,7 @@ function buildObjectSample(schema: JsonSchema): Record<string, unknown> {
   return sample;
 }
 
+/** Executes the generate sample from schema operation. */
 export function generateSampleFromSchema(schema: JsonSchema): unknown {
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum[0];

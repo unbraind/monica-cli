@@ -11,12 +11,14 @@ interface GhRunResult {
   success: boolean;
 }
 
+/** Describes the git hub star dependencies data contract. */
 export interface GitHubStarDependencies {
   hasPromptTty: () => boolean;
   runGh: (args: string[]) => GhRunResult;
   askYesNo: (question: string, defaultValue: boolean) => Promise<boolean>;
 }
 
+/** Describes the git hub star cli dependencies data contract. */
 export interface GitHubStarCliDependencies extends GitHubStarDependencies {
   loadSettings: () => Partial<MonicaConfig> | null;
   saveSettings: (settings: Partial<MonicaConfig>) => void;
@@ -30,8 +32,7 @@ function runGhDefault(args: string[]): GhRunResult {
 async function askYesNoDefault(question: string, defaultValue: boolean): Promise<boolean> {
   const rl = createInterface({ input, output });
   try {
-    const label = defaultValue ? 'Y/n' : 'y/N';
-    const raw = await rl.question(`${question} (${label}): `);
+    const raw = await rl.question(`${question} (Y/n): `);
     const answer = raw.trim().toLowerCase();
     if (!answer) return defaultValue;
     if (['y', 'yes', 'true', '1'].includes(answer)) return true;
@@ -64,6 +65,7 @@ function isRepoAlreadyStarred(deps: GitHubStarDependencies): boolean {
   return deps.runGh(['api', `user/starred/${GITHUB_REPO}`, '--silent']).success;
 }
 
+/** Executes the maybe prompt git hub star operation. */
 export async function maybePromptGitHubStar(
   settings: Partial<MonicaConfig>,
   options?: { nonInteractive?: boolean },
@@ -107,6 +109,7 @@ function shouldPromptOnCliRun(argv: string[]): boolean {
   return true;
 }
 
+/** Executes the maybe prompt git hub star on cli run operation. */
 export async function maybePromptGitHubStarOnCliRun(
   argv: string[] = process.argv,
   deps: GitHubStarCliDependencies = defaultCliDependencies

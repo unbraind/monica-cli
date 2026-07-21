@@ -74,7 +74,7 @@ function toNoteResults(notes: Note[]): SearchResult[] {
   return notes.map((n: Note) => ({
     type: 'note',
     id: n.id,
-    title: n.body?.substring(0, 50) + (n.body && n.body.length > 50 ? '...' : '') || 'Empty',
+    title: n.body.substring(0, 50) + (n.body.length > 50 ? '...' : ''),
     subtitle: `Contact ID: ${n.contact?.id}`,
   }));
 }
@@ -93,7 +93,7 @@ function toReminderResults(reminders: Reminder[]): SearchResult[] {
     type: 'reminder',
     id: r.id,
     title: r.title || 'Untitled',
-    subtitle: `Next: ${r.next_expected_date}`,
+    subtitle: `Next: ${r.initial_date ?? r.next_expected_date ?? 'unknown'}`,
   }));
 }
 
@@ -147,7 +147,7 @@ async function runSearchTask(
       results: [],
       error: {
         type: searchType,
-        message: (error as Error).message || 'Unknown error',
+        message: error instanceof Error && error.message ? error.message : 'Unknown error',
       },
     };
   }
@@ -169,7 +169,7 @@ function buildSearchPayload(
     query,
     type: searchType,
     limitPerType: limitPerType ?? null,
-    maxPages: maxPages ?? null,
+    maxPages: maxPages as number,
     totalResults: results.length,
     partial: errors.length > 0,
     failedTypes: errors.map((item) => item.type),
@@ -178,6 +178,7 @@ function buildSearchPayload(
   };
 }
 
+/** Creates search command. */
 export function createSearchCommand(): Command {
   const cmd = new Command('search')
     .description('Search across contacts and other resources')
@@ -205,7 +206,7 @@ export function createSearchCommand(): Command {
       const normalizedQuery = query.trim().toLowerCase();
 
       try {
-        const searchType = normalizeSearchType(localOptions.type || 'contacts');
+        const searchType = normalizeSearchType(localOptions.type as string);
         const searches: Array<Promise<{ results: SearchResult[]; error?: SearchError }>> = [];
         if (searchType === 'contacts' || searchType === 'all') {
           searches.push(runSearchTask('contacts', strict, async () => searchContactsByQuery(normalizedQuery, limitPerType)));

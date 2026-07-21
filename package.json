@@ -1,6 +1,6 @@
 {
   "name": "monica-cli",
-  "version": "2026.7.21",
+  "version": "2026.7.21-2",
   "description": "CLI interface for Monica CRM API - optimized for agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,10 @@
     "test:e2e:help": "bun scripts/e2e-help.ts",
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit",
+    "typecheck:scripts": "tsc --ignoreConfig --noEmit --target ES2022 --module NodeNext --moduleResolution NodeNext --types node scripts/*.ts",
     "lint": "eslint src --ext .ts",
+    "lint:source-quality": "node scripts/check-source-quality.mjs",
+    "lint:duplication": "jscpd src --threshold 5 --reporters console --silent",
     "lint:strict": "eslint src/program.ts src/commands/global-options.ts src/commands/config*.ts src/formatters/toon.ts src/formatters/runtime-fields.ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "clean": "rm -rf dist",
@@ -31,6 +34,8 @@
     "smoke:bunx": "node scripts/smoke-bunx.mjs",
     "audit:history": "node scripts/scan-history-secrets.mjs",
     "audit:version-history": "node scripts/audit-version-history.mjs",
+    "audit:dependencies": "bun audit",
+    "pr:review-loop": "bun scripts/pr-review-loop.ts inventory",
     "changelog:pm": "pm-changelog --pm-root .agents/pm --pm-bin ./node_modules/.bin/pm --output CHANGELOG.md --title Changelog --mode replace --all-release-tags --status closed --item-url-base https://github.com/unbraind/monica-cli/blob/master/.agents/pm",
     "changelog:pm:check": "pm-changelog --pm-root .agents/pm --pm-bin ./node_modules/.bin/pm --output CHANGELOG.md --title Changelog --mode replace --all-release-tags --status closed --item-url-base https://github.com/unbraind/monica-cli/blob/master/.agents/pm --check",
     "changelog:pm:check:release": "pm-changelog --pm-root .agents/pm --pm-bin ./node_modules/.bin/pm --output CHANGELOG.md --title Changelog --mode replace --all-release-tags --status closed --item-url-base https://github.com/unbraind/monica-cli/blob/master/.agents/pm --check",
@@ -39,7 +44,7 @@
     "release:pipeline": "node scripts/release/run-release-pipeline.mjs",
     "release:pipeline:dry-run": "node scripts/release/run-release-pipeline.mjs --dry-run",
     "release:verify-published": "node scripts/release/verify-published-release.mjs",
-    "verify:release:gates": "bun run changelog:preservation:check && bun run workflows:check && bun run typecheck && bun run lint && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx && bun run audit:history && bun run audit:version-history",
+    "verify:release:gates": "bun run changelog:preservation:check && bun run workflows:check && bun run typecheck && bun run typecheck:scripts && bun run lint && bun run lint:source-quality && bun run lint:duplication && bun run build && bun run test:coverage && bun run test:e2e:help && bun run smoke:npx && bun run smoke:bunx && bun run audit:dependencies && bun run audit:history && bun run audit:version-history",
     "verify:release": "bun run version:check && bun run changelog:pm:check && bun run verify:release:gates",
     "prepublishOnly": "bun run version:check && bun run clean && bun run lint && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx",
     "release": "bun run verify:release",
@@ -70,16 +75,18 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@unbrained/pm-cli": "2026.7.21",
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "@eslint/js": "^10.0.1",
-    "@typescript-eslint/eslint-plugin": "^8.64.0",
-    "@typescript-eslint/parser": "^8.64.0",
     "@types/node": "^22.20.1",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "@unbrained/pm-cli": "2026.7.21",
     "@vitest/coverage-v8": "4.1.10",
     "eslint": "^10.7.0",
+    "eslint-plugin-jsdoc": "^63.2.0",
     "globals": "^17.7.0",
+    "jscpd": "^5.0.12",
     "pm-changelog": "2026.7.18",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
@@ -92,6 +99,13 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "overrides": {
+    "brace-expansion": "5.0.7",
+    "fast-uri": "3.1.4",
+    "flatted": "3.4.2",
+    "js-yaml": "5.2.1",
+    "picomatch": "4.0.5"
   },
   "files": [
     "dist",

@@ -1,7 +1,10 @@
+import * as fs from 'fs';
 import { Command } from 'commander';
 import type { OutputFormat, Contact } from '../types';
 import * as api from '../api';
 import * as fmt from '../formatters';
+import { parseResourceIds } from './activities';
+import { parseStringList } from './tags';
 
 interface BulkResult {
   success: boolean;
@@ -9,6 +12,7 @@ interface BulkResult {
   error?: string;
 }
 
+/** Creates bulk command. */
 export function createBulkCommand(): Command {
   const cmd = new Command('bulk')
     .description('Bulk operations for efficient data management');
@@ -17,13 +21,13 @@ export function createBulkCommand(): Command {
   cmd
     .command('tag')
     .description('Add tags to multiple contacts')
-    .requiredOption('-c, --contacts <ids>', 'Contact IDs (comma-separated)')
-    .requiredOption('-t, --tags <tags>', 'Tags to add (comma-separated)')
+    .requiredOption('-c, --contacts <ids>', 'Contact IDs (comma-separated)', parseResourceIds)
+    .requiredOption('-t, --tags <tags>', 'Tags to add (comma-separated)', parseStringList)
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
     .action(async (options) => {
       const format = fmt.resolveOutputFormat(options.format as OutputFormat);
-      const contactIds = options.contacts.split(',').map((id: string) => parseInt(id.trim(), 10));
-      const tags = options.tags.split(',').map((tag: string) => tag.trim());
+      const contactIds = options.contacts as number[];
+      const tags = options.tags as string[];
 
       const results: BulkResult[] = [];
 
@@ -48,11 +52,11 @@ export function createBulkCommand(): Command {
   cmd
     .command('star')
     .description('Star multiple contacts')
-    .requiredOption('-c, --contacts <ids>', 'Contact IDs (comma-separated)')
+    .requiredOption('-c, --contacts <ids>', 'Contact IDs (comma-separated)', parseResourceIds)
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
     .action(async (options) => {
       const format = fmt.resolveOutputFormat(options.format as OutputFormat);
-      const contactIds = options.contacts.split(',').map((id: string) => parseInt(id.trim(), 10));
+      const contactIds = options.contacts as number[];
 
       const results: BulkResult[] = [];
 
@@ -64,7 +68,7 @@ export function createBulkCommand(): Command {
               await api.updateContact(contactId, {
                 first_name: contact.data.first_name,
                 last_name: contact.data.last_name ?? undefined,
-                gender_id: (contact.data.gender as { id?: number })?.id || 1,
+                gender_id: await resolveGenderId(contact.data),
                 is_birthdate_known: false,
                 is_deceased: false,
                 is_deceased_date_known: false,
@@ -98,7 +102,7 @@ export function createBulkCommand(): Command {
         if (options.contacts === 'all' || !options.contacts) {
           contacts = await api.listAllContacts();
         } else {
-          const ids = options.contacts.split(',').map((id: string) => parseInt(id.trim(), 10));
+          const ids = parseResourceIds(options.contacts as string);
           for (const id of ids) {
             try {
               const result = await api.getContact(id);
@@ -109,14 +113,14 @@ export function createBulkCommand(): Command {
           }
         }
 
-        const output = JSON.stringify(contacts, null, 2);
+        const format = fmt.resolveOutputFormat(options.format as OutputFormat);
+        const rendered = fmt.formatOutput(contacts, format, { fields: fmt.ContactFields });
 
         if (options.output) {
-          const fs = await import('fs');
-          fs.writeFileSync(options.output, output);
+          fs.writeFileSync(options.output, rendered);
           console.log(fmt.formatSuccess(`Exported ${contacts.length} contacts to ${options.output}`));
         } else {
-          console.log(output);
+          console.log(rendered);
         }
       } catch (error) {
         console.error(fmt.formatError(error as Error));
@@ -128,12 +132,12 @@ export function createBulkCommand(): Command {
   cmd
     .command('delete')
     .description('Delete multiple contacts (use with caution)')
-    .requiredOption('-c, --contacts <ids>', 'Contact IDs (comma-separated)')
+    .requiredOption('-c, --contacts <ids>', 'Contact IDs (comma-separated)', parseResourceIds)
     .option('--force', 'Skip confirmation (DANGEROUS)')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
     .action(async (options) => {
       const format = fmt.resolveOutputFormat(options.format as OutputFormat);
-      const contactIds = options.contacts.split(',').map((id: string) => parseInt(id.trim(), 10));
+      const contactIds = options.contacts as number[];
 
       if (!options.force) {
         console.log('⚠️  DANGER: This will permanently delete the following contacts:');
@@ -165,7 +169,8 @@ export function createBulkCommand(): Command {
   return cmd;
 }
 
-function outputBulkResults(results: BulkResult[], format: OutputFormat, operation: string): void {
+/** Render a bulk-operation result and fail the process when any item failed. */
+export function outputBulkResults(results: BulkResult[], format: OutputFormat, operation: string): void {
   const successCount = results.filter(r => r.success).length;
   const failCount = results.filter(r => !r.success).length;
 
@@ -202,4 +207,16 @@ function outputBulkResults(results: BulkResult[], format: OutputFormat, operatio
   if (failCount > 0) {
     process.exit(1);
   }
+}
+
+async function resolveGenderId(contact: Contact): Promise<number> {
+  const genders = await api.listGenders();
+  const type = contact.gender_type?.trim().toLowerCase();
+  const name = contact.gender?.trim().toLowerCase();
+  const match = genders.data.find((gender) => (
+    (type && gender.type?.trim().toLowerCase() === type)
+    || (name && gender.name.trim().toLowerCase() === name)
+  ));
+  if (!match) throw new Error(`Unable to infer gender id for contact ${contact.id}`);
+  return match.id;
 }

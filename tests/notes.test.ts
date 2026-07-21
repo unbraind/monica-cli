@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   get: vi.fn(),
@@ -24,7 +25,7 @@ describe('notes API', () => {
 
   describe('listNotes', () => {
     it('calls GET /notes with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await notes.listNotes({ page: 1, limit: 10 });
@@ -85,7 +86,7 @@ describe('notes API', () => {
 
   describe('listContactNotes', () => {
     it('calls GET /contacts/:id/notes', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await notes.listContactNotes(1);

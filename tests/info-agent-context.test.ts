@@ -31,11 +31,12 @@ describe('info agent-context command', () => {
   it('prints sanitized context with capabilities and supported commands', async () => {
     vi.spyOn(api, 'probeApiCapabilities').mockResolvedValue({
       generatedAt: '2026-03-03T00:00:00.000Z',
-      summary: { total: 3, supported: 2, unsupported: 1 },
+      summary: { total: 4, supported: 2, unsupported: 1, unavailable: 1, healthy: false },
       probes: [
         { key: 'contacts', command: 'contacts list', endpoint: '/contacts', supported: true, statusCode: 200, message: 'OK' },
         { key: 'groups', command: 'groups list', endpoint: '/groups', supported: false, statusCode: 404, message: 'HTTP 404' },
         { key: 'activities', command: 'activities list', endpoint: '/activities', supported: true, statusCode: 200, message: 'OK' },
+        { key: 'notes', command: 'notes list', endpoint: '/notes', supported: null, state: 'unavailable', statusCode: 500, message: 'HTTP 500' },
       ],
     });
     vi.spyOn(api, 'getSupportedCommands').mockReturnValue(['activities list', 'contacts list']);
@@ -60,10 +61,19 @@ describe('info agent-context command', () => {
     });
     expect(payload.capabilities).toMatchObject({
       source: 'live',
-      total: 3,
+      total: 4,
       supported: 2,
       unsupported: 1,
+      unavailable: 1,
+      healthy: false,
     });
+    const capabilities = payload.capabilities as Record<string, unknown>;
+    expect(capabilities.unsupportedResources).toEqual([
+      expect.objectContaining({ key: 'groups', statusCode: 404 }),
+    ]);
+    expect(capabilities.unavailableResources).toEqual([
+      expect.objectContaining({ key: 'notes', statusCode: 500 }),
+    ]);
     expect(JSON.stringify(payload)).not.toContain('secret-token');
     expect(logSpy).toHaveBeenCalledWith('FORMATTED_CONTEXT');
   });

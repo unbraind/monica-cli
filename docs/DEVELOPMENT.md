@@ -46,19 +46,25 @@ MONICA_API_KEY=your-jwt-token
 | `bun run version:set` | Set next release version (`YYYY.M.D` for first release of day, otherwise `YYYY.M.D-N`) |
 | `bun run version:check` | Validate package version matches the next release number for today (derived from release tags) |
 | `bun run audit:version-history` | Validate all historical `package.json` versions use semver-safe `YYYY.M.D`/`YYYY.M.D-N` |
+| `bun run audit:dependencies` | Reject known vulnerabilities anywhere in the reproducible Bun dependency graph |
 | `bun test` | Run all tests |
 | `bun run test:e2e:readonly` | Run safe read-only E2E smoke test against configured Monica instance |
 | `bun run test:e2e:help` | Run full `--help` command-tree audit using the real `monica` binary |
 | `bun run test:watch` | Watch mode for tests |
 | `bun run test:coverage` | Run tests with coverage |
 | `bun run typecheck` | Type check without emitting |
+| `bun run typecheck:scripts` | Type check every TypeScript operational and review script |
 | `bun run lint` | Run baseline ESLint checks on `src/**/*.ts` |
+| `bun run lint:source-quality` | Enforce no explicit `any`, no dynamic/inline imports, erasable TypeScript, <=300 code lines in source/tests, and JSDoc on every source export |
+| `bun run lint:duplication` | Enforce the repository duplication ceiling with jscpd |
 | `bun run lint:strict` | Run stricter ESLint checks on the hardened module set |
 | `bun run lint:commits` | Validate branch commits using the same Conventional Commit policy as CI |
 | `bun run smoke:npx` | Verify packed artifact runs with npx |
 | `bun run smoke:bunx` | Verify packed artifact runs with bunx |
 | `bun run audit:history` | Scan all git commits for likely leaked secrets |
 | `bun run verify:release` | Run the full release quality gate |
+
+`test:coverage` is a mandatory 100% statements / 100% branches / 100% functions / 100% lines gate across all `src/**/*.ts`. No source exclusions or reduced per-file thresholds are used.
 
 ## Incremental Lint Strictness
 
@@ -115,6 +121,9 @@ import * as fmt from '../formatters';
 - All functions must have explicit return types
 - Use interfaces for objects, type aliases for unions
 - Input types suffixed with `Input`
+- Do not use explicit `any`, inline `import("pkg").Type`, dynamic `import()`, enums, namespaces/modules, parameter properties, or `import =`/`export =`
+- Keep every source and test file at or below 300 executable code lines (comments do not count)
+- Document every exported source declaration with a meaningful JSDoc description
 
 ```typescript
 export async function createContact(data: ContactCreateInput): Promise<ApiResponse<Contact>> {
@@ -317,6 +326,10 @@ Notes:
 - Emits a sanitized machine-readable report to `~/.monica-cli/cache/e2e-readonly-last.json` by default (contains command statuses and summary only, no API payload data)
 
 ## Release Checklist
+
+### Pull request review loop
+
+Run `bun run pr:review-loop` on a branch with an open pull request to capture every conversation comment, submitted review, inline thread, resolution state, reaction, and exact-head check in one JSON inventory. Use `bun scripts/pr-review-loop.ts react <node-id> THUMBS_UP`, `reply-thread <thread-id> "<reply>"`, `resolve-thread <thread-id>`, or `comment <pr-node-id> "<reply>"` to acknowledge each bot finding in its native GitHub context. Re-run the inventory after every pushed fix and before merge; the final snapshot must contain no unacknowledged bot feedback or unresolved actionable thread.
 
 1. Run `bun run version:set` before creating the release/version commit
 2. Run `bun run typecheck`

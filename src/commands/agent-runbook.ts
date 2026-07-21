@@ -95,7 +95,8 @@ function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
 }
 
-function commandRoot(command: string): string {
+/** Extracts the first CLI command root after the optional Monica executable token. */
+export function commandRoot(command: string): string {
   const parts = command.trim().split(/\s+/);
   const startIndex = parts[0] === 'monica' ? 1 : 0;
   for (let index = startIndex; index < parts.length; index += 1) {
@@ -111,10 +112,10 @@ function normalizeStep(step: RunbookStepTemplate): RunbookStep {
   };
 }
 
-function buildUnsupportedRootIndex(report: { probes: Array<{ command: string; supported: boolean; statusCode: number; endpoint: string; message: string }> }): Map<string, UnsupportedRoot> {
+function buildUnsupportedRootIndex(report: { probes: Array<{ command: string; supported: boolean | null; statusCode: number; endpoint: string; message: string; state?: string }> }): Map<string, UnsupportedRoot> {
   const unsupported = new Map<string, UnsupportedRoot>();
   report.probes.forEach((probe) => {
-    if (probe.supported) return;
+    if (probe.supported || probe.state === 'unavailable' || (!probe.state && probe.statusCode !== 404 && probe.statusCode !== 405)) return;
     const root = commandRoot(`monica ${probe.command}`);
     if (!root || unsupported.has(root)) return;
     unsupported.set(root, {
@@ -127,6 +128,7 @@ function buildUnsupportedRootIndex(report: { probes: Array<{ command: string; su
   return unsupported;
 }
 
+/** Creates agent runbook command. */
 export function createAgentRunbookCommand(): Command {
   return new Command('agent-runbook')
     .description('Generate a deterministic read-only execution runbook for agent workflows')

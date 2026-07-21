@@ -3,7 +3,7 @@ import type { ApiResearchBacklogItem, ApiResearchBacklogPayload, ApiResearchSumm
 function normalizeCommandRoot(command: string): string {
   const trimmed = command.trim().toLowerCase();
   const [root] = trimmed.split(/\s+/u);
-  return root || trimmed;
+  return root;
 }
 
 function getAgentActions(resource: string, type: ApiResearchBacklogItem['type']): ApiResearchBacklogItem['agentActions'] {
@@ -84,9 +84,6 @@ function getAgentActions(resource: string, type: ApiResearchBacklogItem['type'])
 
 function buildRecommendedAction(agentActions: ApiResearchBacklogItem['agentActions']): string {
   const first = agentActions[0];
-  if (!first) {
-    return 'Run monica --json info unsupported-commands to collect safe fallback guidance.';
-  }
   return `${first.reason} Suggested command: ${first.command}`;
 }
 
@@ -139,13 +136,14 @@ function buildBacklogItems(payload: ApiResearchSummaryPayload): ApiResearchBackl
     });
   }
 
-  return items.sort((left, right) => {
-    if (left.priority !== right.priority) return left.priority === 'high' ? -1 : 1;
-    if (left.type !== right.type) return left.type.localeCompare(right.type);
-    return left.resource.localeCompare(right.resource);
-  });
+  const priorityOrder = { high: 0, medium: 1 } as const;
+  return items.sort((left, right) => (
+    priorityOrder[left.priority] - priorityOrder[right.priority]
+    || left.resource.localeCompare(right.resource)
+  ));
 }
 
+/** Builds backlog payload. */
 export function buildBacklogPayload(payload: ApiResearchSummaryPayload): ApiResearchBacklogPayload {
   const items = buildBacklogItems(payload);
   return {

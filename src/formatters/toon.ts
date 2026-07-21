@@ -1,14 +1,4 @@
-import type {
-  Contact,
-  Activity,
-  Note,
-  Task,
-  Reminder,
-  Tag,
-  Company,
-  OutputFormat,
-  PaginatedResponse,
-} from '../types';
+import type { OutputFormat } from '../types';
 import { getDefaultFields } from './helpers';
 import { formatMarkdown } from './markdown';
 import { getRuntimeFieldSelection } from './runtime-fields';
@@ -16,6 +6,7 @@ import { formatYaml } from './yaml';
 
 export { formatMarkdown, formatYaml };
 
+/** Resolves output format. */
 export function resolveOutputFormat(format?: OutputFormat | string): OutputFormat {
   const normalized = format?.trim().toLowerCase();
   if (normalized === 'markdown') return 'md';
@@ -26,6 +17,7 @@ export function resolveOutputFormat(format?: OutputFormat | string): OutputForma
   return 'toon';
 }
 
+/** Formats output. */
 export function formatOutput<T>(
   data: T,
   format: OutputFormat = 'toon',
@@ -83,6 +75,7 @@ function pickFields(record: Record<string, unknown>, fields: string[]): Record<s
   return selected;
 }
 
+/** Formats toon. */
 export function formatToon<T>(data: T, fields?: string[]): string {
   if (data === null || data === undefined) return 'null';
   if (Array.isArray(data)) return formatToonArray(data, fields);
@@ -137,9 +130,6 @@ function formatToonObjectCompact(obj: Record<string, unknown>, fields?: string[]
 }
 
 function formatValue(value: unknown, indent: string, fields?: string[]): string {
-  if (value === null) return 'null';
-  if (value === undefined) return '';
-
   if (Array.isArray(value)) {
     if (value.length === 0) return '[]';
     if (value.every((entry) => typeof entry !== 'object')) {
@@ -167,6 +157,7 @@ function formatPrimitive(value: unknown): string {
   return String(value);
 }
 
+/** Formats table. */
 export function formatTable<T>(data: T, fields?: string[]): string {
   if (Array.isArray(data)) return formatTableArray(data, fields);
   if (typeof data === 'object' && data !== null) return formatTableObject(data as Record<string, unknown>, fields);
@@ -210,85 +201,7 @@ function formatTableObject(obj: Record<string, unknown>, fields?: string[]): str
     .join('\n');
 }
 
-export const ContactFields = ['id', 'first_name', 'last_name', 'gender', 'is_partial'];
-export const ActivityFields = ['id', 'summary', 'happened_at'];
-export const NoteFields = ['id', 'body'];
-export const TaskFields = ['id', 'title', 'completed'];
-export const ReminderFields = ['id', 'title', 'next_expected_date'];
-export const TagFields = ['id', 'name'];
-export const CompanyFields = ['id', 'name', 'website'];
-export const ContactFieldFields = ['id', 'data'];
-export const AddressFields = ['id', 'name', 'city', 'country'];
-export const CallFields = ['id', 'content', 'called_at'];
-export const ConversationFields = ['id', 'happened_at'];
-export const DocumentFields = ['id', 'name'];
-export const GiftFields = ['id', 'name', 'status', 'amount'];
-export const PhotoFields = ['id', 'original_filename'];
-
-export function formatPaginatedResponse<T>(
-  response: PaginatedResponse<T>,
-  format: OutputFormat = 'toon',
-  fields?: string[],
-  raw?: boolean
-): string {
-  const effectiveFields = resolveFieldsOption(fields);
-  const filteredData = filterDataByFields(response.data, effectiveFields);
-
-  if (raw || process.argv.includes('--raw')) {
-    return JSON.stringify(filteredData, null, 2);
-  }
-
-  const filteredResponse = { ...response, data: filteredData };
-  const resolved = resolveOutputFormat(format);
-  if (resolved === 'json') return JSON.stringify(filteredResponse, null, 2);
-  if (resolved === 'yaml') return formatYaml(filteredResponse);
-  if (resolved === 'md') {
-    if (response.meta.total === 0) return '*No results*';
-    const info = `**Page ${response.meta.current_page}/${response.meta.last_page}** (${response.meta.total} total)`;
-    return `${info}\n\n${formatMarkdown(filteredData, effectiveFields)}`;
-  }
-
-  if (response.meta.total === 0) return 'No results';
-
-  const info = response.meta.last_page === 1
-    ? '1/1'
-    : `${response.meta.current_page}/${response.meta.last_page}`;
-
-  const dataStr = resolved === 'toon'
-    ? formatToon(filteredData, effectiveFields)
-    : formatTable(filteredData, effectiveFields);
-
-  return `${info}\n${dataStr}`;
-}
-
-export function formatContact(contact: Contact, format: OutputFormat = 'toon'): string {
-  return formatOutput(contact, format, { fields: ContactFields });
-}
-
-export function formatActivity(activity: Activity, format: OutputFormat = 'toon'): string {
-  return formatOutput(activity, format, { fields: ActivityFields });
-}
-
-export function formatNote(note: Note, format: OutputFormat = 'toon'): string {
-  return formatOutput(note, format, { fields: NoteFields });
-}
-
-export function formatTask(task: Task, format: OutputFormat = 'toon'): string {
-  return formatOutput(task, format, { fields: TaskFields });
-}
-
-export function formatReminder(reminder: Reminder, format: OutputFormat = 'toon'): string {
-  return formatOutput(reminder, format, { fields: ReminderFields });
-}
-
-export function formatTag(tag: Tag, format: OutputFormat = 'toon'): string {
-  return formatOutput(tag, format, { fields: TagFields });
-}
-
-export function formatCompany(company: Company, format: OutputFormat = 'toon'): string {
-  return formatOutput(company, format, { fields: CompanyFields });
-}
-
+/** Formats error. */
 export function formatError(error: Error): string {
   const message = error.message || 'Unknown error';
   const hints: string[] = [];
@@ -316,6 +229,7 @@ export function formatError(error: Error): string {
   return `Error: ${message} (${hints.join('; ')})`;
 }
 
+/** Formats success. */
 export function formatSuccess(message: string, id?: number | string): string {
   if (id !== undefined) {
     return `✓ ${message} #${id}`;
@@ -323,6 +237,7 @@ export function formatSuccess(message: string, id?: number | string): string {
   return `✓ ${message}`;
 }
 
+/** Formats deleted. */
 export function formatDeleted(id: number | string): string {
   return `✓ deleted #${id}`;
 }

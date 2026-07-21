@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -46,6 +46,10 @@ describe('settings utility', () => {
   });
 
   describe('maskApiKey', () => {
+    it('handles an empty key', () => {
+      expect(maskApiKey('')).toBe('[hidden]');
+    });
+
     it('masks short keys without exposing raw characters', () => {
       expect(maskApiKey('shortkey')).toMatch(/^\[hidden:8:sha256:[0-9a-f]{8}\]$/);
     });
@@ -134,6 +138,81 @@ describe('settings utility', () => {
       });
       expect(normalized.readOnlyMode).toBe(false);
       expect(Object.prototype.hasOwnProperty.call(normalized, 'readOnly')).toBe(false);
+    });
+  });
+
+  describe('safe configuration output', () => {
+    const settings = {
+      apiUrl: 'https://monica.test/api',
+      apiKey: 'private-token',
+      userEmail: 'user@example.test',
+      userPassword: 'private-password',
+      defaultFormat: 'yaml' as const,
+      readOnlyMode: true,
+      githubRepoStarred: true,
+    };
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it.each([
+      ['api-url', 'https://monica.test/api'],
+      ['apiUrl', 'https://monica.test/api'],
+      ['api-key', '[hidden:13:sha256:'],
+      ['apiKey', '[hidden:13:sha256:'],
+      ['user-email', 'user@example.test'],
+      ['userEmail', 'user@example.test'],
+      ['user-password', '********'],
+      ['userPassword', '********'],
+      ['read-only-mode', 'true'],
+      ['readOnlyMode', 'true'],
+      ['default-format', 'yaml'],
+      ['defaultFormat', 'yaml'],
+      ['github-repo-starred', 'true'],
+      ['githubRepoStarred', 'true'],
+    ])('prints %s without exposing raw secrets', (key, expected) => {
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      outputSingleKey(settings, key);
+      const output = String(logSpy.mock.calls[0]?.[0]);
+      expect(output).toContain(expected);
+      expect(output).not.toContain('private-token');
+      expect(output).not.toContain('private-password');
+    });
+
+    it('prints sanitized all/default/unknown projections', () => {
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      outputSingleKey(settings, 'all');
+      outputSingleKey({}, 'all');
+      outputSingleKey({}, 'unknown');
+      const output = logSpy.mock.calls.flat().join('\n');
+      expect(output).toContain('"defaultFormat": "yaml"');
+      expect(output).toContain('Not set');
+      expect(output).toContain('Unknown key: unknown');
+      expect(output).not.toContain('private-token');
+      expect(output).not.toContain('private-password');
+    });
+
+    it('prints complete and empty config summaries safely', () => {
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      printConfig(settings);
+      printConfig({});
+      const output = logSpy.mock.calls.flat().join('\n');
+      expect(output).toContain('https://monica.test/api');
+      expect(output).toContain('[hidden:13:sha256:');
+      expect(output).toContain('Not set');
+      expect(output).not.toContain('private-token');
+      expect(output).not.toContain('private-password');
+    });
+
+    it('reports the live settings file metadata without mutating it', () => {
+      const exists = fs.existsSync(GLOBAL_SETTINGS_PATH);
+      expect(settingsFileExists()).toBe(exists);
+      if (exists) {
+        expect(getSettingsStats()?.isFile()).toBe(true);
+        expect(loadSettings()).not.toBeNull();
+      } else {
+        expect(getSettingsStats()).toBeNull();
+        expect(loadSettings()).toBeNull();
+      }
     });
   });
 });

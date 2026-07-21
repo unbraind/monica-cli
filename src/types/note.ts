@@ -1,3 +1,4 @@
+/** Describes the note data contract. */
 export interface Note {
   id: number;
   object: string;
@@ -44,10 +45,12 @@ export interface Note {
   updated_at: string;
 }
 
+/** Describes the note create input data contract. */
 export interface NoteCreateInput {
   body: string;
   contact_id: number;
   is_favorited: number;
 }
 
+/** Describes the note update input data contract. */
 export interface NoteUpdateInput extends NoteCreateInput {}

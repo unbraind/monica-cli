@@ -1,35 +1,26 @@
-import { Command } from 'commander';
-import type { OutputFormat } from '../types';
+import type { Command } from 'commander';
+import { Command as CommanderCommand } from 'commander';
 import * as api from '../api';
 import * as fmt from '../formatters';
+import { runCommandAction } from './crud-command';
+import { parsePositiveInteger } from './global-options';
+import { resolveCommandOutputFormat } from './output-format';
 
-const AuditLogFields = ['id', 'action', 'author', 'audited_at'];
-
+/** Build the audit-log list command. */
 export function createAuditLogsCommand(): Command {
-  const cmd = new Command('audit-logs')
-    .description('List audit logs')
+  const command = new CommanderCommand('audit-logs').description('List audit logs')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
-    .option('-p, --page <page>', 'Page number', parseInt)
-    .option('-l, --limit <limit>', 'Items per page', parseInt);
-
-  cmd
-    .command('list')
-    .description('List all audit logs')
-    .action(async (_options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.listAuditLogs({
-          page: parentOpts.page,
-          limit: parentOpts.limit,
-        });
-        console.log(fmt.formatPaginatedResponse(result, format, AuditLogFields));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
+    .option('-p, --page <page>', 'Page number', parsePositiveInteger)
+    .option('-l, --limit <limit>', 'Items per page', parsePositiveInteger);
+  command.command('list').description('List all audit logs')
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
+        const { page, limit } = this.parent?.opts() as { page?: number; limit?: number };
+        const result = await api.listAuditLogs({ page, limit });
+        console.log(fmt.formatPaginatedResponse(
+          result, resolveCommandOutputFormat(this), ['id', 'action', 'author', 'audited_at'],
+        ));
+      });
     });
-
-  return cmd;
+  return command;
 }

@@ -142,4 +142,50 @@ describe('contact-fields command', () => {
 
     expect(errorSpy).toHaveBeenCalledWith('FORMATTED_ERROR');
   });
+
+  it('does not mask transient global-list failures', async () => {
+    vi.spyOn(api, 'listAllContactFields').mockRejectedValue(new Error('offline'));
+    await expect(createContactFieldsCommand().parseAsync([
+      'list', '--format', 'json',
+    ], { from: 'user' })).rejects.toThrow('process.exit');
+    expect(api.listAllContactFields).toHaveBeenCalled();
+  });
+
+  it('executes get, create, update, and both delete output branches', async () => {
+    vi.spyOn(api, 'getContactField').mockResolvedValue({ data: { id: 1 } } as never);
+    vi.spyOn(api, 'createContactField').mockResolvedValue({ data: { id: 1 } } as never);
+    vi.spyOn(api, 'updateContactField').mockResolvedValue({ data: { id: 1 } } as never);
+    vi.spyOn(api, 'deleteContactField').mockResolvedValue({ id: 1, deleted: true } as never);
+    await createContactFieldsCommand().parseAsync(['get', '1'], { from: 'user' });
+    await createContactFieldsCommand().parseAsync([
+      'create', '--contact-id', '2', '--type-id', '3', '--content', 'value',
+    ], { from: 'user' });
+    await createContactFieldsCommand().parseAsync([
+      'update', '1', '--contact-id', '2', '--type-id', '3', '--content', 'new',
+    ], { from: 'user' });
+    vi.mocked(fmt.resolveOutputFormat).mockReturnValueOnce('toon');
+    await createContactFieldsCommand().parseAsync(['delete', '1'], { from: 'user' });
+    await createContactFieldsCommand().parseAsync([
+      '--format', 'json', 'delete', '1',
+    ], { from: 'user' });
+    expect(api.getContactField).toHaveBeenCalledWith(1);
+    expect(api.createContactField).toHaveBeenCalledWith({
+      contact_id: 2, contact_field_type_id: 3, content: 'value',
+    });
+    expect(api.updateContactField).toHaveBeenCalledWith(1, {
+      contact_id: 2, contact_field_type_id: 3, content: 'new',
+    });
+    expect(api.deleteContactField).toHaveBeenCalledTimes(2);
+  });
+
+  it('skips malformed contact records during compatibility scanning', async () => {
+    vi.spyOn(api, 'listAllContactFields').mockRejectedValue({ statusCode: 404 });
+    vi.spyOn(api, 'listAllContacts').mockResolvedValue([{ id: 'bad' }, { id: 2 }] as never);
+    vi.spyOn(api, 'listContactFields').mockResolvedValue({ data: [], meta: {} } as never);
+    await createContactFieldsCommand().parseAsync([
+      'list', '--scan-contacts', '--format', 'json',
+    ], { from: 'user' });
+    expect(api.listContactFields).toHaveBeenCalledOnce();
+    expect(api.listContactFields).toHaveBeenCalledWith(2, { page: 1, limit: undefined });
+  });
 });

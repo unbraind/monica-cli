@@ -63,6 +63,18 @@ describe('compliance command', () => {
     expect(logSpy).toHaveBeenCalledWith('FORMATTED_OUTPUT');
   });
 
+  it('gets a policy and signs compliance successfully', async () => {
+    vi.spyOn(api, 'getCompliance').mockResolvedValue({ data: { id: 1 } } as never);
+    vi.spyOn(api, 'signCompliance').mockResolvedValue({ data: { id: 1 } } as never);
+    await createComplianceCommand().parseAsync(['get', '1'], { from: 'user' });
+    await createComplianceCommand().parseAsync([
+      'sign', '--ip-address', '127.0.0.1',
+    ], { from: 'user' });
+    expect(api.getCompliance).toHaveBeenCalledWith(1);
+    expect(api.signCompliance).toHaveBeenCalledWith({ ip_address: '127.0.0.1' });
+    expect(logSpy).toHaveBeenCalledWith('FORMATTED_SUCCESS');
+  });
+
   it('handles sign errors via formatter and exits', async () => {
     vi.spyOn(api, 'signCompliance').mockRejectedValue(new Error('Read-only mode enabled'));
 

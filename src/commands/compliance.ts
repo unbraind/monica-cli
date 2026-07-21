@@ -1,84 +1,53 @@
-import { Command } from 'commander';
-import type { OutputFormat } from '../types';
+import type { Command } from 'commander';
+import { Command as CommanderCommand } from 'commander';
 import * as api from '../api';
 import * as fmt from '../formatters';
+import { runCommandAction } from './crud-command';
+import { parsePositiveInteger } from './global-options';
+import { resolveCommandOutputFormat } from './output-format';
 
+/** Build compliance policy, status, and signing commands. */
 export function createComplianceCommand(): Command {
-  const cmd = new Command('compliance')
-    .description('View compliance terms and policies')
+  const command = new CommanderCommand('compliance').description('View compliance terms and policies')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
-    .option('-p, --page <page>', 'Page number', parseInt)
-    .option('-l, --limit <limit>', 'Items per page', parseInt);
-
-  cmd
-    .command('list')
-    .description('List all compliance terms and policies')
-    .action(async (_options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const result = await api.listCompliance({
-          page: parentOpts.page,
-          limit: parentOpts.limit,
+    .option('-p, --page <page>', 'Page number', parsePositiveInteger)
+    .option('-l, --limit <limit>', 'Items per page', parsePositiveInteger);
+  command.command('list').description('List all compliance terms and policies')
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
+        const { page, limit } = this.parent?.opts() as { page?: number; limit?: number };
+        const result = await api.listCompliance({ page, limit });
+        console.log(fmt.formatPaginatedResponse(
+          result, resolveCommandOutputFormat(this), ['id', 'name', 'created_at'],
+        ));
+      });
+    });
+  command.command('get <id>').description('Get a specific compliance policy')
+    .action(async function (this: Command, id: string): Promise<void> {
+      await runCommandAction(async () => {
+        const result = await api.getCompliance(parsePositiveInteger(id));
+        console.log(fmt.formatOutput(result.data, resolveCommandOutputFormat(this)));
+      });
+    });
+  command.command('status [id]').description('Get current-user compliance status')
+    .action(async function (this: Command, id?: string): Promise<void> {
+      await runCommandAction(async () => {
+        const result = id === undefined
+          ? await api.getUserComplianceStatus()
+          : await api.getUserComplianceStatusForTerm(parsePositiveInteger(id));
+        console.log(fmt.formatOutput(result.data, resolveCommandOutputFormat(this)));
+      });
+    });
+  command.command('sign').description('Sign the latest compliance policy')
+    .requiredOption('--ip-address <ip>', 'IP address associated with the signature')
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
+        const result = await api.signCompliance({
+          ip_address: (this.opts() as { ipAddress: string }).ipAddress,
         });
-        console.log(fmt.formatPaginatedResponse(result, format, ['id', 'name', 'created_at']));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('get <id>')
-    .description('Get a specific compliance term/policy')
-    .action(async (id, _options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const result = await api.getCompliance(parseInt(id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('status [id]')
-    .description('Get compliance status for current user (optionally for a specific term)')
-    .action(async (id, _options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        if (id) {
-          const result = await api.getUserComplianceStatusForTerm(parseInt(id));
-          console.log(fmt.formatOutput(result.data, format));
-        } else {
-          const result = await api.getUserComplianceStatus();
-          console.log(fmt.formatOutput(result.data, format));
-        }
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('sign')
-    .description('Sign the latest compliance policy')
-    .requiredOption('--ip-address <ip>', 'IP address to associate with signature')
-    .action(async (options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const result = await api.signCompliance({ ip_address: options.ipAddress });
         console.log(fmt.formatSuccess('Compliance policy signed'));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
+        console.log(fmt.formatOutput(result.data, resolveCommandOutputFormat(this)));
+      });
     });
-
-  return cmd;
+  return command;
 }

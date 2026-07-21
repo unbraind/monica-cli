@@ -3,6 +3,7 @@ import { createAgentToolsCommand } from '../src/commands/agent-tools';
 import { buildCommandCatalog } from '../src/commands/command-catalog';
 import * as infoCapabilities from '../src/commands/info-capabilities';
 import { Command } from 'commander';
+import * as fmt from '../src/formatters';
 
 vi.mock('../src/api/client', () => ({
   getConfig: vi.fn(() => ({
@@ -73,6 +74,38 @@ describe('agent-tools command', () => {
     consoleSpy.mockRestore();
   });
 
+  it('executes OpenAI and Anthropic exports and their aliases', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    for (const commandName of ['openai', 'openai-tools', 'anthropic', 'anthropic-tools']) {
+      const root = new Command().name('monica');
+      root.addCommand(createAgentToolsCommand());
+      await root.parseAsync(['agent-tools', '--format', 'json', commandName], { from: 'user' });
+    }
+    const payloads = logSpy.mock.calls.map((call) => JSON.parse(String(call[0])));
+    expect(payloads[0]).toHaveProperty('functions');
+    expect(payloads[1]).toHaveProperty('functions');
+    expect(payloads[2]).toHaveProperty('tools');
+    expect(payloads[3]).toHaveProperty('tools');
+  });
+
+  it('supports every export when agent-tools is used as the standalone root', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    for (const name of ['openai', 'anthropic', 'catalog', 'safe-commands', 'mcp-tools']) {
+      await createAgentToolsCommand().parseAsync(['--format', 'json', name], { from: 'user' });
+    }
+    expect(log).toHaveBeenCalledTimes(5);
+  });
+
+  it('executes the catalog export', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const root = new Command().name('monica');
+    root.addCommand(createAgentToolsCommand());
+    await root.parseAsync(['agent-tools', '--format', 'json', 'catalog'], { from: 'user' });
+    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    expect(payload).toHaveProperty('commandCatalog');
+    expect(payload.aliases.openaiTools).toBe('agent-tools openai-tools');
+  });
+
   it('exports valid JSON structure for Anthropic schemas', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     
@@ -111,6 +144,17 @@ describe('agent-tools command', () => {
     payload.commands.forEach((item: { readOnlyCompatible: boolean }) => {
       expect(item.readOnlyCompatible).toBe(true);
     });
+  });
+
+  it('excludes mutating leaves from the safe command list', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const root = new Command().name('monica');
+    const contacts = root.command('contacts');
+    contacts.command('create').option('--name <name>');
+    root.addCommand(createAgentToolsCommand());
+    await root.parseAsync(['agent-tools', '--format', 'json', 'safe-commands'], { from: 'user' });
+    const payload = JSON.parse(String(log.mock.calls.at(-1)?.[0]));
+    expect(payload.commands).not.toContainEqual(expect.objectContaining({ command: 'monica contacts create' }));
   });
 
   it('supports instance-aware safe command filtering', async () => {
@@ -174,5 +218,46 @@ describe('agent-tools command', () => {
     const safeCommands = payload.tools.find((tool: { name: string }) => tool.name === 'monica_agent_tools_safe_commands');
     expect(safeCommands).toBeDefined();
     expect(safeCommands.inputSchema.required).toEqual([]);
+  });
+
+  it('attaches instance capability metadata to MCP tools', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(infoCapabilities, 'resolveCapabilityReportWithSource').mockResolvedValue({
+      source: 'cache',
+      report: {
+        generatedAt: '2026-03-03T00:00:00.000Z',
+        summary: { total: 1, supported: 1, unsupported: 0 },
+        probes: [{
+          key: 'agentTools', command: 'agent-tools catalog', endpoint: '/agent-tools',
+          supported: true, statusCode: 200, message: 'OK',
+        }],
+      },
+    });
+    const root = new Command().name('monica');
+    root.addCommand(createAgentToolsCommand());
+    await root.parseAsync([
+      'agent-tools', '--format', 'json', 'mcp-tools', '--instance-aware',
+    ], { from: 'user' });
+    const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
+    expect(payload.instanceCapabilities).toEqual({
+      enabled: true, source: 'cache', generatedAt: '2026-03-03T00:00:00.000Z',
+    });
+    expect(payload.tools.some((tool: { supportedOnInstance?: boolean }) => (
+      tool.supportedOnInstance === true
+    ))).toBe(true);
+  });
+
+  it('uses the standard fatal path for every generated export', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(fmt, 'formatOutput').mockImplementation(() => { throw new Error('render failed'); });
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('exit'); }) as never);
+    for (const name of ['openai', 'anthropic', 'catalog', 'safe-commands', 'mcp-tools']) {
+      const root = new Command().name('monica');
+      root.addCommand(createAgentToolsCommand());
+      await expect(root.parseAsync([
+        'agent-tools', '--format', 'json', name,
+      ], { from: 'user' })).rejects.toThrow('exit');
+    }
+    expect(exit).toHaveBeenCalledTimes(5);
   });
 });

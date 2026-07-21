@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   get: vi.fn(),
@@ -34,7 +35,7 @@ describe('groups API', () => {
 
   describe('listGroups', () => {
     it('calls GET /groups with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
 
       const result = await groups.listGroups({ page: 1, limit: 10 });
@@ -125,6 +126,14 @@ describe('groups API', () => {
       expect(mockPost).toHaveBeenNthCalledWith(1, '/groups/1/attachContacts', { contacts: [1, 2, 3] });
       expect(mockPost).toHaveBeenNthCalledWith(2, '/groups/1/attach', { contacts: [1, 2, 3] });
       expect(result).toEqual({ success: true });
+    });
+
+    it('recognizes a MonicaApiError 404 for fallback', async () => {
+      mockPost
+        .mockRejectedValueOnce(new client.MonicaApiError('missing', 0, 404))
+        .mockResolvedValueOnce({ success: true });
+      await expect(groups.attachContactsToGroup(1, { contacts: [2] }))
+        .resolves.toEqual({ success: true });
     });
 
     it('does not fall back when attachContacts fails with non-404', async () => {

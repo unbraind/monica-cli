@@ -1,3 +1,4 @@
+/** Describes the gender data contract. */
 export interface Gender {
   id: number;
   object: string;
@@ -8,12 +9,15 @@ export interface Gender {
   updated_at?: string;
 }
 
+/** Describes the gender create input data contract. */
 export interface GenderCreateInput {
   name: string;
 }
 
+/** Describes the gender update input data contract. */
 export interface GenderUpdateInput extends GenderCreateInput {}
 
+/** Describes the country data contract. */
 export interface Country {
   id: string;
   object: string;
@@ -21,6 +25,7 @@ export interface Country {
   iso: string;
 }
 
+/** Describes the currency data contract. */
 export interface Currency {
   id: number;
   object: string;
@@ -29,6 +34,7 @@ export interface Currency {
   symbol: string;
 }
 
+/** Describes the contact field type data contract. */
 export interface ContactFieldType {
   id: number;
   object: string;
@@ -42,6 +48,7 @@ export interface ContactFieldType {
   updated_at: string;
 }
 
+/** Describes the contact field type create input data contract. */
 export interface ContactFieldTypeCreateInput {
   name: string;
   fontawesome_icon?: string;
@@ -50,8 +57,10 @@ export interface ContactFieldTypeCreateInput {
   type?: string | null;
 }
 
+/** Describes the contact field type update input data contract. */
 export interface ContactFieldTypeUpdateInput extends ContactFieldTypeCreateInput {}
 
+/** Describes the contact field data contract. */
 export interface ContactField {
   id: number;
   object: string;
@@ -95,18 +104,21 @@ export interface ContactField {
   updated_at: string;
 }
 
+/** Describes the contact field create input data contract. */
 export interface ContactFieldCreateInput {
   contact_id: number;
   contact_field_type_id: number;
   content: string;
 }
 
+/** Describes the contact field update input data contract. */
 export interface ContactFieldUpdateInput {
   content: string;
   contact_id: number;
   contact_field_type_id: number;
 }
 
+/** Describes the audit log data contract. */
 export interface AuditLog {
   id: number;
   object: string;
@@ -121,6 +133,7 @@ export interface AuditLog {
   updated_at: string;
 }
 
+/** Describes the relationship type group data contract. */
 export interface RelationshipTypeGroup {
   id: number;
   object: string;
@@ -131,6 +144,7 @@ export interface RelationshipTypeGroup {
   updated_at: string | null;
 }
 
+/** Describes the relationship type data contract. */
 export interface RelationshipType {
   id: number;
   object: string;
@@ -143,6 +157,7 @@ export interface RelationshipType {
   updated_at: string;
 }
 
+/** Describes the term data contract. */
 export interface Term {
   id: number;
   object: string;
@@ -154,6 +169,7 @@ export interface Term {
   updated_at: string | null;
 }
 
+/** Describes the compliance status data contract. */
 export interface ComplianceStatus {
   signed: boolean;
   signed_date?: string;
@@ -162,10 +178,12 @@ export interface ComplianceStatus {
   term?: Term;
 }
 
+/** Describes the compliance sign input data contract. */
 export interface ComplianceSignInput {
   ip_address: string;
 }
 
+/** Describes the user data contract. */
 export interface User {
   id: number;
   object: string;

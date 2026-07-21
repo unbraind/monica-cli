@@ -1,136 +1,55 @@
-import { Command } from 'commander';
-import type { OutputFormat } from '../types';
+import type { Command } from 'commander';
+import type { Address, AddressCreateInput, AddressUpdateInput } from '../types';
 import * as api from '../api';
-import * as fmt from '../formatters';
+import { createCrudCommand } from './crud-command';
+import { parsePositiveInteger } from './global-options';
 
-export function createAddressesCommand(): Command {
-  const cmd = new Command('addresses')
-    .description('Manage contact addresses')
-    .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon')
-    .option('-p, --page <page>', 'Page number', parseInt)
-    .option('-l, --limit <limit>', 'Items per page', parseInt);
+const ADDRESS_FIELDS = ['id', 'name', 'street', 'city', 'province', 'postal_code', 'country'];
 
-  const AddressFields = ['id', 'name', 'street', 'city', 'province', 'postal_code', 'country'];
-
-  cmd
-    .command('list')
-    .description('List all addresses')
-    .option('--all', 'Fetch all pages')
-    .action(async (options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        if (options.all) {
-          const addresses = await api.listAllAddresses();
-          console.log(fmt.formatOutput(addresses, format, { fields: AddressFields }));
-        } else {
-          const result = await api.listAddresses({
-            page: parentOpts.page,
-            limit: parentOpts.limit,
-          });
-          console.log(fmt.formatPaginatedResponse(result, format, AddressFields));
-        }
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('get <id>')
-    .description('Get a specific address')
-    .action(async (id, options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const result = await api.getAddress(parseInt(id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('create')
-    .description('Create a new address')
-    .requiredOption('--contact <id>', 'Contact ID', parseInt)
+function addAddressOptions(command: Command): Command {
+  return command
     .option('--name <name>', 'Address name/label')
     .option('--street <street>', 'Street address')
     .option('--city <city>', 'City')
     .option('--province <province>', 'Province/State')
     .option('--postal-code <code>', 'Postal/ZIP code')
-    .option('--country <iso>', 'Country ISO code')
-    .action(async (options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const result = await api.createAddress({
-          contact_id: options.contact,
-          name: options.name,
-          street: options.street,
-          city: options.city,
-          province: options.province,
-          postal_code: options.postalCode,
-          country_id: options.country,
-        });
-        console.log(fmt.formatSuccess('Address created', result.data.id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
+    .option('--country <iso>', 'Country ISO code');
+}
 
-  cmd
-    .command('update <id>')
-    .description('Update an address')
-    .option('--name <name>', 'Address name/label')
-    .option('--street <street>', 'Street address')
-    .option('--city <city>', 'City')
-    .option('--province <province>', 'Province/State')
-    .option('--postal-code <code>', 'Postal/ZIP code')
-    .option('--country <iso>', 'Country ISO code')
-    .action(async (id, options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const current = await api.getAddress(parseInt(id));
-        const result = await api.updateAddress(parseInt(id), {
-          contact_id: current.data.contact?.id || 0,
-          name: options.name ?? current.data.name,
-          street: options.street ?? current.data.street,
-          city: options.city ?? current.data.city,
-          province: options.province ?? current.data.province,
-          postal_code: options.postalCode ?? current.data.postal_code,
-          country_id: options.country ?? current.data.country?.id,
-        });
-        console.log(fmt.formatSuccess('Address updated', result.data.id));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('delete <id>')
-    .description('Delete an address')
-    .action(async (id, _options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      try {
-        const result = await api.deleteAddress(parseInt(id));
-        if (format === 'json') {
-          console.log(JSON.stringify(result));
-        } else {
-          console.log(fmt.formatDeleted(result.id));
-        }
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  return cmd;
+/** Build the contact-address CRUD command family. */
+export function createAddressesCommand() {
+  return createCrudCommand<Address, AddressCreateInput, AddressUpdateInput>({
+    name: 'addresses',
+    description: 'Manage contact addresses',
+    singular: 'address',
+    label: 'Address',
+    fields: ADDRESS_FIELDS,
+    listPage: api.listAddresses,
+    listAll: () => api.listAllAddresses(),
+    get: api.getAddress,
+    create: api.createAddress,
+    update: api.updateAddress,
+    remove: api.deleteAddress,
+    configureCreate: (command) => addAddressOptions(command)
+      .requiredOption('--contact <id>', 'Contact ID', parsePositiveInteger),
+    configureUpdate: addAddressOptions,
+    buildCreateInput: (options) => ({
+      contact_id: options.contact as number,
+      name: options.name as string | undefined,
+      street: options.street as string | undefined,
+      city: options.city as string | undefined,
+      province: options.province as string | undefined,
+      postal_code: options.postalCode as string | undefined,
+      country_id: options.country as string | undefined,
+    }),
+    buildUpdateInput: (options, current) => ({
+      contact_id: current.contact?.id ?? 0,
+      name: (options.name as string | undefined) ?? current.name ?? undefined,
+      street: (options.street as string | undefined) ?? current.street ?? undefined,
+      city: (options.city as string | undefined) ?? current.city ?? undefined,
+      province: (options.province as string | undefined) ?? current.province ?? undefined,
+      postal_code: (options.postalCode as string | undefined) ?? current.postal_code ?? undefined,
+      country_id: (options.country as string | undefined) ?? current.country?.id,
+    }),
+  });
 }

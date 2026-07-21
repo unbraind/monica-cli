@@ -12,6 +12,7 @@ const GLOBAL_OPTIONS_HELP = [
   '  -q, --quiet                   Suppress non-essential logs',
 ].join('\n');
 
+/** Executes the add global help footers operation. */
 export function addGlobalHelpFooters(program: Command): void {
   decorateCommand(program, true);
 }

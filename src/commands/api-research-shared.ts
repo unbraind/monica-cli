@@ -1,16 +1,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+/** Describes the api reference method data contract. */
 export interface ApiReferenceMethod {
   method?: string;
   path?: string;
 }
 
+/** Describes the api reference resource data contract. */
 export interface ApiReferenceResource {
   description?: string;
   methods?: Record<string, ApiReferenceMethod>;
 }
 
+/** Describes the api reference document data contract. */
 export interface ApiReferenceDocument {
   version?: string;
   baseUrl?: string;
@@ -33,13 +36,16 @@ interface MonicaReferenceDocument {
   resources?: Record<string, MonicaReferenceResource>;
 }
 
+/** Describes the reference format data contract. */
 export type ReferenceFormat = 'api-reference' | 'monica-api-reference';
 
+/** Describes the reference selection data contract. */
 export interface ReferenceSelection {
   path: string;
   format: ReferenceFormat;
 }
 
+/** Describes the resource summary data contract. */
 export interface ResourceSummary {
   resource: string;
   description: string;
@@ -49,6 +55,7 @@ export interface ResourceSummary {
   cliMapping: 'mapped' | 'unmapped';
   instanceSupport?: {
     supportedOnInstance: boolean;
+    state?: 'supported' | 'unsupported' | 'unavailable';
     statusCode: number;
     endpoint: string;
     message: string;
@@ -69,6 +76,8 @@ const RESOURCE_TO_COMMAND: Record<string, string> = {
   'audit logs': 'audit-logs',
   calls: 'calls',
   companies: 'companies',
+  places: 'places',
+  statistics: 'statistics',
   compliance: 'compliance',
   contacts: 'contacts',
   conversations: 'conversations',
@@ -80,6 +89,7 @@ const RESOURCE_TO_COMMAND: Record<string, string> = {
   gifts: 'gifts',
   groups: 'groups',
   journal: 'journal',
+  'life events': 'life-events',
   notes: 'notes',
   occupations: 'occupations',
   pets: 'pets',
@@ -112,26 +122,24 @@ function resolveCliCommand(resourceName: string): { command: string; mapped: boo
   return { command: mappedCommand, mapped: true };
 }
 
-function loadApiReference(): ApiReferenceDocument {
-  const raw = fs.readFileSync(API_REFERENCE_PATH, 'utf-8');
-  return JSON.parse(raw) as ApiReferenceDocument;
-}
-
 function loadMonicaReference(): MonicaReferenceDocument {
   const raw = fs.readFileSync(MONICA_REFERENCE_PATH, 'utf-8');
   return JSON.parse(raw) as MonicaReferenceDocument;
 }
 
+/** Parses source option. */
 export function parseSourceOption(value: string): ReferenceSelection {
   const normalized = value.trim();
   if (!normalized || normalized === 'auto') {
     try {
-      const apiDoc = loadApiReference();
-      if (apiDoc.endpoints && Object.keys(apiDoc.endpoints).length > 0) {
-        return { path: API_REFERENCE_PATH, format: 'api-reference' };
+      const monicaDoc = loadMonicaReference();
+      if (monicaDoc.resources && Object.keys(monicaDoc.resources).length > 0) {
+        return { path: MONICA_REFERENCE_PATH, format: 'monica-api-reference' };
       }
-    } catch {}
-    return { path: MONICA_REFERENCE_PATH, format: 'monica-api-reference' };
+    } catch {
+      return { path: API_REFERENCE_PATH, format: 'api-reference' };
+    }
+    return { path: API_REFERENCE_PATH, format: 'api-reference' };
   }
 
   if (normalized === 'api') return { path: API_REFERENCE_PATH, format: 'api-reference' };
@@ -149,6 +157,7 @@ export function parseSourceOption(value: string): ReferenceSelection {
   throw new Error(`Unsupported API reference shape in "${candidate}". Expected "endpoints" or "resources".`);
 }
 
+/** Loads selected reference. */
 export function loadSelectedReference(selection: ReferenceSelection): ApiReferenceDocument {
   if (selection.format === 'api-reference') {
     const raw = fs.readFileSync(selection.path, 'utf-8');
@@ -178,6 +187,7 @@ export function loadSelectedReference(selection: ReferenceSelection): ApiReferen
   };
 }
 
+/** Executes the summarize resource operation. */
 export function summarizeResource(
   resource: string,
   definition: ApiReferenceResource,

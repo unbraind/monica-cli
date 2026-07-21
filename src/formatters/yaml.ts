@@ -1,3 +1,4 @@
+/** Formats yaml. */
 export function formatYaml(value: unknown, indent = 0): string {
   const pad = ' '.repeat(indent);
 

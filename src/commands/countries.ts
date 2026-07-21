@@ -1,31 +1,22 @@
-import { Command } from 'commander';
-import type { OutputFormat } from '../types';
+import type { Command } from 'commander';
+import { Command as CommanderCommand } from 'commander';
 import * as api from '../api';
 import * as fmt from '../formatters';
+import { runCommandAction } from './crud-command';
+import { resolveCommandOutputFormat } from './output-format';
 
-const CountryFields = ['id', 'iso', 'name'];
-
+/** Build the country reference-list command. */
 export function createCountriesCommand(): Command {
-  const cmd = new Command('countries')
-    .description('List countries')
+  const command = new CommanderCommand('countries').description('List countries')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon');
-
-  cmd
-    .command('list')
-    .description('List all countries')
-    .action(async (_options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
+  command.command('list').description('List all countries')
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
         const result = await api.listCountries();
-        const countries = Object.values(result.data);
-        console.log(fmt.formatOutput(countries, format, { fields: CountryFields }));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
+        console.log(fmt.formatOutput(Object.values(result.data), resolveCommandOutputFormat(this), {
+          fields: ['id', 'iso', 'name'],
+        }));
+      });
     });
-
-  return cmd;
+  return command;
 }

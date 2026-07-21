@@ -1,3 +1,4 @@
+/** Describes the call data contract. */
 export interface Call {
   id: number;
   object: string;
@@ -17,14 +18,17 @@ export interface Call {
   updated_at: string;
 }
 
+/** Describes the call create input data contract. */
 export interface CallCreateInput {
   content: string;
   contact_id: number;
   called_at: string;
 }
 
+/** Describes the call update input data contract. */
 export interface CallUpdateInput extends CallCreateInput {}
 
+/** Describes the document data contract. */
 export interface Document {
   id: number;
   object: string;
@@ -48,6 +52,7 @@ export interface Document {
   updated_at: string;
 }
 
+/** Describes the gift data contract. */
 export interface Gift {
   id: number;
   object: string;
@@ -83,6 +88,7 @@ export interface Gift {
   updated_at: string;
 }
 
+/** Describes the gift create input data contract. */
 export interface GiftCreateInput {
   contact_id: number;
   recipient_id?: number;
@@ -94,8 +100,10 @@ export interface GiftCreateInput {
   date?: string;
 }
 
+/** Describes the gift update input data contract. */
 export interface GiftUpdateInput extends GiftCreateInput {}
 
+/** Describes the group data contract. */
 export interface Group {
   id: number;
   object: string;
@@ -105,12 +113,15 @@ export interface Group {
   updated_at: string;
 }
 
+/** Describes the group create input data contract. */
 export interface GroupCreateInput {
   name: string;
 }
 
+/** Describes the group update input data contract. */
 export interface GroupUpdateInput extends GroupCreateInput {}
 
+/** Describes the journal entry data contract. */
 export interface JournalEntry {
   id: number;
   object: string;
@@ -121,13 +132,16 @@ export interface JournalEntry {
   updated_at: string;
 }
 
+/** Describes the journal create input data contract. */
 export interface JournalCreateInput {
   title?: string;
   post: string;
 }
 
+/** Describes the journal update input data contract. */
 export interface JournalUpdateInput extends JournalCreateInput {}
 
+/** Describes the occupation data contract. */
 export interface Occupation {
   id: number;
   object: string;
@@ -150,6 +164,7 @@ export interface Occupation {
   updated_at: string;
 }
 
+/** Describes the occupation create input data contract. */
 export interface OccupationCreateInput {
   contact_id: number;
   company?: string;
@@ -159,8 +174,10 @@ export interface OccupationCreateInput {
   end_date?: string;
 }
 
+/** Describes the occupation update input data contract. */
 export interface OccupationUpdateInput extends OccupationCreateInput {}
 
+/** Describes the photo data contract. */
 export interface Photo {
   id: number;
   object: string;
@@ -181,6 +198,7 @@ export interface Photo {
   updated_at: string;
 }
 
+/** Describes the debt data contract. */
 export interface Debt {
   id: number;
   object: string;
@@ -204,6 +222,7 @@ export interface Debt {
   updated_at: string;
 }
 
+/** Describes the debt create input data contract. */
 export interface DebtCreateInput {
   contact_id: number;
   in_debt: 'yes' | 'no';
@@ -212,8 +231,10 @@ export interface DebtCreateInput {
   reason?: string;
 }
 
+/** Describes the debt update input data contract. */
 export interface DebtUpdateInput extends DebtCreateInput {}
 
+/** Describes the relationship data contract. */
 export interface Relationship {
   id: number;
   object: string;
@@ -238,16 +259,19 @@ export interface Relationship {
   updated_at: string;
 }
 
+/** Describes the relationship create input data contract. */
 export interface RelationshipCreateInput {
   contact_id: number;
   related_contact_id: number;
   relationship_type_id: number;
 }
 
+/** Describes the relationship update input data contract. */
 export interface RelationshipUpdateInput {
   relationship_type_id: number;
 }
 
+/** Describes the address create input data contract. */
 export interface AddressCreateInput {
   contact_id: number;
   name?: string;
@@ -260,4 +284,5 @@ export interface AddressCreateInput {
   longitude?: number;
 }
 
+/** Describes the address update input data contract. */
 export interface AddressUpdateInput extends AddressCreateInput {}

@@ -4,12 +4,14 @@ import * as path from 'path';
 import type { CapabilityReport } from '../api/capabilities';
 import { getConfig } from '../api/client';
 
+/** Describes the capability cache entry data contract. */
 export interface CapabilityCacheEntry {
   apiUrl: string;
   generatedAt: string;
   report: CapabilityReport;
 }
 
+/** Describes the capability cache options data contract. */
 export interface CapabilityCacheOptions {
   refresh?: boolean;
   ttlSeconds?: number;
@@ -17,6 +19,7 @@ export interface CapabilityCacheOptions {
 
 const DEFAULT_TTL_SECONDS = 300;
 
+/** Gets capability cache path. */
 export function getCapabilityCachePath(): string {
   const baseDir = process.env.MONICA_CLI_HOME?.trim()
     ? path.resolve(process.env.MONICA_CLI_HOME.trim())
@@ -71,6 +74,7 @@ function matchesCurrentInstance(entry: CapabilityCacheEntry): boolean {
   return Boolean(config.apiUrl && entry.apiUrl === config.apiUrl);
 }
 
+/** Executes the clear capability cache operation. */
 export function clearCapabilityCache(): void {
   try {
     const cachePath = getCapabilityCachePath();
@@ -82,6 +86,7 @@ export function clearCapabilityCache(): void {
   }
 }
 
+/** Gets capability cache stats. */
 export function getCapabilityCacheStats(): fs.Stats | null {
   try {
     const cachePath = getCapabilityCachePath();
@@ -94,6 +99,7 @@ export function getCapabilityCacheStats(): fs.Stats | null {
   }
 }
 
+/** Loads cached capability report. */
 export function loadCachedCapabilityReport(options?: CapabilityCacheOptions): CapabilityReport | null {
   if (options?.refresh) return null;
   const ttlSeconds = parseTtlSeconds(options?.ttlSeconds);
@@ -104,6 +110,7 @@ export function loadCachedCapabilityReport(options?: CapabilityCacheOptions): Ca
   return entry.report;
 }
 
+/** Saves capability report. */
 export function saveCapabilityReport(report: CapabilityReport): void {
   const config = getConfig();
   if (!config.apiUrl) return;

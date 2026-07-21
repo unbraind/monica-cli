@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import * as api from '../api';
 import { loadCachedCapabilityReport, saveCapabilityReport } from '../utils/capability-cache';
 
+/** Describes the unsupported command entry data contract. */
 export interface UnsupportedCommandEntry {
   key: string;
   command: string;
@@ -13,14 +14,17 @@ export interface UnsupportedCommandEntry {
   fallbackCommands: string[];
 }
 
+/** Parses positive int. */
 export function parsePositiveInt(value: string): number {
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
+  if (!/^\d+$/u.test(value.trim())) {
     throw new Error(`Invalid value "${value}". Expected a non-negative integer.`);
   }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isSafeInteger(parsed)) throw new Error(`Invalid value "${value}". Expected a non-negative integer.`);
   return parsed;
 }
 
+/** Resolves capability report with source. */
 export async function resolveCapabilityReportWithSource(
   command: Command
 ): Promise<{ report: api.CapabilityReport; source: 'cache' | 'live' }> {
@@ -90,9 +94,10 @@ function buildRecommendedAction(entry: Pick<UnsupportedCommandEntry, 'key' | 'st
   return 'Treat this as a transient instance/API error and retry once before skipping this command family.';
 }
 
+/** Gets unsupported commands. */
 export function getUnsupportedCommands(report: api.CapabilityReport): UnsupportedCommandEntry[] {
   return report.probes
-    .filter((probe) => !probe.supported)
+    .filter((probe) => api.getCapabilityState(probe) === 'unsupported')
     .map((probe) => ({
       key: probe.key,
       command: probe.command,
@@ -105,5 +110,21 @@ export function getUnsupportedCommands(report: api.CapabilityReport): Unsupporte
         statusCode: probe.statusCode,
       }),
       fallbackCommands: buildFallbackCommands(probe.key),
+    }));
+}
+
+/** Gets unavailable commands. */
+export function getUnavailableCommands(report: api.CapabilityReport): UnsupportedCommandEntry[] {
+  return report.probes
+    .filter((probe) => api.getCapabilityState(probe) === 'unavailable')
+    .map((probe) => ({
+      key: probe.key,
+      command: probe.command,
+      endpoint: probe.endpoint,
+      statusCode: probe.statusCode,
+      message: probe.message,
+      severity: classifySeverity(probe.statusCode),
+      recommendedAction: buildRecommendedAction({ key: probe.key, statusCode: probe.statusCode }),
+      fallbackCommands: [],
     }));
 }

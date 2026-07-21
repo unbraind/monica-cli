@@ -1,3 +1,4 @@
+/** Describes the task data contract. */
 export interface Task {
   id: number;
   object: string;
@@ -26,6 +27,7 @@ export interface Task {
   updated_at: string;
 }
 
+/** Describes the task create input data contract. */
 export interface TaskCreateInput {
   title: string;
   description?: string;
@@ -34,4 +36,5 @@ export interface TaskCreateInput {
   contact_id: number;
 }
 
+/** Describes the task update input data contract. */
 export interface TaskUpdateInput extends TaskCreateInput {}

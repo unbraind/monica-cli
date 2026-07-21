@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Command } from 'commander';
 import * as fmt from '../src/formatters';
 import { createInfoCommand } from '../src/commands/info';
-import { buildCommandCatalog } from '../src/commands/command-catalog';
+import { buildCapabilitySupportIndex, buildCommandCatalog } from '../src/commands/command-catalog';
 import * as infoCapabilities from '../src/commands/info-capabilities';
 
 interface CatalogNode {
@@ -34,10 +34,18 @@ function findNode(root: CatalogNode, path: string[]): CatalogNode | undefined {
 }
 
 describe('info command-catalog command', () => {
-  let logSpy: ReturnType<typeof vi.spyOn>;
+  let writeSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    writeSpy = vi.spyOn(process.stdout, 'write').mockImplementation(((
+      _chunk: unknown,
+      encodingOrCallback?: unknown,
+      callback?: unknown,
+    ) => {
+      const done = typeof encodingOrCallback === 'function' ? encodingOrCallback : callback;
+      if (typeof done === 'function') done();
+      return true;
+    }) as typeof process.stdout.write);
     vi.spyOn(fmt, 'formatOutput').mockReturnValue('FORMATTED_CATALOG');
   });
 
@@ -70,7 +78,7 @@ describe('info command-catalog command', () => {
     expect(infoMe?.usage.startsWith(infoMe?.fullCommand ?? '')).toBe(true);
     expect(infoMe?.helpCommand).toBe(`${infoMe?.fullCommand} --help`);
 
-    expect(logSpy).toHaveBeenCalledWith('FORMATTED_CATALOG');
+    expect(writeSpy).toHaveBeenCalledWith('FORMATTED_CATALOG\n', expect.any(Function));
   });
 
   it('attaches instance capability availability metadata when requested', async () => {
@@ -217,5 +225,27 @@ describe('info command-catalog command', () => {
     expect(complianceSign?.safety.operation).toBe('write');
     expect(bulkTag?.safety.operation).toBe('write');
     expect(bulkStar?.safety.operation).toBe('write');
+  });
+
+  it('classifies meta-only trees and upgrades duplicate capability roots', () => {
+    const root = new Command('monica');
+    const config = new Command('config');
+    config.addCommand(new Command('help'));
+    root.addCommand(config);
+    const tree = buildCommandCatalog(root);
+    expect(findNode(tree as CatalogNode, ['config'])?.safety.operation).toBe('meta');
+    expect(findNode(tree as CatalogNode, ['config', 'help'])?.safety.operation).toBe('meta');
+
+    const support = buildCapabilitySupportIndex({
+      generatedAt: '', summary: { total: 3, supported: 1, unsupported: 1 }, probes: [
+        { key: 'a', command: 'groups list', endpoint: '/old', supported: false, statusCode: 404, message: 'missing' },
+        { key: 'b', command: 'groups get', endpoint: '/new', supported: true, statusCode: 200, message: 'OK' },
+        { key: 'c', command: 'notes list', endpoint: '/notes', supported: null, state: 'unavailable', statusCode: 500, message: 'offline' },
+      ],
+    });
+    expect(support.groups).toEqual({
+      supported: true, statusCode: 200, endpoint: '/new', message: 'OK',
+    });
+    expect(support.notes).toBeUndefined();
   });
 });
