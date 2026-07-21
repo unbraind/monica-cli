@@ -6,7 +6,7 @@ status: closed
 priority: 0
 tags[7]: automation,bun,changelog,feature,github-actions,npm,release
 created_at: "2026-07-21T17:23:00.667Z"
-updated_at: "2026-07-21T17:55:15.951Z"
+updated_at: "2026-07-21T18:02:43.756Z"
 deadline: "2026-07-23T17:23:00.667Z"
 closed_at: "2026-07-21T17:55:14.858Z"
 author: codex-auto-release
@@ -28,18 +28,20 @@ expected_result: Changed master heads produce one verified calendar-version rele
 actual_result: "Local and isolated proofs validate changed, unchanged, and tracker-only paths; 547 tests and release gates pass; public package verification succeeds through npm, npx, bunx, and GitHub; required environment secrets are configured."
 dependencies[1]{id,kind,created_at,author,source_kind}:
   monica-platform,related,"2026-07-21T17:23:00.667Z",codex-auto-release,null
-comments[4]{created_at,author,text}:
+comments[5]{created_at,author,text}:
   "2026-07-21T17:23:00.667Z",codex-auto-release,Reference implementation is pm-cli auto-release plus tag-triggered release workflow.
   "2026-07-21T17:41:38.190Z",codex-auto-release,"Verified the existing public 2026.3.6-2 package end to end: npm metadata and integrity resolved, npx and bunx both returned 2026.3.6-2 on their first attempt, and the GitHub release is final. The release environment currently contains NPM_TOKEN but not RELEASE_PAT; production Auto Release intentionally fails fast until a maintainer adds the protected-master bypass token."
   "2026-07-21T17:54:01.666Z",codex-auto-release,"Credential activation blocker cleared: the npm account was validated and NPM_TOKEN plus RELEASE_PAT were configured in the release environment. Secret values remain outside tracked files and pm metadata."
   "2026-07-21T17:54:51.358Z",codex-auto-release,"Final linked verification passed typecheck, lint, build, all 547 tests, workflow validation, and targeted release tests. The changelog check correctly detected the newly closed credential item and will be regenerated after this feature close so both outcomes are included."
+  "2026-07-21T18:02:43.736Z",codex-auto-release,GitHub Advanced Security identified a high-severity regular-expression injection path in release-note heading lookup. Replaced the dynamic expression with validated calendar-version input and exact heading comparisons; valid extraction and malicious-pattern rejection both pass locally.
 notes[3]{created_at,author,text}:
   "2026-07-21T17:23:00.667Z",codex-auto-release,CHANGELOG.md preservation is a hard migration invariant; generator output is accepted only after semantic comparison.
   "2026-07-21T17:41:38.887Z",codex-auto-release,"GitHub Actions design was grounded in the official workflow syntax and Node package publishing documentation. The publish job uses contents:write, id-token:write, setup-node registry configuration, NODE_AUTH_TOKEN, and npm publish --provenance. Bun documentation confirms bunx installs from npm and the default Bun registry is registry.npmjs.org, so dual runtime support is verified consumption rather than duplicate publication."
   "2026-07-21T17:54:51.358Z",codex-auto-release,Public pm data was scanned against the configured credential values and common secret formats; no credential material was found. Runtime checkpoints are ignored and are not part of the committed pm data.
-learnings[2]{created_at,author,text}:
+learnings[3]{created_at,author,text}:
   "2026-07-21T17:23:00.667Z",codex-auto-release,Bun consumes npm-registry packages; dual support is one provenance publication plus npx and bunx verification.
   "2026-07-21T17:41:39.574Z",codex-auto-release,"The newest calendar release tag v2026.3.6-2 is not an ancestor of current master after historical integration. Release detection must select the maximum calendar-version tag from all tags rather than relying on git describe, then diff that tag tree against HEAD."
+  "2026-07-21T18:02:43.736Z",codex-auto-release,Release metadata derived from workflow or CLI input should still be validated and compared literally when possible; constructing a regular expression from version input adds unnecessary injection risk.
 files[14]{path,scope,note}:
   .github/workflows/auto-release.yml,project,Scheduled change-aware orchestration
   .github/workflows/release-publish.yml,project,Tag-triggered npm provenance publish and public verification
