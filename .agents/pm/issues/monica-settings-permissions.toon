@@ -1,12 +1,12 @@
 id: monica-settings-permissions
-title: Settings saves do not repair permissive filesystem modes
+title: Fixed settings saves so pre-existing files and directories regain restrictive POSIX modes
 description: Secure mode options only affect newly created settings paths; existing permissive paths can remain exposed after save.
 type: Issue
 status: closed
 priority: 1
 tags[4]: credentials,filesystem,security,settings
 created_at: "2026-07-16T16:59:37.486Z"
-updated_at: "2026-07-16T17:19:32.369Z"
+updated_at: "2026-07-21T17:27:13.790Z"
 deadline: "2026-07-19T16:59:37.486Z"
 closed_at: "2026-07-16T17:19:32.368Z"
 author: codex-root

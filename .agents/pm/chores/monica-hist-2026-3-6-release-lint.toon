@@ -1,0 +1,25 @@
+id: monica-hist-2026-3-6-release-lint
+title: "Updated verify:release and prepublishOnly release gates to include linting"
+description: Historical changelog evidence backfilled before pm-changelog became authoritative.
+type: Chore
+status: closed
+priority: 2
+tags[5]: changed,changelog-backfill,historical,lint,release
+created_at: "2026-07-21T17:24:34.569Z"
+updated_at: "2026-07-21T17:46:22.216Z"
+closed_at: "2026-07-21T17:24:34.569Z"
+author: codex-auto-release
+estimated_minutes: 10
+acceptance_criteria: The generated full-history changelog retains this fact in its correct release window.
+parent: monica-auto-release
+reviewer: unbraind
+risk: low
+confidence: high
+sprint: changelog-migration
+release: v2026.3.6
+resolution: Backfilled from the existing human-maintained changelog and verified against v2026.3.6.
+expected_result: Full-history pm-changelog output retains this release fact.
+actual_result: Closed pm evidence now records the fact with explicit release metadata.
+fixed_version: 2026.3.6
+close_reason: Backfill existing changelog fact for v2026.3.6
+body: Preserves an existing CHANGELOG.md fact in durable pm lineage. Release metadata pins the item to its original git tag instead of today's tracker timestamp.

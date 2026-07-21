@@ -1,0 +1,24 @@
+id: monica-changelog-pm-governance
+title: "Added strict repository-local pm governance with committed settings, schema, bundled packages, roadmap items, TOON state, and JSONL history"
+description: Changelog preservation evidence for unreleased work that was not represented at sufficient granularity in the existing tracker.
+type: Chore
+status: closed
+priority: 2
+tags[3]: added,changelog-preservation,governance
+created_at: "2026-07-21T17:25:17.954Z"
+updated_at: "2026-07-21T17:46:22.110Z"
+closed_at: "2026-07-21T17:25:17.954Z"
+author: codex-auto-release
+estimated_minutes: 10
+acceptance_criteria: The generated full-history changelog retains this fact in its correct release window.
+parent: monica-auto-release
+reviewer: unbraind
+risk: low
+confidence: high
+sprint: changelog-migration
+release: next
+resolution: Backfilled from the existing Unreleased changelog section after comparison with all prior pm items.
+expected_result: Generated pending-release notes retain this exact fact.
+actual_result: Closed pm evidence now retains the fact for pm-changelog generation.
+close_reason: Preserve existing unreleased changelog fact
+body: This closed item preserves the existing human-maintained CHANGELOG.md fact before generator ownership. Related implementation may also be represented by broader governance items; this record keeps the release-note contract lossless.

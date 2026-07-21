@@ -55,6 +55,9 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - name: Verify pm-generated changelog
+        run: bun run changelog:pm:check && bun run changelog:preservation:check
+
       - name: Build
         run: bun run build
 

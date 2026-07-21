@@ -16,20 +16,23 @@ Use this checklist before changing repository visibility to public and publishin
    - Require status checks: `Validate (Bun)`, `Validate (Node + npm/npx)`
    - Require branches to be up to date
    - Require conversation resolution
+   - Leave administrator enforcement disabled when the release PAT belongs to
+     a repository administrator, matching the pm-cli release-push model
 2. Enable secret scanning and push protection (GitHub Advanced Security settings).
 3. Ensure `CODEOWNERS`, issue templates, and PR template are present and current.
 
 ## 3. Repository secrets and permissions
 
 1. Add `NPM_TOKEN` to the GitHub `release` environment secrets (scoped to package publish only).
-2. Keep default `GITHUB_TOKEN` permissions minimal (`contents: read` by default).
-3. Ensure publish workflow has `id-token: write` for npm provenance.
+2. Add `RELEASE_PAT` to the same environment with contents-write and the
+   protected-branch bypass needed for the scheduled release commit/tag push.
+3. Keep default `GITHUB_TOKEN` permissions minimal (`contents: read` by default).
+4. Ensure publish workflow has `id-token: write` for npm provenance.
 
 ## 4. Version and changelog policy
 
-1. Confirm `CHANGELOG.md` contains only:
-   - Introductory policy text
-   - `Unreleased` section for first release preparation
+1. Confirm all release-note facts are represented by closed `pm` items and run
+   `bun run changelog:pm` followed by `bun run changelog:preservation:check`.
 2. Use version format:
    - First release of day: `YYYY.M.D`
    - Subsequent releases same day: `YYYY.M.D-N`
@@ -53,12 +56,12 @@ npm run smoke:npx
 
 ## 6. CI/CD release flow
 
-1. Trigger `Prepare Release` workflow on `master`.
-2. Inspect uploaded `.tgz` artifact and `RELEASE_PREP.md`.
-3. Trigger `Publish Release` workflow with:
-   - `dry_run=false`
-   - `confirm=PUBLISH`
-4. Verify package metadata on npm and release notes draft on GitHub.
+1. Trigger `Auto Release` with `dry_run=true` and `push=false`.
+2. Review the complete dry-run gate output.
+3. Trigger `Auto Release` with `dry_run=false` and `push=true`.
+4. Verify npm metadata, npx execution, bunx execution, and the final GitHub
+   release. Use the manual `Publish Release` tag input only for recovery of an
+   existing tag.
 
 ## 7. Post-release contributor readiness
 

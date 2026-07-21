@@ -1,36 +1,35 @@
 name: Publish Release
 
 on:
+  push:
+    tags:
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
-      ref:
-        description: 'Git ref to publish'
-        required: false
-        default: 'master'
-      confirm:
-        description: 'Set to PUBLISH to allow publishing'
+      tag:
+        description: 'Existing release tag to publish or recover'
         required: true
-        default: ''
+        type: string
 
 permissions:
   contents: write
   id-token: write
 
 concurrency:
-  group: publish-release
+  group: publish-release-${{ github.ref_name || inputs.tag }}
   cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     environment: release
 
     steps:
-      - name: Checkout
+      - name: Checkout release tag
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
           fetch-depth: 0
 
       - name: Setup Bun
@@ -38,7 +37,7 @@ jobs:
         with:
           bun-version: 1.3.11
 
-      - name: Setup Node
+      - name: Setup Node.js and npm registry
         uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -47,80 +46,62 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Enforce explicit publish confirmation
-        run: |
-          if [ "${{ github.event.inputs.confirm }}" != "PUBLISH" ]; then
-            echo "Missing publish confirmation. Set confirm=PUBLISH."
-            exit 1
-          fi
-
-      - name: Validate release quality gates
-        run: bun run verify:release
-
-      - name: Synchronize release ref into master
-        env:
-          SOURCE_REF: ${{ github.event.inputs.ref || 'master' }}
+      - name: Validate tag, version, changelog, and release gates
+        id: metadata
+        shell: bash
         run: |
           set -euo pipefail
-
-          git fetch origin --prune --tags
-          if ! git rev-parse --verify "${SOURCE_REF}^{commit}" >/dev/null 2>&1; then
-            if git rev-parse --verify "origin/${SOURCE_REF}^{commit}" >/dev/null 2>&1; then
-              SOURCE_REF="origin/${SOURCE_REF}"
-            else
-              echo "Could not resolve ref: ${SOURCE_REF}"
-              exit 1
-            fi
-          fi
-
-          git checkout --detach "${SOURCE_REF}"
-          SOURCE_SHA="$(git rev-parse HEAD)"
-          echo "Resolved source ref: ${SOURCE_REF}"
-          echo "Source commit: ${SOURCE_SHA}"
-
-          git checkout -B master origin/master
-          MASTER_SHA="$(git rev-parse HEAD)"
-
-          if [ "${MASTER_SHA}" = "${SOURCE_SHA}" ]; then
-            echo "Source commit is already on master."
-          else
-            git merge --ff-only "${SOURCE_SHA}"
-            git push origin HEAD:master
-            echo "Fast-forwarded and pushed master to $(git rev-parse HEAD)."
-          fi
-
-      - name: Capture release metadata
-        id: meta
-        run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          TAG="v${VERSION}"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-
-      - name: Verify release tag is not published yet
-        run: |
-          if git rev-parse "${{ steps.meta.outputs.tag }}" >/dev/null 2>&1; then
-            echo "Release tag ${{ steps.meta.outputs.tag }} already exists."
+          tag="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          version="${tag#v}"
+          package_version="$(node -p "require('./package.json').version")"
+          if [[ "${tag}" != "v${package_version}" || "${version}" != "${package_version}" ]]; then
+            echo "Release tag ${tag} does not match package.json version ${package_version}."
             exit 1
           fi
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          bun run verify:release
 
-      - name: Package
+      - name: Build release tarball
         run: node scripts/with-npm-version.mjs npm pack
 
-      - name: Publish package
+      - name: Publish package to npm with provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: node scripts/with-npm-version.mjs npm publish --provenance --access public
-
-      - name: Create and push release tag
+          VERSION: ${{ steps.metadata.outputs.version }}
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${{ steps.meta.outputs.tag }}" -m "release: ${{ steps.meta.outputs.tag }}"
-          git push origin "${{ steps.meta.outputs.tag }}"
+          if npm view "monica-cli@${VERSION}" version >/dev/null 2>&1; then
+            echo "monica-cli@${VERSION} already exists on npm; skipping duplicate publish."
+          else
+            node scripts/with-npm-version.mjs npm publish --access public --provenance
+          fi
 
-      - name: Create GitHub release
+      - name: Verify npm, npx, and bunx consumers
+        run: node scripts/release/verify-published-release.mjs --version "${{ steps.metadata.outputs.version }}" --skip-github-release
+
+      - name: Generate pm-backed GitHub release notes
+        run: node scripts/release/extract-release-notes.mjs --version "${{ steps.metadata.outputs.version }}" --output RELEASE_NOTES.md
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: monica-cli-${{ steps.metadata.outputs.version }}
+          path: |
+            monica-cli-*.tgz
+            RELEASE_NOTES.md
+
+      - name: Create or update GitHub release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.meta.outputs.tag }}
-          generate_release_notes: true
+          tag_name: ${{ steps.metadata.outputs.tag }}
+          name: ${{ steps.metadata.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          files: monica-cli-*.tgz
+
+      - name: Verify final public release surfaces
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release/verify-published-release.mjs --version "${{ steps.metadata.outputs.version }}" --json

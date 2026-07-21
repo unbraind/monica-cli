@@ -1,109 +1,86 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
 ## Unreleased
 
 ### Added
 
-- Added strict repository-local `pm` governance with committed project settings,
-  schema, bundled packages, detailed roadmap items, `.toon` state, and `.jsonl`
-  history.
-- Added explicit Conventional Commit configuration and local commit-lint tooling.
-- Added regression coverage for formatter escaping and settings permission repair.
-- Added coverage floors for the Vitest 4 coverage baseline.
+- Automate release publication after repository changes ([monica-auto-release](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-auto-release.toon))
+- Added coverage floors for the Vitest 4 coverage baseline ([monica-changelog-coverage-floors](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-coverage-floors.toon))
+- Added explicit Conventional Commit configuration and local commit-lint tooling ([monica-changelog-conventional-commits](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-conventional-commits.toon))
+- Added strict repository-local pm governance with committed settings, schema, bundled packages, roadmap items, TOON state, and JSONL history ([monica-changelog-pm-governance](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-pm-governance.toon))
 
 ### Changed
 
-- Upgraded the runtime and development toolchain, including Commander 15,
-  ESLint 10, TypeScript 6, and Vitest 4 with its matching coverage provider.
-- Raised the supported Node.js floor to 22.13 and the Bun floor to 1.3.11.
-- Switched Dependabot from npm lockfile semantics to native Bun support and
-  grouped compatible minor/patch updates, with scoped holds for TypeScript 7
-  and Node type majors that exceed the supported toolchain.
-- Upgraded checkout, setup-node, upload-artifact, CodeQL, dependency review,
-  release-drafter, and GitHub release Actions to their current Node 24-capable
-  majors, including an immutable Gitleaks 3 pin for secret scanning.
-- Made Node and web platform types explicit for TypeScript 6 and preserved
-  original errors as `cause` when wrapping request or fallback failures.
+- Made Node and web platform types explicit for TypeScript 6 and preserved original errors as cause when wrapping request or fallback failures ([monica-changelog-types-and-causes](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-types-and-causes.toon))
+- Upgraded checkout, setup-node, upload-artifact, CodeQL, dependency review, release-drafter, and GitHub release Actions to Node 24-capable majors with an immutable Gitleaks 3 pin ([monica-changelog-actions-matrix](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-actions-matrix.toon))
+- Switched Dependabot to native Bun support, grouped compatible minor and patch updates, and held TypeScript 7 and Node type majors beyond the supported toolchain ([monica-changelog-dependabot-policy](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-dependabot-policy.toon))
+- Raised the supported Node.js floor to 22.13 and the Bun floor to 1.3.11 ([monica-changelog-runtime-floors](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-runtime-floors.toon))
+- Upgraded the runtime and development toolchain including Commander 15, ESLint 10, TypeScript 6, Vitest 4, and the matching coverage provider ([monica-changelog-toolchain-versions](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-toolchain-versions.toon))
 
 ### Fixed
 
-- Fixed Dependabot PRs failing because `bun.lock` was not updated.
-- Fixed generated Dependabot commit bodies failing the body line-length rule
-  while retaining Conventional Commit subject validation.
-- Fixed TOON and Markdown output ambiguity when values contain backslashes next
-  to quotes or table delimiters.
-- Fixed settings saves leaving pre-existing files or directories with permissive
-  POSIX modes.
-- Simplified pagination termination to remove a stale assignment exposed by
-  ESLint 10.
+- Configure RELEASE_PAT for protected-master auto-release pushes ([monica-release-pat-secret](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-release-pat-secret.toon))
+- Simplified pagination termination to remove a stale assignment exposed by ESLint 10 ([monica-changelog-pagination-cleanup](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-pagination-cleanup.toon))
+- Added formatter escaping and settings permissions regression coverage ([monica-changelog-regression-coverage](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-regression-coverage.toon))
+- Fixed TOON and Markdown output ambiguity for backslashes next to quotes or table delimiters ([monica-output-escaping](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-output-escaping.toon))
+- Fixed generated Dependabot commit bodies failing body line-length rules while retaining Conventional Commit subject validation ([monica-dependabot-commitlint](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-dependabot-commitlint.toon))
+- Fixed Dependabot updates so bun.lock is maintained ([monica-bun-dependabot](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-bun-dependabot.toon))
 
 ### Security
 
-- Removed the critically vulnerable Vitest 1.6 dependency reported as
-  GHSA-5xrq-8626-4rwp / CVE-2026-47429.
-- Verified zero production vulnerabilities through both Bun and isolated npm
-  audit paths.
+- Verified zero production vulnerabilities through both Bun and isolated npm audit paths ([monica-changelog-zero-production-vulns](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-changelog-zero-production-vulns.toon))
+- Upgrade Gitleaks action to Node 24 generation ([monica-gitleaks-node24](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-gitleaks-node24.toon))
+- Security and dependency modernization tranche ([monica-security-modernization](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/milestones/monica-security-modernization.toon))
+- Execute monica-cli security modernization ([monica-remediation-plan](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/plans/monica-remediation-plan.toon))
+- Fixed settings saves so pre-existing files and directories regain restrictive POSIX modes ([monica-settings-permissions](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-settings-permissions.toon))
+- Upgrade GitHub Actions to Node 24 generations ([monica-actions-node24](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-actions-node24.toon))
+- Removed the critical Vitest 1.6 vulnerability GHSA-5xrq-8626-4rwp and CVE-2026-47429 ([monica-vulnerable-vitest](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-vulnerable-vitest.toon))
 
-## [2026.3.6-2] - 2026-03-06
+### Other
 
-### Changed
+- Integrate remaining current GitHub Actions majors ([monica-actions-remaining-majors](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-actions-remaining-majors.toon))
+- Adopt current Bun and Node 22 toolchain with constrained TypeScript ([monica-toolchain-decision](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/decisions/monica-toolchain-decision.toon))
 
-- Improved `monica info` missing-subcommand UX with structured guidance, subcommand descriptions, and an example invocation.
-
-### Tests
-
-- Expanded coverage for:
-  - `info` missing-subcommand guidance output contract
-  - startup prompt-state persistence and CLI skip guards
-  - optional prompt fallback/accept/decline/failure paths
-
-## [2026.3.6] - 2026-03-06
+## 2026.3.6-2 - 2026-03-06
 
 ### Added
 
-- Added strict CLI input parsers for:
-  - output format (`--format`)
-  - pagination (`--page`, `--limit`)
-  - field selection (`--fields`)
-- Added runtime field-selection context so `--fields` applies consistently across output renderers and command levels.
-- Added project ESLint setup (`eslint.config.cjs`) and strict-tier lint mode (`bun run lint:strict`).
-- Added strict lint coverage for:
-  - `src/program.ts`
-  - `src/commands/global-options.ts`
-  - `src/commands/config*.ts`
-  - `src/formatters/toon.ts`
-  - `src/formatters/runtime-fields.ts`
+- Expanded coverage for optional prompt fallback, accept, decline, and failure paths ([monica-hist-2026-3-6-2-prompt-tests](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-2-prompt-tests.toon))
+- Expanded coverage for startup prompt-state persistence and CLI skip guards ([monica-hist-2026-3-6-2-startup-tests](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-2-startup-tests.toon))
+- Expanded coverage for the info missing-subcommand guidance output contract ([monica-hist-2026-3-6-2-info-tests](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-2-info-tests.toon))
 
 ### Changed
 
-- Updated release quality gates to include linting in:
-  - `verify:release`
-  - `prepublishOnly`
-- Updated CI workflows (Bun and npm validation jobs) to run linting before build/test.
-- Updated development documentation with staged lint-hardening workflow and strict module rollout guidance.
-- Improved formatter behavior so `--fields` filtering now consistently affects:
-  - list outputs
-  - get outputs
-  - paginated JSON/YAML output payloads
-- Hardened runtime field-selection lifecycle to reset global override state at command execution boundaries, preventing cross-command leakage in long-lived processes.
-- Simplified global parser application by centralizing `--fields` parsing and removing redundant `--format` re-parse in pre-action handling.
-- Updated strict lint config to permit separate value/type imports while still enforcing duplicate import hygiene.
+- Improved monica info missing-subcommand UX with structured guidance, subcommand descriptions, and an example invocation ([monica-hist-2026-3-6-2-info-ux](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-2-info-ux.toon))
+
+## 2026.3.6 - 2026-03-06
+
+### Added
+
+- Added paginated formatter field-filtering parity coverage including raw output behavior ([monica-hist-2026-3-6-paginated-test](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-paginated-test.toon))
+- Added runtime field-filtering coverage across JSON, YAML, table, Markdown, and TOON formats ([monica-hist-2026-3-6-runtime-format-test](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-runtime-format-test.toon))
+- Added strict lint coverage for program, global options, config commands, TOON formatting, and runtime fields ([monica-hist-2026-3-6-strict-lint-scope](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-strict-lint-scope.toon))
+- Added project ESLint configuration and strict-tier lint mode ([monica-hist-2026-3-6-eslint](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-eslint.toon))
+- Added runtime field-selection context so field filtering applies consistently across output renderers and command levels ([monica-hist-2026-3-6-field-context](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-field-context.toon))
+- Added strict CLI input parsers for output format, pagination, and field selection ([monica-hist-2026-3-6-input-parsers](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-input-parsers.toon))
+
+### Changed
+
+- Updated strict lint rules to permit separate value and type imports while enforcing duplicate import hygiene ([monica-hist-2026-3-6-import-lint](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-import-lint.toon))
+- Centralized field parsing and removed redundant output-format parsing in pre-action handling ([monica-hist-2026-3-6-parser-centralization](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-parser-centralization.toon))
+- Hardened runtime field-selection lifecycle to reset global override state at command boundaries and prevent cross-command leakage ([monica-hist-2026-3-6-fields-lifecycle](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-fields-lifecycle.toon))
+- Improved field filtering for list, get, and paginated JSON and YAML outputs ([monica-hist-2026-3-6-fields-output](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-fields-output.toon))
+- Updated development documentation with the staged lint-hardening workflow and strict module rollout guidance ([monica-hist-2026-3-6-lint-docs](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-lint-docs.toon))
+- Updated Bun and npm CI validation to run linting before build and test ([monica-hist-2026-3-6-ci-lint](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-ci-lint.toon))
+- Updated verify:release and prepublishOnly release gates to include linting ([monica-hist-2026-3-6-release-lint](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-release-lint.toon))
 
 ### Fixed
 
-- `monica info` now fails with an explicit, actionable error when no subcommand is provided.
-- Invalid `--format` values now fail fast instead of silently falling back.
-- Invalid pagination values now fail fast instead of being silently normalized by API behavior.
-- `config set --default-format` and setup default-format parsing now reject invalid formats instead of silently coercing.
-
-### Tests
-
-- Added regression coverage for:
-  - `info` missing subcommand behavior
-  - invalid `--format` handling
-  - invalid `--page` / `--limit` handling
-  - `--fields` parsing and formatter field filtering behavior
-  - runtime field filtering across `json`, `yaml`, `table`, `md`, and `toon`
-  - paginated formatter filtering parity (including `--raw` behavior with runtime fields)
+- Added regression coverage for field parsing and formatter field-filtering behavior ([monica-hist-2026-3-6-fields-test](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-fields-test.toon))
+- Added regression coverage for invalid page and limit handling ([monica-hist-2026-3-6-pagination-test](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-pagination-test.toon))
+- Added regression coverage for invalid output-format handling ([monica-hist-2026-3-6-format-test](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-format-test.toon))
+- Added regression coverage for info missing-subcommand behavior ([monica-hist-2026-3-6-info-test](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-info-test.toon))
+- Made config set and setup default-format parsing reject invalid formats instead of silently coercing ([monica-hist-2026-3-6-default-format-validation](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-default-format-validation.toon))
+- Made invalid page and limit values fail fast instead of being silently normalized by API behavior ([monica-hist-2026-3-6-pagination-validation](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-pagination-validation.toon))
+- Made invalid output format values fail fast instead of silently falling back ([monica-hist-2026-3-6-format-validation](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-format-validation.toon))
+- Made monica info fail with an explicit actionable error when no subcommand is provided ([monica-hist-2026-3-6-info-error](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/chores/monica-hist-2026-3-6-info-error.toon))

@@ -31,7 +31,14 @@
     "smoke:bunx": "node scripts/smoke-bunx.mjs",
     "audit:history": "node scripts/scan-history-secrets.mjs",
     "audit:version-history": "node scripts/audit-version-history.mjs",
-    "verify:release": "bun run version:check && bun run typecheck && bun run lint && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx && bun run audit:history && bun run audit:version-history",
+    "changelog:pm": "pm-changelog --pm-root .agents/pm --pm-bin ./node_modules/.bin/pm --output CHANGELOG.md --title Changelog --mode replace --all-release-tags --status closed --item-url-base https://github.com/unbraind/monica-cli/blob/master/.agents/pm",
+    "changelog:pm:check": "pm-changelog --pm-root .agents/pm --pm-bin ./node_modules/.bin/pm --output CHANGELOG.md --title Changelog --mode replace --all-release-tags --status closed --item-url-base https://github.com/unbraind/monica-cli/blob/master/.agents/pm --check",
+    "changelog:preservation:check": "node scripts/verify-changelog-preservation.mjs",
+    "workflows:check": "node scripts/validate-workflows.mjs",
+    "release:pipeline": "node scripts/release/run-release-pipeline.mjs",
+    "release:pipeline:dry-run": "node scripts/release/run-release-pipeline.mjs --dry-run",
+    "release:verify-published": "node scripts/release/verify-published-release.mjs",
+    "verify:release": "bun run version:check && bun run changelog:pm:check && bun run changelog:preservation:check && bun run workflows:check && bun run typecheck && bun run lint && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx && bun run audit:history && bun run audit:version-history",
     "prepublishOnly": "bun run version:check && bun run clean && bun run lint && bun run build && bun run test && bun run smoke:npx && bun run smoke:bunx",
     "release": "bun run verify:release",
     "version:check:format": "node scripts/set-version.mjs --format-only"
@@ -61,6 +68,7 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
+    "@unbrained/pm-cli": "2026.7.21",
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "@eslint/js": "^10.0.1",
@@ -70,6 +78,7 @@
     "@vitest/coverage-v8": "4.1.10",
     "eslint": "^10.7.0",
     "globals": "^17.7.0",
+    "pm-changelog": "2026.7.18",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"

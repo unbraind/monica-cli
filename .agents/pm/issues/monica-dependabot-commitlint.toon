@@ -1,12 +1,12 @@
 id: monica-dependabot-commitlint
-title: Commit lint rejects generated Dependabot bodies
+title: Fixed generated Dependabot commit bodies failing body line-length rules while retaining Conventional Commit subject validation
 description: Dependabot commit bodies contain long generated URLs that violate body-max-line-length and fail every dependency PR.
 type: Issue
 status: closed
 priority: 1
 tags[3]: ci,commitlint,dependabot
 created_at: "2026-07-16T16:58:08.932Z"
-updated_at: "2026-07-16T17:19:30.467Z"
+updated_at: "2026-07-21T17:27:12.303Z"
 deadline: "2026-07-18T16:58:08.932Z"
 closed_at: "2026-07-16T17:19:30.466Z"
 author: codex-root

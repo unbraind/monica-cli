@@ -1,5 +1,7 @@
 node_modules/
 dist/
+!/.agents/pm/extensions/pm-changelog/dist/
+!/.agents/pm/extensions/pm-changelog/dist/**
 *.log
 .DS_Store
 coverage/
@@ -37,4 +39,5 @@ Thumbs.db
 .agents/pm/runtime/
 .agents/pm/search/
 .agents/pm/locks/
+.agents/pm/checkpoints/
 # pm-cli:runtime-cache:end

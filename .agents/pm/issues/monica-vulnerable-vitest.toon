@@ -1,12 +1,12 @@
 id: monica-vulnerable-vitest
-title: Critical Vitest advisory remains open
+title: Removed the critical Vitest 1.6 vulnerability GHSA-5xrq-8626-4rwp and CVE-2026-47429
 description: The resolved Vitest 1.6.1 is vulnerable to GHSA-5xrq-8626-4rwp and must be upgraded with its coverage provider.
 type: Issue
 status: closed
 priority: 0
 tags[4]: dependabot,ghsa-5xrq-8626-4rwp,security,vitest
 created_at: "2026-07-16T16:58:07.814Z"
-updated_at: "2026-07-16T17:19:28.890Z"
+updated_at: "2026-07-21T17:27:14.671Z"
 deadline: "2026-07-18T16:58:07.814Z"
 closed_at: "2026-07-16T17:19:28.890Z"
 author: codex-root
