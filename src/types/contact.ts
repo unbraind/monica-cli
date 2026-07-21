@@ -1,21 +1,28 @@
+/** Describes the special date data contract. */
 export interface SpecialDate {
   is_age_based: boolean | null;
   is_year_unknown: boolean | null;
   date: string | null;
 }
 
+/** Describes the contact date data contract. */
 export interface ContactDate {
   name: string;
   is_birthdate_approximate: string;
   birthdate: string | null;
 }
 
+/** Describes the avatar data contract. */
 export interface Avatar {
   url: string | null;
   source: string | null;
   default_avatar_color?: string;
 }
 
+/** Supported Monica 4.x avatar providers for contact avatar updates. */
+export type ContactAvatarSource = 'default' | 'adorable' | 'gravatar' | 'photo';
+
+/** Describes the related contact data contract. */
 export interface RelatedContact {
   id: number;
   object: string;
@@ -39,6 +46,7 @@ export interface RelatedContact {
   account?: { id: number };
 }
 
+/** Describes the relationship group data contract. */
 export interface RelationshipGroup {
   total: number;
   contacts: Array<{
@@ -47,12 +55,14 @@ export interface RelationshipGroup {
   }>;
 }
 
+/** Describes the how you met data contract. */
 export interface HowYouMet {
   general_information: string | null;
   first_met_date: SpecialDate;
   first_met_through_contact: RelatedContact | null;
 }
 
+/** Describes the contact information data contract. */
 export interface ContactInformation {
   relationships?: {
     love: RelationshipGroup;
@@ -74,6 +84,7 @@ export interface ContactInformation {
   how_you_met?: HowYouMet;
 }
 
+/** Describes the contact statistics data contract. */
 export interface ContactStatistics {
   number_of_calls: number;
   number_of_notes: number;
@@ -84,6 +95,7 @@ export interface ContactStatistics {
   number_of_debts: number;
 }
 
+/** Describes the address data contract. */
 export interface Address {
   id: number;
   object: string;
@@ -107,6 +119,7 @@ export interface Address {
   updated_at: string;
 }
 
+/** Describes the tag data contract. */
 export interface Tag {
   id: number;
   object: string;
@@ -117,6 +130,7 @@ export interface Tag {
   updated_at: string;
 }
 
+/** Describes the contact data contract. */
 export interface Contact {
   id: number;
   object: string;
@@ -141,14 +155,15 @@ export interface Contact {
   addresses?: Address[];
   tags?: Tag[];
   statistics?: ContactStatistics;
-  contactFields?: import('./reference').ContactField[];
-  notes?: import('./note').Note[];
+  contactFields?: ContactField[];
+  notes?: Note[];
   url?: string;
   account?: { id: number };
   created_at: string;
   updated_at: string;
 }
 
+/** Describes the contact create input data contract. */
 export interface ContactCreateInput {
   first_name: string;
   last_name?: string;
@@ -171,10 +186,14 @@ export interface ContactCreateInput {
   is_starred?: boolean;
 }
 
+/** Describes the contact update input data contract. */
 export interface ContactUpdateInput extends ContactCreateInput {}
 
+/** Describes the contact search input data contract. */
 export interface ContactSearchInput {
   query: string;
   limit?: number;
   page?: number;
 }
+import type { Note } from './note';
+import type { ContactField } from './reference';

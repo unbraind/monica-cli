@@ -1,6 +1,7 @@
 import type { MonicaConfig } from '../types';
 import * as api from '../api';
 
+/** Executes the verify config connection operation. */
 export async function verifyConfigConnection(settings: Partial<MonicaConfig>): Promise<Awaited<ReturnType<typeof api.getUser>>> {
   const missing: string[] = [];
   if (!settings.apiUrl) missing.push('API URL');

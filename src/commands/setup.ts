@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import type { ConfigSetOptions } from './config';
 import { runConfigSetup } from './config';
 
+/** Creates setup command. */
 export function createSetupCommand(): Command {
   return new Command('setup')
     .description('Run first-time Monica CLI setup wizard (alias for "config setup")')

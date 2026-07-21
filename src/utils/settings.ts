@@ -4,8 +4,10 @@ import * as os from 'os';
 import { createHash } from 'crypto';
 import type { MonicaConfig } from '../types';
 
+/** Provides the global settings path value. */
 export const GLOBAL_SETTINGS_PATH = path.join(os.homedir(), '.monica-cli', 'settings.json');
 
+/** Executes the ensure private directory operation. */
 export function ensurePrivateDirectory(dir: string): void {
   fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   if (process.platform !== 'win32') {
@@ -13,6 +15,7 @@ export function ensurePrivateDirectory(dir: string): void {
   }
 }
 
+/** Writes private file. */
 export function writePrivateFile(filePath: string, content: string): void {
   fs.writeFileSync(filePath, content, { mode: 0o600 });
   if (process.platform !== 'win32') {
@@ -20,11 +23,13 @@ export function writePrivateFile(filePath: string, content: string): void {
   }
 }
 
+/** Executes the ensure settings dir operation. */
 export function ensureSettingsDir(): void {
   const dir = path.dirname(GLOBAL_SETTINGS_PATH);
   ensurePrivateDirectory(dir);
 }
 
+/** Loads settings. */
 export function loadSettings(): Partial<MonicaConfig> | null {
   try {
     if (fs.existsSync(GLOBAL_SETTINGS_PATH)) {
@@ -37,11 +42,13 @@ export function loadSettings(): Partial<MonicaConfig> | null {
   return null;
 }
 
+/** Saves settings. */
 export function saveSettings(config: Partial<MonicaConfig>): void {
   ensureSettingsDir();
   writePrivateFile(GLOBAL_SETTINGS_PATH, JSON.stringify(normalizeSettings(config), null, 2));
 }
 
+/** Normalizes settings. */
 export function normalizeSettings(config: Partial<MonicaConfig>): Partial<MonicaConfig> {
   const normalized: Partial<MonicaConfig> = { ...config };
   if (normalized.readOnlyMode === undefined && normalized.readOnly !== undefined) {
@@ -51,20 +58,24 @@ export function normalizeSettings(config: Partial<MonicaConfig>): Partial<Monica
   return normalized;
 }
 
+/** Executes the mask api key operation. */
 export function maskApiKey(key: string): string {
   if (!key) return '[hidden]';
   const fingerprint = createHash('sha256').update(key).digest('hex').slice(0, 8);
   return `[hidden:${key.length}:sha256:${fingerprint}]`;
 }
 
+/** Executes the mask password operation. */
 export function maskPassword(password: string): string {
   return '*'.repeat(Math.min(password.length, 8));
 }
 
+/** Executes the settings file exists operation. */
 export function settingsFileExists(): boolean {
   return fs.existsSync(GLOBAL_SETTINGS_PATH);
 }
 
+/** Gets settings stats. */
 export function getSettingsStats(): fs.Stats | null {
   if (settingsFileExists()) {
     return fs.statSync(GLOBAL_SETTINGS_PATH);
@@ -72,6 +83,7 @@ export function getSettingsStats(): fs.Stats | null {
   return null;
 }
 
+/** Executes the delete settings file operation. */
 export function deleteSettingsFile(): boolean {
   if (fs.existsSync(GLOBAL_SETTINGS_PATH)) {
     fs.unlinkSync(GLOBAL_SETTINGS_PATH);
@@ -80,6 +92,7 @@ export function deleteSettingsFile(): boolean {
   return false;
 }
 
+/** Executes the output single key operation. */
 export function outputSingleKey(settings: Partial<MonicaConfig>, key: string): void {
   switch (key) {
     case 'api-url':
@@ -127,6 +140,7 @@ export function outputSingleKey(settings: Partial<MonicaConfig>, key: string): v
   }
 }
 
+/** Executes the print config operation. */
 export function printConfig(settings: Partial<MonicaConfig>): void {
   console.log(`api-url:       ${settings.apiUrl || 'Not set'}`);
   console.log(`api-key:       ${settings.apiKey ? maskApiKey(settings.apiKey) : 'Not set'}`);
@@ -137,6 +151,7 @@ export function printConfig(settings: Partial<MonicaConfig>): void {
   console.log(`github-starred:${settings.githubRepoStarred ? ' true' : ' false'}`);
 }
 
+/** Provides the valid unset keys value. */
 export const VALID_UNSET_KEYS = [
   'user-email',
   'userEmail',
@@ -150,6 +165,7 @@ export const VALID_UNSET_KEYS = [
   'githubRepoStarred',
 ];
 
+/** Provides the key map value. */
 export const KEY_MAP: Record<string, string> = {
   'user-email': 'userEmail',
   'userEmail': 'userEmail',

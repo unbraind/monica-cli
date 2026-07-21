@@ -38,3 +38,6 @@ export { createAgentToolsCommand } from './agent-tools';
 export { createAgentRunbookCommand } from './agent-runbook';
 export { createAuditCommand } from './audit';
 export { createApiResearchCommand } from './api-research';
+export { createPlacesCommand } from './places';
+export { createLifeEventsCommand } from './life-events';
+export { createStatisticsCommand } from './statistics';

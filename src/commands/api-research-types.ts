@@ -1,5 +1,6 @@
 import type { ResourceSummary } from './api-research-shared';
 
+/** Describes the api research summary options data contract. */
 export interface ApiResearchSummaryOptions {
   resource?: string;
   withEndpoints?: boolean;
@@ -11,6 +12,7 @@ export interface ApiResearchSummaryOptions {
   source?: string;
 }
 
+/** Describes the api research summary payload data contract. */
 export interface ApiResearchSummaryPayload {
   generatedAt: string;
   sourceFile: string;
@@ -24,6 +26,8 @@ export interface ApiResearchSummaryPayload {
     enabled: boolean;
     source?: 'cache' | 'live';
     generatedAt?: string;
+    healthy?: boolean;
+    unavailable?: number;
   };
   commandSupport?: {
     total: number;
@@ -53,6 +57,7 @@ export interface ApiResearchSummaryPayload {
   resources: ResourceSummary[];
 }
 
+/** Describes the api research coverage payload data contract. */
 export interface ApiResearchCoveragePayload {
   generatedAt: string;
   sourceFile: string;
@@ -61,6 +66,8 @@ export interface ApiResearchCoveragePayload {
     enabled: boolean;
     source?: 'cache' | 'live';
     generatedAt?: string;
+    healthy?: boolean;
+    unavailable?: number;
   };
   totals: {
     resources: number;
@@ -106,6 +113,7 @@ export interface ApiResearchCoveragePayload {
   recommendedNextCommands: string[];
 }
 
+/** Describes the api research backlog item data contract. */
 export interface ApiResearchBacklogItem {
   resource: string;
   cliCommand: string;
@@ -121,6 +129,7 @@ export interface ApiResearchBacklogItem {
   }>;
 }
 
+/** Describes the api research backlog payload data contract. */
 export interface ApiResearchBacklogPayload {
   generatedAt: string;
   sourceFile: string;
@@ -138,6 +147,7 @@ export interface ApiResearchBacklogPayload {
   items: ApiResearchBacklogItem[];
 }
 
+/** Describes the api research actions payload data contract. */
 export interface ApiResearchActionsPayload {
   generatedAt: string;
   sourceFile: string;

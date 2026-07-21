@@ -15,7 +15,7 @@ vi.mock('../src/api/client', () => ({
 }));
 
 import * as client from '../src/api/client';
-import { probeApiCapabilities, formatCapabilityHints, getSupportedCommands } from '../src/api/capabilities';
+import { probeApiCapabilities, formatCapabilityHints, getCapabilityState, getSupportedCommands } from '../src/api/capabilities';
 
 describe('capabilities API', () => {
   beforeEach(() => {
@@ -57,6 +57,19 @@ describe('capabilities API', () => {
     expect(hints[0]).toContain('HTTP 404');
   });
 
+  it('separates systemic failures from unsupported endpoints', async () => {
+    const mockGet = client.get as unknown as { mockRejectedValue: (value: unknown) => void };
+    mockGet.mockRejectedValue({ statusCode: 500, message: 'Server failure' });
+    const report = await probeApiCapabilities();
+
+    expect(report.summary.supported).toBe(0);
+    expect(report.summary.unsupported).toBe(0);
+    expect(report.summary.unavailable).toBe(report.summary.total);
+    expect(report.summary.healthy).toBe(false);
+    expect(report.probes.every((probe) => probe.state === 'unavailable')).toBe(true);
+    expect(formatCapabilityHints(report)[0]).toContain('endpoint support is unknown');
+  });
+
   it('treats known compatibility fallbacks as supported when primary endpoint is unavailable', async () => {
     const mockGet = client.get as unknown as { mockImplementation: (value: (endpoint: string) => Promise<unknown>) => void };
     mockGet.mockImplementation((endpoint: string) => {
@@ -92,5 +105,28 @@ describe('capabilities API', () => {
     });
 
     expect(commands).toEqual(['contacts list', 'tasks list']);
+  });
+
+  it('classifies legacy states and formats healthy or status-less hints', () => {
+    expect(getCapabilityState({ supported: false, statusCode: 405 } as never)).toBe('unsupported');
+    expect(getCapabilityState({ supported: false, statusCode: 500 } as never)).toBe('unavailable');
+    expect(formatCapabilityHints({
+      generatedAt: '', summary: { total: 0, supported: 0, unsupported: 0 }, probes: [],
+    })).toEqual(['All probed Monica API resources are available on this instance.']);
+    const hints = formatCapabilityHints({
+      generatedAt: '', summary: { total: 2, supported: 0, unsupported: 1 }, probes: [
+        { key: 'a', command: 'a', endpoint: '/a', supported: null, state: 'unavailable', statusCode: 0, message: '' },
+        { key: 'b', command: 'b', endpoint: '/b', supported: false, statusCode: 404, message: 'missing' },
+      ],
+    });
+    expect(hints[0]).toContain('request failed');
+    expect(hints[1]).toContain('HTTP 404');
+  });
+
+  it('normalizes unknown thrown values during probes', async () => {
+    const mockGet = client.get as unknown as ReturnType<typeof vi.fn>;
+    mockGet.mockRejectedValue({});
+    const report = await probeApiCapabilities();
+    expect(report.probes[0]).toMatchObject({ statusCode: 0, message: 'Unknown error', state: 'unavailable' });
   });
 });

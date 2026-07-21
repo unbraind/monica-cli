@@ -3,29 +3,27 @@ import type { OutputFormat } from '../types';
 import * as api from '../api';
 import * as fmt from '../formatters';
 import { resolveCommandOutputFormat } from './output-format';
-import { getUnsupportedCommands, parsePositiveInt, resolveCapabilityReportWithSource } from './info-capabilities';
+import { getUnavailableCommands, getUnsupportedCommands, parsePositiveInt, resolveCapabilityReportWithSource } from './info-capabilities';
 
 function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
 }
 
-function getActionCommand(command?: Command): Command {
-  return command || new Command();
-}
-
+/** Creates info instance profile subcommand. */
 export function createInfoInstanceProfileSubcommand(): Command {
   return new Command('instance-profile')
     .description('Emit consolidated instance profile for deterministic agent planning')
     .option('--refresh', 'Force capability re-probe instead of using cache')
     .option('--cache-ttl <seconds>', 'Capability cache TTL in seconds (default: 300)', parsePositiveInt)
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
 
       try {
         const { report, source } = await resolveCapabilityReportWithSource(actionCommand);
         const supportedCommands = api.getSupportedCommands(report);
         const unsupportedCommands = getUnsupportedCommands(report);
+        const unavailableCommands = getUnavailableCommands(report);
         const config = api.getConfig();
         const payload = {
           generatedAt: new Date().toISOString(),
@@ -49,6 +47,10 @@ export function createInfoInstanceProfileSubcommand(): Command {
           unsupportedCommands: {
             total: unsupportedCommands.length,
             commands: unsupportedCommands,
+          },
+          unavailableCommands: {
+            total: unavailableCommands.length,
+            commands: unavailableCommands,
           },
         };
         console.log(fmt.formatOutput(payload, format));

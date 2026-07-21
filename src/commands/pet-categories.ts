@@ -80,6 +80,7 @@ async function listPetCategoriesByPetScan(
   };
 }
 
+/** Creates pet categories command. */
 export function createPetCategoriesCommand(): Command {
   const cmd = new Command('pet-categories')
     .description('List pet categories')
@@ -95,7 +96,7 @@ export function createPetCategoriesCommand(): Command {
     .option('--no-auto-scan', 'Disable automatic pet scan fallback when endpoint is unavailable')
     .option('--pet-max-pages <pages>', 'Maximum pet pages to scan in fallback mode', parsePositiveIntOption)
     .action(async (options: PetCategoriesListOptions, cmdParent) => {
-      const parentOpts = (cmdParent.parent?.opts() as { format?: OutputFormat; page?: number; limit?: number } | undefined) || cmdParent.opts();
+      const parentOpts = cmdParent.parent!.opts() as { format?: OutputFormat; page?: number; limit?: number };
       const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
       
       try {
@@ -141,7 +142,7 @@ export function createPetCategoriesCommand(): Command {
     .command('get <id>')
     .description('Get a specific pet category')
     .action(async (id, _options, cmdParent) => {
-      const parentOpts = (cmdParent.parent?.opts() as { format?: OutputFormat } | undefined) || cmdParent.opts();
+      const parentOpts = cmdParent.parent!.opts() as { format?: OutputFormat };
       const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
       
       try {

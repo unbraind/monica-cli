@@ -3,6 +3,7 @@ import { probeApiCapabilities } from '../api/capabilities';
 import { setConfig } from '../api/client';
 import { saveCapabilityReport } from '../utils/capability-cache';
 
+/** Describes the setup capability probe result data contract. */
 export interface SetupCapabilityProbeResult {
   attempted: boolean;
   cached: boolean;
@@ -15,10 +16,12 @@ export interface SetupCapabilityProbeResult {
   error?: string;
 }
 
+/** Describes the setup capability probe options data contract. */
 export interface SetupCapabilityProbeOptions {
   enabled: boolean;
 }
 
+/** Runs setup capability probe. */
 export async function runSetupCapabilityProbe(
   settings: Partial<MonicaConfig>,
   options: SetupCapabilityProbeOptions

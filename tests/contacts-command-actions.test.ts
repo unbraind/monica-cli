@@ -74,4 +74,19 @@ describe('contacts command actions', () => {
     expect(exitSpy).toHaveBeenCalled();
   });
 
+  it('infers gender by name and preserves the current first name', async () => {
+    vi.spyOn(api, 'getContact').mockResolvedValue({ data: {
+      id: 1, first_name: 'Current', gender: 'Female', gender_type: null,
+      is_dead: false, is_partial: false,
+    } } as never);
+    vi.spyOn(api, 'listGenders').mockResolvedValue({ data: [
+      { id: 3, name: 'Female', type: 'F' },
+    ] } as never);
+    const update = vi.spyOn(api, 'updateContact').mockResolvedValue({ data: { id: 1 } } as never);
+    await createContactsCommand().parseAsync(['update', '1'], { from: 'user' });
+    expect(update).toHaveBeenCalledWith(1, expect.objectContaining({
+      first_name: 'Current', gender_id: 3,
+    }));
+  });
+
 });

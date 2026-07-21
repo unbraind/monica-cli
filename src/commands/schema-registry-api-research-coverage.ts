@@ -1,5 +1,6 @@
 import type { OutputSchemaDescriptor } from './schema-registry';
 
+/** Provides the api research coverage output schemas value. */
 export const API_RESEARCH_COVERAGE_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
   {
     id: 'api-research-coverage',

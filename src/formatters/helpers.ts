@@ -1,3 +1,4 @@
+/** Gets default fields. */
 export function getDefaultFields(item: unknown): string[] {
   if (typeof item !== 'object' || item === null) return [];
 

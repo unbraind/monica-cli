@@ -1,3 +1,4 @@
+/** Formats version date. */
 export function formatVersionDate(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1);
@@ -5,14 +6,17 @@ export function formatVersionDate(date: Date): string {
   return `${year}.${month}.${day}`;
 }
 
+/** Checks whether valid version date. */
 export function isValidVersionDate(value: string): boolean {
   return /^\d{4}\.(?:[1-9]|1[0-2])\.(?:[1-9]|[12]\d|3[01])$/.test(value);
 }
 
+/** Executes the to git date operation. */
 export function toGitDate(versionDate: string): string {
   return versionDate.replace(/\./g, '-');
 }
 
+/** Builds date release version. */
 export function buildDateReleaseVersion(versionDate: string, releaseNumber: number): string {
   if (!isValidVersionDate(versionDate)) {
     throw new Error(`Invalid version date "${versionDate}". Expected format: YYYY.M.D`);
@@ -26,6 +30,7 @@ export function buildDateReleaseVersion(versionDate: string, releaseNumber: numb
   return `${versionDate}-${releaseNumber}`;
 }
 
+/** Parses release count. */
 export function parseReleaseCount(rawCount: string): number {
   const parsed = Number.parseInt(rawCount.trim(), 10);
   if (!Number.isInteger(parsed) || parsed < 0) {

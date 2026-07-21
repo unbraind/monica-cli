@@ -21,6 +21,7 @@ interface AuditSummary {
   warn: number;
   fail: number;
 }
+/** Describes the audit report data contract. */
 export interface AuditReport {
   generatedAt: string;
   ok: boolean;
@@ -29,6 +30,7 @@ export interface AuditReport {
   summary: AuditSummary;
   checks: AuditCheck[];
 }
+/** Describes the audit options data contract. */
 export interface AuditOptions {
   repoPath?: string;
   settingsPath?: string;
@@ -54,9 +56,6 @@ function shouldIgnoreSecretScan(filePath: string): boolean {
 }
 function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
-}
-function getActionCommand(command?: Command): Command {
-  return command || new Command();
 }
 function formatMode(mode: number): string {
   return `0${(mode & 0o777).toString(8)}`;
@@ -109,6 +108,7 @@ function summarizeChecks(checks: AuditCheck[]): AuditSummary {
   });
   return summary;
 }
+/** Runs audit. */
 export function runAudit(options: AuditOptions = {}): AuditReport {
   const repoPath = path.resolve(options.repoPath || process.cwd());
   const settingsPath = path.resolve(options.settingsPath || GLOBAL_SETTINGS_PATH);
@@ -272,6 +272,7 @@ export function runAudit(options: AuditOptions = {}): AuditReport {
   };
   return report;
 }
+/** Creates audit command. */
 export function createAuditCommand(): Command {
   const cmd = new Command('audit')
     .description('Run local security and hygiene audit for Monica CLI secrets/config')
@@ -279,7 +280,7 @@ export function createAuditCommand(): Command {
     .option('--repo-path <path>', 'Repository path to scan (default: current directory)')
     .option('--strict', 'Exit with code 1 if any warning or failure is detected')
     .action(function (this: Command, options: AuditOptions): void {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
       const report = runAudit(options);
       console.log(fmt.formatOutput(report, format));

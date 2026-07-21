@@ -42,6 +42,9 @@ import {
   createAgentRunbookCommand,
   createAuditCommand,
   createApiResearchCommand,
+  createPlacesCommand,
+  createLifeEventsCommand,
+  createStatisticsCommand,
 } from './commands';
 import {
   applyRequestTimeoutOverride,
@@ -68,7 +71,8 @@ function applyFormatToCommandChain(start: Command, format: OutputFormat): void {
   }
 }
 
-function inheritOptionFromParents(command: Command, key: string): void {
+/** Copies an unset option from the closest parent command that defines it. */
+export function inheritOptionFromParents(command: Command, key: string): void {
   if (command.getOptionValue(key) !== undefined) return;
   let current = command.parent;
   while (current) {
@@ -98,8 +102,7 @@ function hasExplicitFormatFlag(argv: string[]): boolean {
 function applyGlobalArgParsers(root: Command): void {
   const stack: Command[] = [root];
   while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current) continue;
+    const current = stack.pop()!;
     for (const option of current.options) {
       if (option.long === '--format') {
         option.argParser(parseOutputFormat);
@@ -126,6 +129,7 @@ function loadPackageVersion(): string {
   return '0.0.0';
 }
 
+/** Creates program. */
 export function createProgram(argv: string[] = process.argv): Command {
   const settings = loadSettings();
   const defaultFormat = settings?.defaultFormat ? resolveOutputFormat(settings.defaultFormat) : 'toon';
@@ -147,12 +151,12 @@ export function createProgram(argv: string[] = process.argv): Command {
     .option('-q, --quiet', 'Suppress non-essential output (dotenv logs)')
     .option('--fields <fields>', 'Comma-separated list of fields to display')
     .option('--request-timeout-ms <ms>', 'Request timeout in milliseconds (overrides MONICA_REQUEST_TIMEOUT_MS)', parseRequestTimeoutMs)
-    .hook('preAction', (thisCommand: Command, actionCommand: Command) => {
-      const target = actionCommand || thisCommand;
+    .hook('preAction', (_thisCommand: Command, actionCommand: Command) => {
+      const target = actionCommand;
       if (!hasExplicitFormatFlag(argv) && defaultFormat !== 'toon') {
         applyFormatToCommandChain(target, defaultFormat);
       }
-      const opts = (target as Command & { optsWithGlobals?: () => Record<string, unknown> }).optsWithGlobals?.() || target.opts();
+      const opts = target.optsWithGlobals() as Record<string, unknown>;
       resetRuntimeFieldSelection();
       setRuntimeFieldSelection(opts.fields as string[] | undefined);
       if (hasExplicitFormatFlag(argv) && typeof opts.format === 'string') {
@@ -223,6 +227,9 @@ export function createProgram(argv: string[] = process.argv): Command {
   program.addCommand(createAgentRunbookCommand());
   program.addCommand(createAuditCommand());
   program.addCommand(createApiResearchCommand());
+  program.addCommand(createPlacesCommand());
+  program.addCommand(createLifeEventsCommand());
+  program.addCommand(createStatisticsCommand());
 
   applyGlobalArgParsers(program);
   addGlobalHelpFooters(program);

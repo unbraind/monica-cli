@@ -3,6 +3,7 @@ import type { MonicaConfig, OutputFormat } from '../types';
 import { GLOBAL_SETTINGS_PATH, getSettingsStats, maskApiKey } from '../utils/settings';
 import { resolveCommandOutputFormat } from './output-format';
 
+/** Describes the config display data contract. */
 export interface ConfigDisplay {
   apiUrl: string | null;
   apiKey: string | null;
@@ -13,10 +14,12 @@ export interface ConfigDisplay {
   githubRepoStarred: boolean;
 }
 
+/** Gets config output format. */
 export function getConfigOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
 }
 
+/** Executes the to display config operation. */
 export function toDisplayConfig(settings: Partial<MonicaConfig>): ConfigDisplay {
   return {
     apiUrl: settings.apiUrl || null,
@@ -29,6 +32,7 @@ export function toDisplayConfig(settings: Partial<MonicaConfig>): ConfigDisplay 
   };
 }
 
+/** Gets config value. */
 export function getConfigValue(settings: Partial<MonicaConfig>, key: string): { key: string; value: unknown } | null {
   switch (key) {
     case 'api-url':
@@ -59,6 +63,7 @@ export function getConfigValue(settings: Partial<MonicaConfig>, key: string): { 
   }
 }
 
+/** Gets location payload. */
 export function getLocationPayload(): { path: string; exists: boolean; modifiedAt: string | null } {
   const stats = getSettingsStats();
   return {
@@ -68,6 +73,7 @@ export function getLocationPayload(): { path: string; exists: boolean; modifiedA
   };
 }
 
+/** Builds connection payload. */
 export function buildConnectionPayload(
   settings: Partial<MonicaConfig>,
   user: { id?: number; name?: string; email?: string; account?: { id?: number } }
@@ -84,6 +90,7 @@ export function buildConnectionPayload(
   };
 }
 
+/** Executes the missing config payload operation. */
 export function missingConfigPayload(): { ok: false; message: string } {
   return {
     ok: false,

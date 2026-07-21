@@ -8,6 +8,7 @@ import type {
 } from '../types';
 import { get, del, getAllPages, upload } from './client';
 
+/** Executes the list documents operation. */
 export async function listDocuments(params?: {
   limit?: number;
   page?: number;
@@ -15,14 +16,17 @@ export async function listDocuments(params?: {
   return get<PaginatedResponse<Document>>('/documents', params);
 }
 
+/** Executes the list all documents operation. */
 export async function listAllDocuments(maxPages?: number): Promise<Document[]> {
   return getAllPages<Document>('/documents', undefined, maxPages);
 }
 
+/** Gets document. */
 export async function getDocument(id: number): Promise<ApiResponse<Document>> {
   return get<ApiResponse<Document>>(`/documents/${id}`);
 }
 
+/** Executes the list contact documents operation. */
 export async function listContactDocuments(
   contactId: number,
   params?: { limit?: number; page?: number }
@@ -30,10 +34,12 @@ export async function listContactDocuments(
   return get<PaginatedResponse<Document>>(`/contacts/${contactId}/documents`, params);
 }
 
+/** Executes the delete document operation. */
 export async function deleteDocument(id: number): Promise<DeleteResponse> {
   return del<DeleteResponse>(`/documents/${id}`);
 }
 
+/** Creates document. */
 export async function createDocument(
   contactId: number,
   filePath: string

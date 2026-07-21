@@ -49,11 +49,20 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Audit dependency graph
+        run: bun run audit:dependencies
+
       - name: Typecheck
         run: bun run typecheck
 
       - name: Lint
         run: bun run lint
+
+      - name: Enforce source quality and docstrings
+        run: bun run lint:source-quality
+
+      - name: Detect duplicated source
+        run: bun run lint:duplication
 
       - name: Verify pm-generated changelog
         run: bun run changelog:pm:check && bun run changelog:preservation:check
@@ -61,8 +70,11 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Test
-        run: bun run test
+      - name: Test with 100% coverage
+        run: bun run test:coverage
+
+      - name: Verify complete command help
+        run: bun run test:e2e:help
 
       - name: Smoke test bunx execution
         run: bun run smoke:bunx
@@ -107,11 +119,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Enforce source quality and docstrings
+        run: npm run lint:source-quality
+
+      - name: Detect duplicated source
+        run: npm run lint:duplication
+
       - name: Build
         run: npm run build
 
-      - name: Test
-        run: npm test
+      - name: Test with 100% coverage
+        run: npm run test:coverage
 
       - name: Smoke test npx execution
         run: npm run smoke:npx

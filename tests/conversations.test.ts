@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   get: vi.fn(),
@@ -24,7 +25,7 @@ describe('conversations API', () => {
 
   describe('listConversations', () => {
     it('calls GET /conversations with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
 
       const result = await conversations.listConversations({ page: 1, limit: 10 });
@@ -91,7 +92,7 @@ describe('conversations API', () => {
 
   describe('listContactConversations', () => {
     it('calls GET /contacts/:id/conversations', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
 
       const result = await conversations.listContactConversations(1, { page: 1, limit: 10 });
@@ -103,7 +104,7 @@ describe('conversations API', () => {
 
   describe('listConversationMessages', () => {
     it('calls GET /conversations/:id/messages', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
 
       const result = await conversations.listConversationMessages(1, { page: 1, limit: 10 });

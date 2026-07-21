@@ -20,6 +20,8 @@ Monica CLI provides complete access to all Monica CRM features through a command
 | [Configuration](./CONFIGURATION.md) | Environment variables and configuration options |
 | [Commands](./COMMANDS.md) | Complete command reference |
 | [API Reference](./API.md) | TypeScript API documentation |
+| [Monica API source snapshot](./monica-api-reference.json) | Stable Monica 4.x source-derived inventory |
+| [CLI API mapping snapshot](./api-reference.json) | Machine-readable CLI endpoint mapping |
 | [Development](./DEVELOPMENT.md) | Guide for contributors |
 | [Output Schemas](./OUTPUT-SCHEMAS.md) | Machine-readable output contracts for automation |
 | [Security Audit](./SECURITY-AUDIT.md) | Secret hygiene and pre-push safety checks |

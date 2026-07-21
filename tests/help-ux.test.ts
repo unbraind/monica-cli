@@ -1,18 +1,15 @@
-import { describe, expect, it } from 'vitest';
 import { Command } from 'commander';
+import { describe, expect, it, vi } from 'vitest';
 import { addGlobalHelpFooters } from '../src/commands/help-ux';
 
-describe('help ux', () => {
-  it('adds inherited global option guidance to subcommand help output', () => {
+describe('global help footer', () => {
+  it('prints inherited options for nested command help', () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     const program = new Command('monica');
-    program.option('--json', 'Output as JSON');
-    const contacts = new Command('contacts').description('Manage contacts');
-    contacts.command('list').description('List contacts');
-    program.addCommand(contacts);
-
+    program.addCommand(new Command('contacts').addCommand(new Command('list')));
     addGlobalHelpFooters(program);
-
-    const handlers = contacts.listeners('--help');
-    expect(handlers.length).toBeGreaterThan(0);
+    program.commands[0].commands[0].emit('--help');
+    expect(log).toHaveBeenCalledWith(expect.stringContaining('Inherited global options:'));
+    expect(log).toHaveBeenCalledWith(expect.stringContaining('--request-timeout-ms'));
   });
 });

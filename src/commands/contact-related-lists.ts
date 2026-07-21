@@ -1,30 +1,31 @@
 import type { Command } from 'commander';
-import type { OutputFormat, PaginatedResponse } from '../types';
+import type { PaginatedResponse } from '../types';
 import * as fmt from '../formatters';
+import { runCommandAction } from './crud-command';
+import { parsePositiveInteger } from './global-options';
+import { resolveCommandOutputFormat } from './output-format';
 
-type ListFetcher = (contactId: number, params: { page?: number; limit?: number }) => Promise<PaginatedResponse<unknown>>;
+type ListFetcher = (
+  contactId: number,
+  params: { page?: number; limit?: number },
+) => Promise<PaginatedResponse<unknown>>;
 
+/** Attach a contact-scoped paginated list subcommand. */
 export function addContactListCommand(
-  cmd: Command,
+  command: Command,
   name: string,
   description: string,
   fields: string[],
-  fetcher: ListFetcher
+  fetcher: ListFetcher,
 ): void {
-  cmd.command(`${name} <id>`).description(description)
-    .action(async (id, _options, cmdParent) => {
-      const { format, page, limit } = cmdParent.opts() as {
-        format: OutputFormat;
-        page?: number;
-        limit?: number;
-      };
-      try {
-        const result = await fetcher(parseInt(id), { page, limit });
-        console.log(fmt.formatPaginatedResponse(result, format, fields));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
+  command.command(`${name} <id>`).description(description)
+    .action(async function (this: Command, id: string): Promise<void> {
+      await runCommandAction(async () => {
+        const { page, limit } = this.parent?.opts() as { page?: number; limit?: number };
+        const result = await fetcher(parsePositiveInteger(id), { page, limit });
+        console.log(fmt.formatPaginatedResponse(
+          result, resolveCommandOutputFormat(this), fields,
+        ));
+      });
     });
 }
-

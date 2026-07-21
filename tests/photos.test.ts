@@ -77,4 +77,20 @@ describe('photos API', () => {
       expect(result.data.id).toBe(1);
     });
   });
+
+  it('maps every read and delete endpoint', async () => {
+    mockGet.mockResolvedValue({ data: [] });
+    mockGetAllPages.mockResolvedValue([]);
+    mockDel.mockResolvedValue({ id: 7, deleted: true });
+    await photos.listPhotos({ page: 2, limit: 5 });
+    await photos.listAllPhotos(3);
+    await photos.getPhoto(7);
+    await photos.listContactPhotos(9, { limit: 4 });
+    await photos.deletePhoto(7);
+    expect(mockGet).toHaveBeenNthCalledWith(1, '/photos', { page: 2, limit: 5 });
+    expect(mockGetAllPages).toHaveBeenCalledWith('/photos', undefined, 3);
+    expect(mockGet).toHaveBeenNthCalledWith(2, '/photos/7');
+    expect(mockGet).toHaveBeenNthCalledWith(3, '/contacts/9/photos', { limit: 4 });
+    expect(mockDel).toHaveBeenCalledWith('/photos/7');
+  });
 });

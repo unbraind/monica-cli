@@ -1,0 +1,347 @@
+id: monica-api-4x-parity
+title: Complete Monica 4.x API parity and resilient instance diagnostics
+description: "Align monica-cli with Monica stable 4.x routes, expose missing resources and actions, and prevent systemic server failures from being misreported as endpoint incompatibility."
+type: Feature
+status: in_progress
+priority: 0
+tags[7]: agent-ux,api,diagnostics,documentation,monica-4x,read-only-safety,typescript
+created_at: "2026-07-21T19:01:30.917Z"
+updated_at: "2026-07-21T22:06:22.970Z"
+deadline: "2026-07-24T19:01:30.917Z"
+assignee: codex-monica-api
+author: codex-monica-api
+estimated_minutes: 720
+acceptance_criteria: "Every stable 4.x API route has an intentional CLI/API mapping or documented compatibility decision; Capability and research probes distinguish endpoint unsupported responses from systemic authentication/server failures; New commands provide detailed help, default TOON, valid JSON/YAML/Markdown/table output where applicable, and strict TypeScript types; All code files are at most 300 physical lines and release/coverage/read-only E2E gates pass without mutating Monica data"
+definition_of_ready: "Official stable route inventory, current CLI surface, complete pm lineage, and live read-only diagnostics have been inspected."
+goal: trusted-monica-cli
+objective: complete-stable-api-agent-interface
+value: Agents can automate the full supported Monica surface with honest machine-readable capability data.
+impact: Closes silent feature gaps and prevents unsafe or impossible plans derived from false capability classifications.
+outcome: Production-ready Monica 4.x route parity with read-only verified diagnostics and durable API documentation.
+why_now: The requested live research exposed both missing stable routes and a production instance failure that current diagnostics misclassify.
+parent: monica-platform
+reviewer: unbraind
+risk: high
+confidence: 90
+sprint: 2026-07-api-parity
+release: 2026.7.21-2
+dependencies[7]{id,kind,created_at,author,source_kind}:
+  monica-platform,related,"2026-07-21T19:01:30.917Z",codex-monica-api,null
+  monica-changelog-coverage-floors,supersedes,"2026-07-21T22:01:13.998Z",codex-monica-api,null
+  monica-changelog-pm-governance,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
+  monica-changelog-toolchain-versions,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
+  monica-output-escaping,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
+  monica-prepared-changelog-check,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
+  monica-security-modernization,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
+comments[7]{created_at,author,text}:
+  "2026-07-21T19:01:30.917Z",codex-monica-api,Duplicate-safe all-status search and dedupe-audit found no existing API parity item. Monica stable 4.x source exposes statistics places lifeevents reminders/upcoming me/contact and contact work food introduction routes missing or drifted from the current reference.
+  "2026-07-21T19:14:19.373Z",codex-monica-api,"User elevated repo-wide code quality to the highest priority: forbid any except documented necessity; forbid inline/dynamic imports and non-erasable TypeScript syntax; inline trivial single-use helpers; derive external types from installed declarations; enforce source LOC and high-quality docstring coverage; require honest 100/100/100/100 source coverage with efficient non-duplicative tests across unit, integration, functional, smoke, read-only E2E/dogfood, performance, acceptance and PM validation; strengthen mandatory CI quality/security/duplication gates without exclusion-based or synthetic coverage cheating."
+  "2026-07-21T19:31:45.010Z",codex-monica-api,"Re-verified the authoritative Monica 4.x source live on 2026-07-21: head remains 32028ce3ce79cef38df5d27a297e5b20680f0065. routes/api.php plus Place, LifeEvent, Reminder, Avatar, Me controllers/services/resources confirm statistics, places, lifeevents, reminders/upcoming/{month}, POST/DELETE me/contact, PUT contact work/food/introduction/avatar and their request/response fields."
+  "2026-07-21T20:03:51.575Z",codex-monica-api,"Refactored duplicated legacy command handlers for activities, gifts, journal, and reminders onto the typed CRUD execution kernel. Added strict union/integer parsers, exact option-to-API mappings, custom upcoming/photo actions, and focused coverage. Full suite remains green; coverage remediation continues without threshold exclusions or ignore directives."
+  "2026-07-21T21:47:17.504Z",codex-monica-api,"Implemented the stable Monica 4.x parity surface: places and life-events CRUD, public statistics, upcoming reminders, me/contact association, introduction/avatar/work/food profile actions, typed CRUD/attachment kernels, complete help registration, and source-derived API snapshots. Refactored adjacent legacy handlers onto typed shared execution without changing live data."
+  "2026-07-21T22:01:19.225Z",codex-monica-api,"Read-only acceptance is green: 95 actual monica command checks, 42 locally verifiable passes, 53 expected API-dependent failures after an independent unhealthy capability preflight, zero unexplained failures, five mutation guards blocked locally, and private settings restored. The server remains unavailable because Laravel cannot write storage logs; no Monica data was changed."
+  "2026-07-21T22:06:22.969Z",codex-monica-api,"Version policy selected 2026.7.21-2 because one release tag already exists for 2026-07-21; package, lockfile, and PM release metadata are aligned."
+notes[5]{created_at,author,text}:
+  "2026-07-21T19:01:30.917Z",codex-monica-api,The supplied instance currently fails every API request with HTTP 500 because Laravel cannot append storage/logs/laravel-2026-07-21.log and also reports Cloudflare trust-proxy loading failure. Treat this as systemic instance health not 31 unsupported resources; do not store credentials in pm.
+  "2026-07-21T19:14:49.780Z",codex-monica-api,"Decision: coverage, docstrings, LOC, strict TypeScript syntax, duplication, PM lint, and reproducible security/quality checks are release-blocking gates. Existing violations are in scope repo-wide, including pre-existing oversized source and test files."
+  "2026-07-21T19:31:45.949Z",codex-monica-api,"Honest all-source Vitest coverage now blocks release at 52.77% statements, 53.89% branches, 68.43% functions, 52.77% lines with 553 passing tests. Thresholds remain 100/100/100/100; no source exclusions or synthetic coverage bypasses will be used."
+  "2026-07-21T21:47:18.073Z",codex-monica-api,"Verification milestone: 113 Vitest files and 830 tests pass with exact 100% statements, 100% branches, 100% functions, and 100% lines across every src TypeScript file. Repo-wide quality gate covers 247 source/test files, 574/574 documented exports, <=300 executable lines, no explicit any, no inline/dynamic imports, and erasable TypeScript only. jscpd duplication is 4.53% under the 5% gate."
+  "2026-07-21T22:01:20.394Z",codex-monica-api,"Security decision: pin fixed transitive brace-expansion, flatted, js-yaml, and picomatch releases through Bun overrides because current tool dependency ranges retained nine known DoS/prototype-pollution advisories. bun audit now reports zero vulnerabilities and the exact repository gate remains green."
+learnings[4]{created_at,author,text}:
+  "2026-07-21T19:01:30.917Z",codex-monica-api,Documentation-only endpoint coverage can report 100 percent while source-route parity is incomplete; route-source provenance and systemic-failure semantics must be first-class research data.
+  "2026-07-21T19:31:46.832Z",codex-monica-api,"The CLI had broad endpoint wrapper tests but most Commander action bodies and the real HTTP/config runtime were not executed, so previous narrow coverage floors concealed command-layer and client-layer risk."
+  "2026-07-21T21:47:18.663Z",codex-monica-api,"A live E2E harness must distinguish product failures from an unavailable self-hosted instance without hiding either: the configured server returns a Laravel storage/logs permission failure, while write-guard commands prove every attempted mutation is blocked locally before fetch. The report records unavailable commands as expected infrastructure failures and preserves/restores private settings byte-for-byte."
+  "2026-07-21T22:01:21.602Z",codex-monica-api,"Exact-head bot review governance benefits from a single GraphQL inventory that includes conversation comments, submitted reviews, inline threads, resolution state, reactions, and check runs; native reaction/reply/resolve operations make acknowledgement auditable instead of relying on a flat PR summary."
+files[255]{path,scope,note}:
+  .github/workflows/ci.yml,project,Mandatory CI quality gates
+  bun.lock,project,Reproducible Bun dependency graph
+  docs/monica-api-reference.json,project,Stable route inventory
+  package.json,project,Release gate scripts and latest governed tooling
+  scripts/check-source-quality.mjs,project,Repo-wide TypeScript LOC syntax and JSDoc gate
+  scripts/e2e-readonly-commands.ts,project,Read-only and mutation-guard command inventory
+  scripts/e2e-readonly.ts,project,Actual CLI read-only acceptance harness
+  scripts/pr-review-loop.ts,project,Exact-head review inventory reactions replies and thread lifecycle utility
+  src/api/activities.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/addresses.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/audit-logs.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/calls.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/capabilities.ts,project,Capability classification and instance health
+  src/api/client.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/companies.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/contacts.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/conversations.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/debts.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/documents.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/gifts.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/groups.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/index.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/journal.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/life-events.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/notes.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/occupations.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/pet-categories.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/pets.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/photos.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/places.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/reference.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/relationships.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/reminders.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/request-utils.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/statistics.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/tags.ts,project,Typed Monica API command formatter and schema implementation
+  src/api/tasks.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/activities.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/activity-type-categories.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/activity-types.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/addresses.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/agent-runbook.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/agent-tools-shared.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/agent-tools.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research-actions.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research-backlog.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research-probe.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research-shared.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research-summary.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research-types.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/api-research.ts,project,Agent API research surface
+  src/commands/attachment-command.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/audit-logs.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/audit.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/bulk.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/calls.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/command-catalog.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/companies.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/compliance.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config-capability-probe.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config-connection.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config-doctor.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config-output.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config-setup.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config-types.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/config.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/contact-field-types.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/contact-fields.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/contact-profile-actions.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/contact-related-lists.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/contacts.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/conversations.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/countries.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/crud-command.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/currencies.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/debts.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/documents.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/genders.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/gifts.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/github-star.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/global-options.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/groups.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/help-ux.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/index.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/info-capabilities.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/info-instance-profile.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/info-reference.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/info.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/journal.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/life-events.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/notes.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/occupations.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/output-format.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/pet-categories.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/pets.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/photos.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/places.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/relationships.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/reminders.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-example.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-registry-agent.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-registry-api-research-coverage.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-registry-api-research.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-registry-extra.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-registry.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schema-validator.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/schemas.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/search.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/setup.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/statistics.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/tags.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/tasks.ts,project,Typed Monica API command formatter and schema implementation
+  src/commands/user.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/helpers.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/index.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/markdown.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/resources.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/runtime-fields.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/toon.ts,project,Typed Monica API command formatter and schema implementation
+  src/formatters/yaml.ts,project,Typed Monica API command formatter and schema implementation
+  src/index.ts,project,Typed Monica API command formatter and schema implementation
+  src/program.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/activity.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/common.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/company.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/contact-related.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/contact.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/conversation.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/index.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/note.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/pet.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/reference.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/reminder.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/stable-api.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/tag.ts,project,Typed Monica API command formatter and schema implementation
+  src/types/task.ts,project,Typed Monica API command formatter and schema implementation
+  src/utils/capability-cache.ts,project,Typed Monica API command formatter and schema implementation
+  src/utils/settings.ts,project,Typed Monica API command formatter and schema implementation
+  src/utils/versioning.ts,project,Typed Monica API command formatter and schema implementation
+  tests/activities.test.ts,project,Unit integration functional and coverage proof
+  tests/addresses.test.ts,project,Unit integration functional and coverage proof
+  tests/agent-runbook-command.test.ts,project,Unit integration functional and coverage proof
+  tests/agent-tools-command.test.ts,project,Unit integration functional and coverage proof
+  tests/agent-tools-shared.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-actions-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-backlog-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-command-part-2.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-command-part-3.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-command-part-4.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-command-part-5.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-command.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-coverage-command.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-probe-health.test.ts,project,Unit integration functional and coverage proof
+  tests/api-research-shared-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/attachment-command.test.ts,project,Unit integration functional and coverage proof
+  tests/audit-command-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/audit-command.test.ts,project,Unit integration functional and coverage proof
+  tests/audit-logs.test.ts,project,Unit integration functional and coverage proof
+  tests/bulk-command.test.ts,project,Unit integration functional and coverage proof
+  tests/calls.test.ts,project,Unit integration functional and coverage proof
+  tests/capabilities.test.ts,project,Unit integration functional and coverage proof
+  tests/capability-cache-stats-error.test.ts,project,Unit integration functional and coverage proof
+  tests/capability-cache.test.ts,project,Unit integration functional and coverage proof
+  tests/client-config.test.ts,project,Unit integration functional and coverage proof
+  tests/client-readonly-mode.test.ts,project,Unit integration functional and coverage proof
+  tests/client.test.ts,project,Unit integration functional and coverage proof
+  tests/commands-1-part-2.test.ts,project,Unit integration functional and coverage proof
+  tests/commands-1.test.ts,project,Unit integration functional and coverage proof
+  tests/commands-2.test.ts,project,Unit integration functional and coverage proof
+  tests/commands-3-part-2.test.ts,project,Unit integration functional and coverage proof
+  tests/commands-3.test.ts,project,Unit integration functional and coverage proof
+  tests/companies.test.ts,project,Unit integration functional and coverage proof
+  tests/compliance-command.test.ts,project,Unit integration functional and coverage proof
+  tests/config-capability-probe.test.ts,project,Unit integration functional and coverage proof
+  tests/config-command-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/config-command.test.ts,project,Unit integration functional and coverage proof
+  tests/config-connection.test.ts,project,Unit integration functional and coverage proof
+  tests/config-doctor-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/config-output.test.ts,project,Unit integration functional and coverage proof
+  tests/config-setup-interactive.test.ts,project,Unit integration functional and coverage proof
+  tests/config-setup.test.ts,project,Unit integration functional and coverage proof
+  tests/contact-fields-command.test.ts,project,Unit integration functional and coverage proof
+  tests/contact-profile-actions.test.ts,project,Unit integration functional and coverage proof
+  tests/contacts-command-actions.test.ts,project,Unit integration functional and coverage proof
+  tests/contacts-command-crud.test.ts,project,Unit integration functional and coverage proof
+  tests/contacts.test.ts,project,Unit integration functional and coverage proof
+  tests/conversations.test.ts,project,Unit integration functional and coverage proof
+  tests/coverage-contract-edges.test.ts,project,Unit integration functional and coverage proof
+  tests/crud-command.test.ts,project,Unit integration functional and coverage proof
+  tests/crud-resource-commands-a.test.ts,project,Unit integration functional and coverage proof
+  tests/crud-resource-commands-b.test.ts,project,Unit integration functional and coverage proof
+  tests/crud-resource-commands-c.test.ts,project,Unit integration functional and coverage proof
+  tests/crud-resource-commands-d.test.ts,project,Unit integration functional and coverage proof
+  tests/debts.test.ts,project,Unit integration functional and coverage proof
+  tests/documents.test.ts,project,Unit integration functional and coverage proof
+  tests/e2e-output-validation.test.ts,project,Unit integration functional and coverage proof
+  tests/e2e-readonly-commands.test.ts,project,Unit integration functional and coverage proof
+  tests/formatters-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/formatters-part-2.test.ts,project,Unit integration functional and coverage proof
+  tests/formatters.test.ts,project,Unit integration functional and coverage proof
+  tests/gifts.test.ts,project,Unit integration functional and coverage proof
+  tests/github-star-defaults.test.ts,project,Unit integration functional and coverage proof
+  tests/github-star.test.ts,project,Unit integration functional and coverage proof
+  tests/global-options.test.ts,project,Unit integration functional and coverage proof
+  tests/groups-command.test.ts,project,Unit integration functional and coverage proof
+  tests/groups.test.ts,project,Unit integration functional and coverage proof
+  tests/help-tree.test.ts,project,Unit integration functional and coverage proof
+  tests/help-ux.test.ts,project,Unit integration functional and coverage proof
+  tests/index.test.ts,project,Unit integration functional and coverage proof
+  tests/info-agent-context.test.ts,project,Unit integration functional and coverage proof
+  tests/info-capabilities-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/info-capabilities-source.test.ts,project,Unit integration functional and coverage proof
+  tests/info-command-catalog.test.ts,project,Unit integration functional and coverage proof
+  tests/info-command-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/info-command-ux.test.ts,project,Unit integration functional and coverage proof
+  tests/info-instance-profile.test.ts,project,Unit integration functional and coverage proof
+  tests/journal.test.ts,project,Unit integration functional and coverage proof
+  tests/mocks/command-helpers.ts,project,Unit integration functional and coverage proof
+  tests/notes.test.ts,project,Unit integration functional and coverage proof
+  tests/occupations.test.ts,project,Unit integration functional and coverage proof
+  tests/pet-categories-command.test.ts,project,Unit integration functional and coverage proof
+  tests/pet-categories.test.ts,project,Unit integration functional and coverage proof
+  tests/pets.test.ts,project,Unit integration functional and coverage proof
+  tests/photos.test.ts,project,Unit integration functional and coverage proof
+  tests/program-format-validation.test.ts,project,Unit integration functional and coverage proof
+  tests/program-global-flags.test.ts,project,Unit integration functional and coverage proof
+  tests/program-pagination-validation.test.ts,project,Unit integration functional and coverage proof
+  tests/program-version-fallback.test.ts,project,Unit integration functional and coverage proof
+  tests/reference-list-commands.test.ts,project,Unit integration functional and coverage proof
+  tests/reference-part-2.test.ts,project,Unit integration functional and coverage proof
+  tests/reference.test.ts,project,Unit integration functional and coverage proof
+  tests/relationships-command-actions.test.ts,project,Unit integration functional and coverage proof
+  tests/relationships-command.test.ts,project,Unit integration functional and coverage proof
+  tests/relationships.test.ts,project,Unit integration functional and coverage proof
+  tests/release-pipeline.test.ts,project,Unit integration functional and coverage proof
+  tests/reminders.test.ts,project,Unit integration functional and coverage proof
+  tests/request-utils.test.ts,project,Unit integration functional and coverage proof
+  tests/schema-example.test.ts,project,Unit integration functional and coverage proof
+  tests/schema-utilities.test.ts,project,Unit integration functional and coverage proof
+  tests/schema-validator.test.ts,project,Unit integration functional and coverage proof
+  tests/schemas-command-creation.test.ts,project,Unit integration functional and coverage proof
+  tests/schemas-command-edge.test.ts,project,Unit integration functional and coverage proof
+  tests/schemas-command.test.ts,project,Unit integration functional and coverage proof
+  tests/search-command.test.ts,project,Unit integration functional and coverage proof
+  tests/settings-filesystem.test.ts,project,Unit integration functional and coverage proof
+  tests/settings.test.ts,project,Unit integration functional and coverage proof
+  tests/setup-command.test.ts,project,Unit integration functional and coverage proof
+  tests/setup.ts,project,Unit integration functional and coverage proof
+  tests/stable-api-commands.test.ts,project,Unit integration functional and coverage proof
+  tests/stable-api-parity.test.ts,project,Unit integration functional and coverage proof
+  tests/tags.test.ts,project,Unit integration functional and coverage proof
+  tests/tasks.test.ts,project,Unit integration functional and coverage proof
+  tests/test-utils.ts,project,Unit integration functional and coverage proof
+  tests/user-command.test.ts,project,Unit integration functional and coverage proof
+  tests/versioning.test.ts,project,Unit integration functional and coverage proof
+tests[6]:
+  - command: bun audit
+    scope: project
+    note: Transitive dependency vulnerability gate
+  - command: "bun run test:coverage"
+    scope: project
+    timeout_seconds: 1800
+    note: Coverage and regression gate
+  - command: "bun run test:e2e:readonly"
+    scope: project
+    timeout_seconds: 1800
+    note: Actual CLI read-only instance proof
+  - command: bun run typecheck && bun run lint && bun run test
+    scope: project
+  - command: "bun run verify:release"
+    scope: project
+    timeout_seconds: 2400
+    note: Production release gate
+  - command: bunx tsc --ignoreConfig --noEmit --target ES2022 --module NodeNext --moduleResolution NodeNext --types node scripts/pr-review-loop.ts
+    scope: project
+    note: Typed review-loop utility gate
+docs[14]{path,scope,note}:
+  docs/api-reference.json,project,API command output compatibility development and release documentation
+  docs/API.md,project,Typed SDK and resource documentation
+  docs/COMMANDS.md,project,API command output compatibility development and release documentation
+  docs/CONFIGURATION.md,project,API command output compatibility development and release documentation
+  docs/DEVELOPMENT.md,project,API command output compatibility development and release documentation
+  docs/FIRST-RELEASE-CHECKLIST.md,project,API command output compatibility development and release documentation
+  docs/INSTALLATION.md,project,API command output compatibility development and release documentation
+  docs/INSTANCE-COMPATIBILITY.md,project,Live instance and systemic failure semantics
+  docs/monica-api-reference.json,project,API command output compatibility development and release documentation
+  docs/OUTPUT-SCHEMAS.md,project,API command output compatibility development and release documentation
+  docs/README.md,project,API command output compatibility development and release documentation
+  docs/RELEASE-MANAGEMENT.md,project,API command output compatibility development and release documentation
+  docs/SECURITY-AUDIT.md,project,API command output compatibility development and release documentation
+  README.md,project,Public usage and release-readiness overview
+body: "Authoritative scope is Monica stable 4.x routes/api.php at commit 32028ce3ce79cef38df5d27a297e5b20680f0065 plus official API docs. Implement missing statistics, places, life events, upcoming reminders, and me-contact association; reconcile contact action route variants; keep all live proof GET-only under read-only mode; preserve schema-valid agent outputs and complete help/docs."

@@ -1,3 +1,4 @@
+/** Describes the pet category data contract. */
 export interface PetCategory {
   id: number;
   object: string;
@@ -5,6 +6,7 @@ export interface PetCategory {
   is_common: boolean;
 }
 
+/** Describes the pet data contract. */
 export interface Pet {
   id: number;
   uuid: string;
@@ -41,12 +43,14 @@ export interface Pet {
   updated_at: string;
 }
 
+/** Describes the pet create input data contract. */
 export interface PetCreateInput {
   contact_id: number;
   name: string;
   pet_category_id: number;
 }
 
+/** Describes the pet update input data contract. */
 export interface PetUpdateInput {
   name?: string;
   pet_category_id?: number;

@@ -1541,13 +1541,13 @@
         },
         "create": {
           "method": "POST",
-          "path": "/reminder",
+          "path": "/reminders",
           "body": {
-            "required": ["title", "next_expected_date", "frequency_type", "contact_id"],
+            "required": ["title", "initial_date", "frequency_type", "contact_id"],
             "properties": {
               "title": { "type": "string", "maxLength": 100000 },
               "description": { "type": "string", "maxLength": 1000000 },
-              "next_expected_date": { "type": "string", "format": "YYYY-MM-DD" },
+              "initial_date": { "type": "string", "format": "YYYY-MM-DD" },
               "frequency_type": { "type": "string", "enum": ["one_time", "week", "month", "year"] },
               "frequency_number": { "type": "integer" },
               "contact_id": { "type": "integer" }
@@ -1575,7 +1575,8 @@
         "frequency_type": "string",
         "frequency_number": "integer|null",
         "last_triggered_date": "string|null",
-        "next_expected_date": "string",
+        "initial_date": "string",
+        "next_expected_date": "string|null",
         "account": "Account",
         "contact": "Contact",
         "created_at": "string",

@@ -22,3 +22,6 @@ export * from './reference';
 export * from './audit-logs';
 export * from './pets';
 export * from './pet-categories';
+export * from './places';
+export * from './life-events';
+export * from './statistics';

@@ -4,14 +4,16 @@ import * as api from '../api';
 import * as fmt from '../formatters';
 import { buildCapabilitySupportIndex, buildCommandCatalog } from './command-catalog';
 import { resolveCommandOutputFormat } from './output-format';
-import { getUnsupportedCommands, parsePositiveInt, resolveCapabilityReportWithSource } from './info-capabilities';
+import {
+  getUnavailableCommands,
+  getUnsupportedCommands,
+  parsePositiveInt,
+  resolveCapabilityReportWithSource,
+} from './info-capabilities';
 import { createInfoInstanceProfileSubcommand } from './info-instance-profile';
+import { attachInfoReferenceSubcommands } from './info-reference';
 function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
-}
-
-function getActionCommand(command?: Command): Command {
-  return command || new Command();
 }
 
 function buildMissingSubcommandMessage(command: Command): string {
@@ -38,6 +40,7 @@ function buildMissingSubcommandMessage(command: Command): string {
   ].join('\n');
 }
 
+/** Creates info command. */
 export function createInfoCommand(): Command {
   const cmd = new Command('info')
     .description('Get information about the Monica instance')
@@ -48,110 +51,7 @@ export function createInfoCommand(): Command {
   });
 
   cmd.addCommand(createInfoInstanceProfileSubcommand());
-
-  cmd
-    .command('me')
-    .description('Get current user info')
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-      try {
-        const result = await api.getUser();
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('genders')
-    .description('List all genders')
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-      try {
-        const result = await api.listGenders();
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('countries')
-    .description('List all countries')
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-      try {
-        const result = await api.listCountries();
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('currencies')
-    .description('List all currencies')
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-
-      try {
-        const result = await api.listCurrencies();
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('activity-types')
-    .description('List all activity types')
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-
-      try {
-        const result = await api.listActivityTypes();
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('relationship-types')
-    .description('List all relationship types')
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-
-      try {
-        const result = await api.listRelationshipTypes();
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('contact-field-types')
-    .description('List all contact field types')
-    .option('-p, --page <page>', 'Page number', parseInt)
-    .option('-l, --limit <limit>', 'Items per page', parseInt)
-    .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
-
-      try {
-        const result = await api.listContactFieldTypes();
-        console.log(fmt.formatPaginatedResponse(result, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
+  attachInfoReferenceSubcommands(cmd);
 
   cmd
     .command('capabilities')
@@ -159,10 +59,10 @@ export function createInfoCommand(): Command {
     .option('--refresh', 'Force capability re-probe instead of using cache')
     .option('--cache-ttl <seconds>', 'Capability cache TTL in seconds (default: 300)', parsePositiveInt)
     .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
+      const format = getOutputFormat(this);
 
       try {
-        const { report, source } = await resolveCapabilityReportWithSource(getActionCommand(this));
+        const { report, source } = await resolveCapabilityReportWithSource(this);
         const generatedAt = report.generatedAt || new Date().toISOString();
 
         if (format === 'json') {
@@ -170,16 +70,14 @@ export function createInfoCommand(): Command {
           return;
         }
 
-        const fields = ['key', 'command', 'supported', 'statusCode', 'message', 'endpoint'];
+        const fields = ['key', 'command', 'state', 'supported', 'statusCode', 'message', 'endpoint'];
         console.log(fmt.formatOutput(report.summary, format));
         console.log('');
         console.log(fmt.formatOutput(report.probes, format, { fields }));
 
         const hints = api.formatCapabilityHints(report);
-        if (hints.length > 0) {
-          console.log('\nCapability notes:');
-          hints.forEach((hint) => console.log(`- ${hint}`));
-        }
+        console.log('\nCapability notes:');
+        hints.forEach((hint) => console.log(`- ${hint}`));
       } catch (error) {
         console.error(fmt.formatError(error as Error));
         process.exit(1);
@@ -192,19 +90,13 @@ export function createInfoCommand(): Command {
     .option('--refresh', 'Force capability re-probe instead of using cache')
     .option('--cache-ttl <seconds>', 'Capability cache TTL in seconds (default: 300)', parsePositiveInt)
     .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
+      const format = getOutputFormat(this);
 
       try {
-        const { report, source } = await resolveCapabilityReportWithSource(getActionCommand(this));
+        const { report, source } = await resolveCapabilityReportWithSource(this);
         const supportedCommands = api.getSupportedCommands(report);
-        const unsupported = report.probes
-          .filter((probe) => !probe.supported)
-          .map((probe) => ({
-            key: probe.key,
-            command: probe.command,
-            statusCode: probe.statusCode,
-            message: probe.message,
-          }));
+        const unsupported = getUnsupportedCommands(report);
+        const unavailable = getUnavailableCommands(report);
         const config = api.getConfig();
         const context = {
           generatedAt: new Date().toISOString(),
@@ -221,7 +113,10 @@ export function createInfoCommand(): Command {
             total: report.summary.total,
             supported: report.summary.supported,
             unsupported: report.summary.unsupported,
+            unavailable: report.summary.unavailable || 0,
+            healthy: report.summary.healthy ?? unavailable.length === 0,
             unsupportedResources: unsupported,
+            unavailableResources: unavailable,
           },
           supportedCommands: {
             total: supportedCommands.length,
@@ -249,10 +144,10 @@ export function createInfoCommand(): Command {
     .option('--refresh', 'Force capability re-probe instead of using cache')
     .option('--cache-ttl <seconds>', 'Capability cache TTL in seconds (default: 300)', parsePositiveInt)
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = getActionCommand(this);
+      const actionCommand = this;
       const format = getOutputFormat(actionCommand);
       try {
-        const root = actionCommand.parent?.parent || actionCommand.parent || actionCommand;
+        const root = actionCommand.parent?.parent ?? actionCommand.parent!;
         const options = actionCommand.opts() as { instanceAware?: boolean };
         let capabilitySource: 'cache' | 'live' | undefined;
         let capabilityGeneratedAt: string | undefined;
@@ -289,9 +184,9 @@ export function createInfoCommand(): Command {
     .option('--refresh', 'Force capability re-probe instead of using cache')
     .option('--cache-ttl <seconds>', 'Capability cache TTL in seconds (default: 300)', parsePositiveInt)
     .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
+      const format = getOutputFormat(this);
       try {
-        const { report, source } = await resolveCapabilityReportWithSource(getActionCommand(this));
+        const { report, source } = await resolveCapabilityReportWithSource(this);
         const commands = api.getSupportedCommands(report);
         const generatedAt = report.generatedAt || new Date().toISOString();
         if (format === 'json') {
@@ -312,9 +207,9 @@ export function createInfoCommand(): Command {
     .option('--refresh', 'Force capability re-probe instead of using cache')
     .option('--cache-ttl <seconds>', 'Capability cache TTL in seconds (default: 300)', parsePositiveInt)
     .action(async function (this: Command): Promise<void> {
-      const format = getOutputFormat(getActionCommand(this));
+      const format = getOutputFormat(this);
       try {
-        const { report, source } = await resolveCapabilityReportWithSource(getActionCommand(this));
+        const { report, source } = await resolveCapabilityReportWithSource(this);
         const commands = getUnsupportedCommands(report);
         const generatedAt = report.generatedAt || new Date().toISOString();
         console.log(fmt.formatOutput({ generatedAt, source, total: commands.length, commands }, format));

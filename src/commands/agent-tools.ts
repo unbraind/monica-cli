@@ -28,6 +28,7 @@ interface ExcludedSafeCommandDescriptor {
   message?: string;
 }
 
+/** Creates agent tools command. */
 export function createAgentToolsCommand(): Command {
   const cmd = new Command('agent-tools')
     .description('Export agent/LLM integration schemas')
@@ -37,7 +38,7 @@ export function createAgentToolsCommand(): Command {
     const format = getOutputFormat(actionCommand);
 
     try {
-      const root = actionCommand.parent?.parent || actionCommand.parent || actionCommand;
+      const root = actionCommand.parent ?? actionCommand;
       const catalog = buildCommandCatalog(root);
 
       const functions: OpenAIFunctionSchema[] = [];
@@ -67,7 +68,7 @@ export function createAgentToolsCommand(): Command {
     const format = getOutputFormat(actionCommand);
 
     try {
-      const root = actionCommand.parent?.parent || actionCommand.parent || actionCommand;
+      const root = actionCommand.parent ?? actionCommand;
       const catalog = buildCommandCatalog(root);
 
       const tools: Array<{ name: string; description: string; input_schema: OpenAIFunctionSchema['parameters'] }> = [];
@@ -101,7 +102,7 @@ export function createAgentToolsCommand(): Command {
     const format = getOutputFormat(actionCommand);
 
     try {
-      const root = actionCommand.parent?.parent || actionCommand.parent || actionCommand;
+      const root = actionCommand.parent?.parent ?? actionCommand.parent!;
       const options = actionCommand.opts() as { instanceAware?: boolean };
 
       let capabilitySource: 'cache' | 'live' | undefined;
@@ -174,39 +175,39 @@ export function createAgentToolsCommand(): Command {
     .command('openai')
     .description('Export OpenAI function calling schemas for all commands')
     .action(async function (this: Command): Promise<void> {
-      await exportOpenAi(this.parent || this);
+      await exportOpenAi(this.parent!);
     });
 
   cmd
     .command('openai-tools')
     .description('Alias for `agent-tools openai`')
     .action(async function (this: Command): Promise<void> {
-      await exportOpenAi(this.parent || this);
+      await exportOpenAi(this.parent!);
     });
 
   cmd
     .command('anthropic')
     .description('Export Anthropic Claude tool definitions for all commands')
     .action(async function (this: Command): Promise<void> {
-      await exportAnthropic(this.parent || this);
+      await exportAnthropic(this.parent!);
     });
 
   cmd
     .command('anthropic-tools')
     .description('Alias for `agent-tools anthropic`')
     .action(async function (this: Command): Promise<void> {
-      await exportAnthropic(this.parent || this);
+      await exportAnthropic(this.parent!);
     });
 
   cmd
     .command('catalog')
     .description('Export command catalog metadata and agent-tool aliases')
     .action(async function (this: Command): Promise<void> {
-      const actionCommand = this.parent || this;
+      const actionCommand = this.parent!;
       const format = getOutputFormat(actionCommand);
 
       try {
-        const root = actionCommand.parent?.parent || actionCommand.parent || actionCommand;
+        const root = actionCommand.parent ?? actionCommand;
         const commandCatalog = buildCommandCatalog(root);
         console.log(fmt.formatOutput({
           generatedAt: new Date().toISOString(),
@@ -245,7 +246,7 @@ export function createAgentToolsCommand(): Command {
       const format = getOutputFormat(actionCommand);
       try {
         const options = actionCommand.opts() as { instanceAware?: boolean };
-        const root = actionCommand.parent?.parent || actionCommand.parent || actionCommand;
+        const root = actionCommand.parent?.parent ?? actionCommand.parent!;
         let capabilitySource: 'cache' | 'live' | undefined;
         let capabilityGeneratedAt: string | undefined;
         let capabilitySupportByCommandRoot: ReturnType<typeof buildCapabilitySupportIndex> | undefined;
@@ -265,7 +266,7 @@ export function createAgentToolsCommand(): Command {
           );
           return {
             name: schema.name,
-            description: node.description || schema.description,
+            description: node.description,
             command: node.fullCommand,
             inputSchema: schema.parameters,
             safety: node.safety,

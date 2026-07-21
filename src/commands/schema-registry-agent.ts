@@ -1,5 +1,6 @@
 import type { OutputSchemaDescriptor } from './schema-registry';
 
+/** Provides the agent output schemas value. */
 export const AGENT_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
   {
     id: 'agent-runbook',

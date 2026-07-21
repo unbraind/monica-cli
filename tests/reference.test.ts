@@ -270,36 +270,4 @@ describe('reference API', () => {
       expect(mockDel).toHaveBeenCalledWith('/contactfields/1');
     });
   });
-
-  describe('Compliance', () => {
-    it('listCompliance calls correct endpoint', async () => {
-      mockGet.mockResolvedValue({ data: [], meta: {} });
-      await listCompliance();
-      expect(mockGet).toHaveBeenCalledWith('/compliance', undefined);
-    });
-
-    it('getCompliance calls correct endpoint', async () => {
-      mockGet.mockResolvedValue({ data: { id: 1 } });
-      await getCompliance(1);
-      expect(mockGet).toHaveBeenCalledWith('/compliance/1');
-    });
-
-    it('getUserComplianceStatus calls correct endpoint', async () => {
-      mockGet.mockResolvedValue({ data: [] });
-      await getUserComplianceStatus();
-      expect(mockGet).toHaveBeenCalledWith('/me/compliance');
-    });
-
-    it('getUserComplianceStatusForTerm calls correct endpoint', async () => {
-      mockGet.mockResolvedValue({ data: { signed: true } });
-      await getUserComplianceStatusForTerm(1);
-      expect(mockGet).toHaveBeenCalledWith('/me/compliance/1');
-    });
-
-    it('signCompliance calls correct endpoint', async () => {
-      mockPost.mockResolvedValue({ data: { signed: true } });
-      await signCompliance({ ip_address: '127.0.0.1' });
-      expect(mockPost).toHaveBeenCalledWith('/me/compliance', { ip_address: '127.0.0.1' });
-    });
-  });
 });

@@ -1,86 +1,69 @@
-import { Command } from 'commander';
-import type { OutputFormat } from '../types';
+import type { Command } from 'commander';
+import { Command as CommanderCommand } from 'commander';
 import * as api from '../api';
 import * as fmt from '../formatters';
+import { runCommandAction } from './crud-command';
+import { parsePositiveInteger } from './global-options';
+import { resolveCommandOutputFormat } from './output-format';
 
+async function outputCurrentUser(command: Command): Promise<void> {
+  await runCommandAction(async () => {
+    const result = await api.getUser();
+    console.log(fmt.formatOutput(result.data, resolveCommandOutputFormat(command)));
+  });
+}
+
+/** Build current-user, compliance, and contact-association commands. */
 export function createUserCommand(): Command {
-  const cmd = new Command('user')
+  const command = new CommanderCommand('user')
     .description('Get current user information')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon');
 
-  const outputCurrentUser = async (cmdParent: Command): Promise<void> => {
-    const parentOpts = cmdParent.opts();
-    const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
+  for (const [name, description] of [
+    ['get', 'Get current user information'],
+    ['me', 'Alias for user get'],
+    ['show', 'Alias for user get'],
+  ]) {
+    command.command(name).description(description)
+      .action(async function (this: Command): Promise<void> { await outputCurrentUser(this); });
+  }
 
-    try {
-      const result = await api.getUser();
-      console.log(fmt.formatOutput(result.data, format));
-    } catch (error) {
-      console.error(fmt.formatError(error as Error));
-      process.exit(1);
-    }
-  };
-
-  cmd
-    .command('get')
-    .description('Get current user information')
-    .action(async (_options, cmdParent) => {
-      await outputCurrentUser(cmdParent);
+  command.command('compliance').description('Get compliance status for current user')
+    .option('-i, --id <id>', 'Get status for a specific compliance ID', parsePositiveInteger)
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
+        const id = (this.opts() as { id?: number }).id;
+        const result = id === undefined
+          ? await api.getUserComplianceStatus()
+          : await api.getUserComplianceStatusForTerm(id);
+        console.log(fmt.formatOutput(result.data, resolveCommandOutputFormat(this)));
+      });
     });
 
-  cmd
-    .command('me')
-    .description('Alias for user get')
-    .action(async (_options, cmdParent) => {
-      await outputCurrentUser(cmdParent);
+  command.command('set-contact <contact-id>')
+    .description('Associate an existing contact with the authenticated user')
+    .action(async function (this: Command, contactId: string): Promise<void> {
+      await runCommandAction(async () => {
+        const result = await api.setMeContact(parsePositiveInteger(contactId));
+        console.log(fmt.formatOutput(result, resolveCommandOutputFormat(this)));
+      });
     });
 
-  cmd
-    .command('show')
-    .description('Alias for user get')
-    .action(async (_options, cmdParent) => {
-      await outputCurrentUser(cmdParent);
+  command.command('unset-contact').description('Remove the authenticated user contact association')
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
+        console.log(fmt.formatOutput(await api.unsetMeContact(), resolveCommandOutputFormat(this)));
+      });
     });
 
-  cmd
-    .command('compliance')
-    .description('Get compliance status for current user')
-    .option('-i, --id <id>', 'Get status for specific compliance ID', parseInt)
-    .action(async (options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        if (options.id) {
-          const result = await api.getUserComplianceStatusForTerm(options.id);
-          console.log(fmt.formatOutput(result.data, format));
-        } else {
-          const result = await api.getUserComplianceStatus();
-          console.log(fmt.formatOutput(result.data, format));
-        }
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
-    });
-
-  cmd
-    .command('sign-compliance')
-    .description('Sign the latest compliance policy')
+  command.command('sign-compliance').description('Sign the latest compliance policy')
     .requiredOption('--ip <ip>', 'IP address')
-    .action(async (options, cmdParent) => {
-      const parentOpts = cmdParent.opts();
-      const format = fmt.resolveOutputFormat(parentOpts.format as OutputFormat);
-      
-      try {
-        const result = await api.signCompliance({ ip_address: options.ip });
+    .action(async function (this: Command): Promise<void> {
+      await runCommandAction(async () => {
+        const result = await api.signCompliance({ ip_address: (this.opts() as { ip: string }).ip });
         console.log(fmt.formatSuccess('Compliance signed'));
-        console.log(fmt.formatOutput(result.data, format));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
+        console.log(fmt.formatOutput(result.data, resolveCommandOutputFormat(this)));
+      });
     });
-
-  return cmd;
+  return command;
 }

@@ -69,7 +69,7 @@ function runJson(command: string): unknown | null {
     return null;
   }
 }
-function isExpectedFailure(result: RunResult): boolean {
+function isExpectedFailure(result: RunResult, command: string, instanceUnavailable: boolean): boolean {
   if (!FAIL_ON_TIMEOUT && result.error?.toLowerCase().includes('etimedout')) {
     return true;
   }
@@ -77,7 +77,12 @@ function isExpectedFailure(result: RunResult): boolean {
     'HTTP 404',
     'Read-only mode enabled',
     'Global contact field listing is unavailable on this Monica instance',
+    'storage/logs/',
+    'Failed to open stream: Permission denied',
   ];
+  const transportFailure = result.stderr.includes('Request timed out')
+    || result.stderr.includes('Connection to ');
+  if (instanceUnavailable && (command.includes(' config test') || transportFailure)) return true;
   return expectedPatterns.some((pattern) => result.stderr.includes(pattern));
 }
 function validateCommandOutput(check: CommandCheck, result: RunResult): string | null {
@@ -125,6 +130,11 @@ function restoreSettingsSnapshot(filePath: string, snapshot: SettingsSnapshot): 
 }
 function runChecks(): number {
   const baseFlags = `--json --request-timeout-ms ${REQUEST_TIMEOUT_MS}`;
+  const capabilityPayload = runJson(`monica ${baseFlags} info capabilities --refresh`) as {
+    summary?: { healthy?: boolean; unavailable?: number };
+  } | null;
+  const instanceUnavailable = capabilityPayload?.summary?.healthy === false
+    || (capabilityPayload?.summary?.unavailable ?? 0) > 0;
   const contactPayload = runJson(`monica ${baseFlags} contacts list --limit 1`) as { data?: Array<{ id?: number }> } | null;
   const contactId = contactPayload?.data?.[0]?.id ?? null;
   const relationshipTypesPayload = runJson(`monica ${baseFlags} relationships types`) as { data?: Array<{ id?: number }> } | Array<{ id?: number }> | null;
@@ -183,7 +193,7 @@ function runChecks(): number {
       console.log(`PASS|${check.command}`);
       return;
     }
-    if (isExpectedFailure(result)) {
+    if (isExpectedFailure(result, check.command, instanceUnavailable)) {
       summary.expectedFailures += 1;
       const detail = sanitizeDetail(result.error ? `${result.stderr} ${result.error}`.trim() : result.stderr);
       commandResults.push({

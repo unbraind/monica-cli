@@ -1,5 +1,6 @@
 import { getDefaultFields } from './helpers';
 
+/** Formats markdown. */
 export function formatMarkdown<T>(data: T, fields?: string[]): string {
   if (Array.isArray(data)) return formatMarkdownTable(data, fields);
   if (typeof data === 'object' && data !== null) return formatMarkdownObject(data as Record<string, unknown>, fields);

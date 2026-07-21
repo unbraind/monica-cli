@@ -3,6 +3,7 @@ import { stdin as input, stdout as output } from 'process';
 import type { MonicaConfig } from '../types';
 import { parseOutputFormat } from './global-options';
 
+/** Describes the config setup options data contract. */
 export interface ConfigSetupOptions {
   apiUrl?: string;
   apiKey?: string;
@@ -45,9 +46,6 @@ function readSetupEnvDefaults(): Partial<MonicaConfig> {
 }
 
 function validateApiKey(apiKey: string): void {
-  if (!apiKey.trim()) {
-    throw new Error('Invalid API key: value cannot be empty.');
-  }
   if (/\s/u.test(apiKey)) {
     throw new Error('Invalid API key: value must not contain whitespace.');
   }
@@ -62,6 +60,7 @@ function validateOptionalCredentials(config: Partial<MonicaConfig>): void {
   }
 }
 
+/** Normalizes api url. */
 export function normalizeApiUrl(rawUrl: string): string {
   const trimmed = rawUrl.trim().replace(/\/$/, '');
   if (!trimmed) return trimmed;
@@ -96,7 +95,7 @@ async function promptForValue(
   const rl = createInterface({ input, output });
   try {
     const hidden = options?.hidden ?? false;
-    const suffix = fallback ? ` [${hidden ? 'saved' : fallback}]` : '';
+    const suffix = fallback ? ` [${fallback}]` : '';
     const mutableRl = rl as typeof rl & {
       stdoutMuted?: boolean;
       _writeToOutput?: (value: string) => void;
@@ -128,11 +127,11 @@ async function promptForBoolean(
   question: string,
   defaultValue: boolean
 ): Promise<boolean> {
-  const defaultLabel = defaultValue ? 'Y/n' : 'y/N';
-  const answer = await promptForValue(`${question} (${defaultLabel})`);
+  const answer = await promptForValue(`${question} (Y/n)`);
   return parseBooleanAnswer(answer || '', defaultValue);
 }
 
+/** Resolves setup config. */
 export async function resolveSetupConfig(
   options: ConfigSetupOptions,
   existing: Partial<MonicaConfig>
@@ -202,7 +201,7 @@ export async function resolveSetupConfig(
   }
   if (canPrompt && !resolved.defaultFormat) {
     const defaultFormat = await promptForValue('Default output format (toon|json|yaml|table|md)', existing.defaultFormat ?? 'toon');
-    if (defaultFormat) resolved.defaultFormat = parseOutputFormat(defaultFormat);
+    resolved.defaultFormat = parseOutputFormat(defaultFormat as string);
   }
   if (canPrompt && resolved.readOnlyMode === undefined) {
     const readOnly = await promptForBoolean('Enable read-only safety mode', existing.readOnlyMode ?? true);

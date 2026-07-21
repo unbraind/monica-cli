@@ -2,6 +2,21 @@
 
 TypeScript API documentation for monica-cli.
 
+The stable API inventory is derived from Monica's maintained `4.x` API routes and controllers. The checked-in machine-readable snapshots are [`api-reference.json`](./api-reference.json) and [`monica-api-reference.json`](./monica-api-reference.json); refresh or inspect them with `monica api-research`. Source research is intentionally read-only.
+
+## Monica 4.x parity additions
+
+The public TypeScript surface includes stable resource families and profile actions that older generated API documentation can omit:
+
+- Places: `listPlaces`, `listAllPlaces`, `getPlace`, `createPlace`, `updatePlace`, `deletePlace`
+- Life events: `listLifeEvents`, `listAllLifeEvents`, `getLifeEvent`, `createLifeEvent`, `updateLifeEvent`, `deleteLifeEvent`
+- Public statistics: `getInstanceStatistics`
+- Upcoming reminders: `listUpcomingReminders`
+- Current-user contact: `setMeContact`, `unsetMeContact`
+- Contact profile: `updateContactIntroduction`, `updateContactFoodPreferences`, `updateContactAvatar`, `updateContactCareer`, `setContactAvatar`, `deleteContactAvatar`
+
+All write methods honor the client-wide read-only guard before issuing a request.
+
 ## Installation
 
 ```bash

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { emptyPaginatedResponse } from './test-utils';
 
 vi.mock('../src/api/client', () => ({
   get: vi.fn(),
@@ -24,7 +25,7 @@ describe('reminders API', () => {
 
   describe('listReminders', () => {
     it('calls GET /reminders with params', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await reminders.listReminders({ page: 1, limit: 10 });
@@ -53,7 +54,7 @@ describe('reminders API', () => {
       
       const input = {
         title: 'Test reminder',
-        next_expected_date: '2024-06-15',
+        initial_date: '2024-06-15',
         frequency_type: 'year' as const,
         contact_id: 1,
       };
@@ -71,7 +72,7 @@ describe('reminders API', () => {
       
       const input = {
         title: 'Updated reminder',
-        next_expected_date: '2024-06-15',
+        initial_date: '2024-06-15',
         frequency_type: 'month' as const,
         contact_id: 1,
       };
@@ -95,7 +96,7 @@ describe('reminders API', () => {
 
   describe('listContactReminders', () => {
     it('calls GET /contacts/:id/reminders', async () => {
-      const mockResponse = { data: [], links: {} as any, meta: {} as any };
+      const mockResponse = emptyPaginatedResponse();
       mockGet.mockResolvedValue(mockResponse);
       
       const result = await reminders.listContactReminders(1);

@@ -12,11 +12,12 @@ import type {
   ApiResearchSummaryOptions,
   ApiResearchSummaryPayload,
 } from './api-research-types';
+import { getCapabilityState } from '../api';
 
 function normalizeCommandRoot(command: string): string {
   const trimmed = command.trim().toLowerCase();
   const [root] = trimmed.split(/\s+/u);
-  return root || trimmed;
+  return root;
 }
 
 function normalizeCommand(value: string): string {
@@ -46,6 +47,7 @@ function validateSummaryFilters(options: {
   }
 }
 
+/** Builds summary payload. */
 export async function buildSummaryPayload(
   options: ApiResearchSummaryOptions,
   actionCommand: Command
@@ -70,7 +72,13 @@ export async function buildSummaryPayload(
       return acc;
     }, {});
 
-  let instanceCapabilities: { enabled: boolean; source?: 'cache' | 'live'; generatedAt?: string } = { enabled: false };
+  let instanceCapabilities: {
+    enabled: boolean;
+    source?: 'cache' | 'live';
+    generatedAt?: string;
+    healthy?: boolean;
+    unavailable?: number;
+  } = { enabled: false };
   let commandSupport: {
     total: number;
     supported: number;
@@ -86,8 +94,11 @@ export async function buildSummaryPayload(
       const exactCommand = normalizeCommand(resource.cliCommand);
       const probe = supportByCommand.get(exactCommand) || supportByCommandRoot.get(normalizeCommandRoot(resource.cliCommand));
       if (!probe) return;
+      const state = getCapabilityState(probe);
+      if (state === 'unavailable') return;
       resource.instanceSupport = {
-        supportedOnInstance: probe.supported,
+        supportedOnInstance: probe.supported === true,
+        state,
         statusCode: probe.statusCode,
         endpoint: probe.endpoint,
         message: probe.message,
@@ -97,11 +108,14 @@ export async function buildSummaryPayload(
       enabled: true,
       source: capabilityResult.source,
       generatedAt: capabilityResult.report.generatedAt,
+      healthy: capabilityResult.report.summary.healthy ?? true,
+      unavailable: capabilityResult.report.summary.unavailable ?? 0,
     };
 
     const commandSupportByRoot = capabilityResult.report.probes.reduce<Map<string, boolean>>((acc, probe) => {
+      if (getCapabilityState(probe) === 'unavailable') return acc;
       const root = normalizeCommandRoot(probe.command);
-      acc.set(root, (acc.get(root) ?? false) || probe.supported);
+      acc.set(root, (acc.get(root) ?? false) || probe.supported === true);
       return acc;
     }, new Map());
     const supportedCommands = Array.from(commandSupportByRoot.entries())
@@ -178,6 +192,7 @@ export async function buildSummaryPayload(
   };
 }
 
+/** Builds coverage payload. */
 export function buildCoveragePayload(summary: ApiResearchSummaryPayload): ApiResearchCoveragePayload {
   const readOnlyActionPlan = buildActionsPayload(buildBacklogPayload(summary), { readOnlyOnly: true }).commands;
   const recommendedNextCommands: string[] = [];

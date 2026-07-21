@@ -234,4 +234,19 @@ describe('github star startup hook', () => {
     expect(runGh).not.toHaveBeenCalled();
     expect(saveSettings).not.toHaveBeenCalled();
   });
+
+  it('starts from empty settings when no settings file is available', async () => {
+    const saveSettings = vi.fn();
+    await maybePromptGitHubStarOnCliRun(
+      ['node', 'monica', 'contacts', 'list'],
+      {
+        loadSettings: () => null,
+        saveSettings,
+        hasPromptTty: () => false,
+        runGh: () => ({ success: false }),
+        askYesNo: async () => true,
+      },
+    );
+    expect(saveSettings).not.toHaveBeenCalled();
+  });
 });

@@ -1,5 +1,12 @@
 {
   "version": "v1",
+  "generated": "2026-07-21",
+  "source": {
+    "repository": "monicahq/monica",
+    "branch": "4.x",
+    "commit": "32028ce3ce79cef38df5d27a297e5b20680f0065",
+    "routeFile": "routes/api.php"
+  },
   "baseUrl": "https://app.monicahq.com/api",
   "authentication": {
     "type": "Bearer Token",
@@ -20,6 +27,45 @@
     "headers": ["X-RateLimit-Limit", "X-RateLimit-Remaining", "Retry-After"]
   },
   "resources": {
+    "statistics": {
+      "endpoints": [
+        {"method": "GET", "path": "/statistics", "description": "Get public instance statistics when enabled", "response": "InstanceStatistics[]"}
+      ]
+    },
+    "places": {
+      "endpoints": [
+        {"method": "GET", "path": "/places", "description": "List account places", "response": "PaginatedResponse<Place>"},
+        {"method": "GET", "path": "/places/:id", "description": "Get a place", "response": "Place"},
+        {"method": "POST", "path": "/places", "description": "Create a place", "response": "Place"},
+        {"method": "PUT", "path": "/places/:id", "description": "Update a place", "response": "Place"},
+        {"method": "DELETE", "path": "/places/:id", "description": "Delete a place", "response": {"deleted": "boolean", "id": "integer"}}
+      ]
+    },
+    "lifeEvents": {
+      "endpoints": [
+        {"method": "GET", "path": "/lifeevents", "description": "List account life events", "response": "PaginatedResponse<LifeEvent>"},
+        {"method": "GET", "path": "/lifeevents/:id", "description": "Get a life event", "response": "LifeEvent"},
+        {"method": "POST", "path": "/lifeevents", "description": "Create a life event", "response": "LifeEvent"},
+        {"method": "PUT", "path": "/lifeevents/:id", "description": "Update a life event", "response": "LifeEvent"},
+        {"method": "DELETE", "path": "/lifeevents/:id", "description": "Delete a life event", "response": {"deleted": "boolean", "id": "integer"}}
+      ]
+    },
+    "petCategories": {
+      "endpoints": [
+        {"method": "GET", "path": "/petcategories", "description": "List pet categories", "response": "PaginatedResponse<PetCategory>"},
+        {"method": "GET", "path": "/petcategories/:id", "description": "Get a pet category", "response": "PetCategory"}
+      ]
+    },
+    "pets": {
+      "endpoints": [
+        {"method": "GET", "path": "/pets", "description": "List account pets", "response": "PaginatedResponse<Pet>"},
+        {"method": "GET", "path": "/contacts/:id/pets", "description": "List pets for a contact", "response": "PaginatedResponse<Pet>"},
+        {"method": "GET", "path": "/pets/:id", "description": "Get a pet", "response": "Pet"},
+        {"method": "POST", "path": "/pets", "description": "Create a pet", "response": "Pet"},
+        {"method": "PUT", "path": "/pets/:id", "description": "Update a pet", "response": "Pet"},
+        {"method": "DELETE", "path": "/pets/:id", "description": "Delete a pet", "response": {"deleted": "boolean", "id": "integer"}}
+      ]
+    },
     "activities": {
       "endpoints": [
         {
@@ -397,14 +443,17 @@
         },
         {
           "method": "PUT",
-          "path": "/contacts/:id/career",
-          "description": "Update contact career",
+          "path": "/contacts/:id/work",
+          "description": "Update contact work information",
           "input": {
             "job": {"type": "string", "required": false},
             "company": {"type": "string", "required": false}
           },
           "response": "Contact"
         },
+        {"method": "PUT", "path": "/contacts/:id/food", "description": "Update contact food preferences", "response": "Contact"},
+        {"method": "PUT", "path": "/contacts/:id/introduction", "description": "Update how the contact was introduced", "response": "Contact"},
+        {"method": "PUT", "path": "/contacts/:id/avatar", "description": "Update avatar source", "response": "Contact"},
         {
           "method": "DELETE",
           "path": "/contacts/:id",
@@ -1098,6 +1147,7 @@
     },
     "reminders": {
       "endpoints": [
+        {"method": "GET", "path": "/reminders/upcoming/:month", "description": "List upcoming reminders for a month offset", "response": "ReminderOutbox[]"},
         {
           "method": "GET",
           "path": "/reminders",
@@ -1124,7 +1174,7 @@
           "input": {
             "title": {"type": "string", "required": true, "maxLength": 100000},
             "description": {"type": "string", "required": false, "maxLength": 1000000},
-            "next_expected_date": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "initial_date": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
             "frequency_type": {"type": "string", "required": true, "enum": ["one_time", "week", "month", "year"]},
             "frequency_number": {"type": "integer", "required": false},
             "contact_id": {"type": "integer", "required": true}
@@ -1263,7 +1313,9 @@
           "path": "/me",
           "description": "Get current authenticated user",
           "response": "User"
-        }
+        },
+        {"method": "POST", "path": "/me/contact", "description": "Associate a contact with the authenticated user"},
+        {"method": "DELETE", "path": "/me/contact", "description": "Remove the authenticated user contact association"}
       ]
     }
   },

@@ -31,7 +31,7 @@ function evaluateCoverageGate(
     reasons.push(`unmapped resources detected: ${payload.cliMapping.unmappedResources}`);
   }
   if (failOnUnsupported && (payload.commandSupport?.unsupported || 0) > 0) {
-    reasons.push(`unsupported commands detected: ${payload.commandSupport?.unsupported || 0}`);
+    reasons.push(`unsupported commands detected: ${payload.commandSupport!.unsupported}`);
   }
   return {
     enabled: failOnUnmapped || failOnUnsupported,
@@ -42,6 +42,7 @@ function evaluateCoverageGate(
   };
 }
 
+/** Creates api research command. */
 export function createApiResearchCommand(): Command {
   const cmd = new Command('api-research')
     .description('Summarize Monica API resource/endpoint coverage for agent planning')

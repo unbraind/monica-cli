@@ -1,23 +1,29 @@
 import type { MonicaApiError } from './client';
 import { get } from './client';
 
+/** Describes the capability probe data contract. */
 export interface CapabilityProbe {
   key: string;
   command: string;
   endpoint: string;
-  supported: boolean;
+  supported: boolean | null;
   nativeSupported?: boolean;
   fallbackSupported?: boolean;
   statusCode: number;
   message: string;
+  state?: 'supported' | 'unsupported' | 'unavailable';
 }
 
+/** Describes the capability summary data contract. */
 export interface CapabilitySummary {
   total: number;
   supported: number;
   unsupported: number;
+  unavailable?: number;
+  healthy?: boolean;
 }
 
+/** Describes the capability report data contract. */
 export interface CapabilityReport {
   generatedAt: string;
   summary: CapabilitySummary;
@@ -31,13 +37,24 @@ interface CapabilityTarget {
   fallbackHint?: string;
 }
 
+/** Gets capability state. */
+export function getCapabilityState(probe: CapabilityProbe): 'supported' | 'unsupported' | 'unavailable' {
+  if (probe.state) return probe.state;
+  if (probe.supported) return 'supported';
+  if (probe.statusCode === 404 || probe.statusCode === 405) return 'unsupported';
+  return 'unavailable';
+}
+
 const CAPABILITY_TARGETS: CapabilityTarget[] = [
+  { key: 'statistics', command: 'statistics get', endpoint: '/statistics' },
   { key: 'contacts', command: 'contacts list', endpoint: '/contacts?limit=1' },
   { key: 'activities', command: 'activities list', endpoint: '/activities?limit=1' },
   { key: 'notes', command: 'notes list', endpoint: '/notes?limit=1' },
   { key: 'tasks', command: 'tasks list', endpoint: '/tasks?limit=1' },
   { key: 'reminders', command: 'reminders list', endpoint: '/reminders?limit=1' },
+  { key: 'lifeEvents', command: 'life-events list', endpoint: '/lifeevents?limit=1' },
   { key: 'companies', command: 'companies list', endpoint: '/companies?limit=1' },
+  { key: 'places', command: 'places list', endpoint: '/places?limit=1' },
   { key: 'calls', command: 'calls list', endpoint: '/calls?limit=1' },
   { key: 'gifts', command: 'gifts list', endpoint: '/gifts?limit=1' },
   { key: 'debts', command: 'debts list', endpoint: '/debts?limit=1' },
@@ -111,6 +128,7 @@ async function probeTarget(target: CapabilityTarget): Promise<CapabilityProbe> {
       fallbackSupported: false,
       statusCode: 200,
       message: 'OK',
+      state: 'supported',
     };
   } catch (error) {
     const details = getErrorDetails(error);
@@ -127,17 +145,25 @@ async function probeTarget(target: CapabilityTarget): Promise<CapabilityProbe> {
       fallbackSupported,
       statusCode: details.statusCode,
       message,
+      state: fallbackSupported ? 'supported'
+        : details.statusCode === 404 || details.statusCode === 405 ? 'unsupported'
+          : 'unavailable',
     };
   }
 }
 
+/** Probes api capabilities. */
 export async function probeApiCapabilities(): Promise<CapabilityReport> {
   const probes = await Promise.all(CAPABILITY_TARGETS.map(probeTarget));
-  const supported = probes.filter((probe) => probe.supported).length;
+  const supported = probes.filter((probe) => getCapabilityState(probe) === 'supported').length;
+  const unsupported = probes.filter((probe) => getCapabilityState(probe) === 'unsupported').length;
+  const unavailable = probes.filter((probe) => getCapabilityState(probe) === 'unavailable').length;
   const summary: CapabilitySummary = {
     total: probes.length,
     supported,
-    unsupported: probes.length - supported,
+    unsupported,
+    unavailable,
+    healthy: unavailable === 0,
   };
 
   return {
@@ -147,21 +173,28 @@ export async function probeApiCapabilities(): Promise<CapabilityReport> {
   };
 }
 
+/** Formats capability hints. */
 export function formatCapabilityHints(report: CapabilityReport): string[] {
-  const unsupported = report.probes.filter((probe) => !probe.supported);
-  if (unsupported.length === 0) {
+  const unavailable = report.probes.filter((probe) => getCapabilityState(probe) === 'unavailable');
+  const unsupported = report.probes.filter((probe) => getCapabilityState(probe) === 'unsupported');
+  if (unavailable.length === 0 && unsupported.length === 0) {
     return ['All probed Monica API resources are available on this instance.'];
   }
 
-  return unsupported.map((probe) => {
+  const unavailableHints = unavailable.map((probe) => {
+    const status = probe.statusCode ? `HTTP ${probe.statusCode}` : 'request failed';
+    return `${probe.command}: ${status} (instance unavailable; endpoint support is unknown)`;
+  });
+  return [...unavailableHints, ...unsupported.map((probe) => {
     const status = probe.statusCode ? `HTTP ${probe.statusCode}` : 'request failed';
     return `${probe.command}: ${status} (${probe.message})`;
-  });
+  })];
 }
 
+/** Gets supported commands. */
 export function getSupportedCommands(report: CapabilityReport): string[] {
   return report.probes
-    .filter((probe) => probe.supported)
+    .filter((probe) => getCapabilityState(probe) === 'supported')
     .map((probe) => probe.command)
     .sort((a, b) => a.localeCompare(b));
 }
