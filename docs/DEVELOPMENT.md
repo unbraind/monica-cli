@@ -53,6 +53,7 @@ MONICA_API_KEY=your-jwt-token
 | `bun run test:watch` | Watch mode for tests |
 | `bun run test:coverage` | Run tests with coverage |
 | `bun run typecheck` | Type check without emitting |
+| `bun run typecheck:scripts` | Type check every TypeScript operational and review script |
 | `bun run lint` | Run baseline ESLint checks on `src/**/*.ts` |
 | `bun run lint:source-quality` | Enforce no explicit `any`, no dynamic/inline imports, erasable TypeScript, <=300 code lines in source/tests, and JSDoc on every source export |
 | `bun run lint:duplication` | Enforce the repository duplication ceiling with jscpd |

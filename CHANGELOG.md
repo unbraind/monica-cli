@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Complete Monica 4.x API parity and resilient instance diagnostics ([monica-api-4x-parity](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-api-4x-parity.toon))
+
+### Other
+
+- Deliver Monica stable 4.x API parity ([monica-api-4x-parity-plan](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/plans/monica-api-4x-parity-plan.toon))
+
 ## 2026.7.21 - 2026-07-21
 
 ### Added

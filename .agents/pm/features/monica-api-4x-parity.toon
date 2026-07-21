@@ -2,13 +2,13 @@ id: monica-api-4x-parity
 title: Complete Monica 4.x API parity and resilient instance diagnostics
 description: "Align monica-cli with Monica stable 4.x routes, expose missing resources and actions, and prevent systemic server failures from being misreported as endpoint incompatibility."
 type: Feature
-status: in_progress
+status: closed
 priority: 0
 tags[7]: agent-ux,api,diagnostics,documentation,monica-4x,read-only-safety,typescript
 created_at: "2026-07-21T19:01:30.917Z"
-updated_at: "2026-07-21T22:18:20.835Z"
+updated_at: "2026-07-21T22:27:05.122Z"
 deadline: "2026-07-24T19:01:30.917Z"
-assignee: codex-monica-api
+closed_at: "2026-07-21T22:25:03.996Z"
 author: codex-monica-api
 estimated_minutes: 720
 acceptance_criteria: "Every stable 4.x API route has an intentional CLI/API mapping or documented compatibility decision; Capability and research probes distinguish endpoint unsupported responses from systemic authentication/server failures; New commands provide detailed help, default TOON, valid JSON/YAML/Markdown/table output where applicable, and strict TypeScript types; All code files are at most 300 physical lines and release/coverage/read-only E2E gates pass without mutating Monica data"
@@ -25,14 +25,12 @@ risk: high
 confidence: 90
 sprint: 2026-07-api-parity
 release: 2026.7.21-2
-dependencies[7]{id,kind,created_at,author,source_kind}:
+resolution: "Completed stable Monica 4.x route parity and hardened CLI diagnostics, agent output, release governance, and read-only safety."
+expected_result: "Every stable route has an intentional typed CLI mapping or documented compatibility decision, with exact quality gates and no live Monica mutations."
+actual_result: "Stable resources and actions are implemented; 838 tests and 273 help checks pass; coverage is 100/100/100/100; dependency, CodeQL, secret, Bun, and Node gates are green; read-only live checks changed no data."
+dependencies[2]{id,kind,created_at,author,source_kind}:
   monica-platform,related,"2026-07-21T19:01:30.917Z",codex-monica-api,null
   monica-changelog-coverage-floors,supersedes,"2026-07-21T22:01:13.998Z",codex-monica-api,null
-  monica-changelog-pm-governance,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
-  monica-changelog-toolchain-versions,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
-  monica-output-escaping,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
-  monica-prepared-changelog-check,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
-  monica-security-modernization,blocked_by,"2026-07-21T22:01:13.998Z",codex-monica-api,null
 comments[9]{created_at,author,text}:
   "2026-07-21T19:01:30.917Z",codex-monica-api,Duplicate-safe all-status search and dedupe-audit found no existing API parity item. Monica stable 4.x source exposes statistics places lifeevents reminders/upcoming me/contact and contact work food introduction routes missing or drifted from the current reference.
   "2026-07-21T19:14:19.373Z",codex-monica-api,"User elevated repo-wide code quality to the highest priority: forbid any except documented necessity; forbid inline/dynamic imports and non-erasable TypeScript syntax; inline trivial single-use helpers; derive external types from installed declarations; enforce source LOC and high-quality docstring coverage; require honest 100/100/100/100 source coverage with efficient non-duplicative tests across unit, integration, functional, smoke, read-only E2E/dogfood, performance, acceptance and PM validation; strengthen mandatory CI quality/security/duplication gates without exclusion-based or synthetic coverage cheating."
@@ -346,4 +344,5 @@ docs[14]{path,scope,note}:
   docs/RELEASE-MANAGEMENT.md,project,API command output compatibility development and release documentation
   docs/SECURITY-AUDIT.md,project,API command output compatibility development and release documentation
   README.md,project,Public usage and release-readiness overview
+close_reason: "Stable Monica 4.x API parity, resilient capability semantics, agent/programmatic UX, exact quality gates, read-only acceptance, and review governance are implemented and verified for release 2026.7.21-2."
 body: "Authoritative scope is Monica stable 4.x routes/api.php at commit 32028ce3ce79cef38df5d27a297e5b20680f0065 plus official API docs. Implement missing statistics, places, life events, upcoming reminders, and me-contact association; reconcile contact action route variants; keep all live proof GET-only under read-only mode; preserve schema-valid agent outputs and complete help/docs."

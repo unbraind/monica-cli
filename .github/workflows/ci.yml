@@ -55,6 +55,9 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
+      - name: Typecheck operational scripts
+        run: bun run typecheck:scripts
+
       - name: Lint
         run: bun run lint
 
@@ -115,6 +118,9 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Typecheck operational scripts
+        run: npm run typecheck:scripts
 
       - name: Lint
         run: npm run lint

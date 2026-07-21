@@ -5,6 +5,7 @@ interface Connection<T> { pageInfo: PageInfo; nodes: T[] }
 interface ReactionNode { content: string; user: { login: string } | null }
 interface CommentNode {
   id: string;
+  url: string;
   body: string;
   createdAt: string;
   updatedAt: string;
@@ -13,6 +14,7 @@ interface CommentNode {
 }
 interface ReviewNode {
   id: string;
+  url: string;
   state: string;
   body: string;
   submittedAt: string;
@@ -45,9 +47,9 @@ interface PullRequestPage {
 const INVENTORY_QUERY = `query($owner:String!,$repo:String!,$number:Int!,$commentsCursor:String,$reviewsCursor:String,$threadsCursor:String){
   repository(owner:$owner,name:$repo){pullRequest(number:$number){
     id number url title state headRefOid
-    comments(first:100,after:$commentsCursor){pageInfo{hasNextPage endCursor} nodes{id body createdAt updatedAt author{login} reactions(first:100){nodes{content user{login}}}}}
-    reviews(first:100,after:$reviewsCursor){pageInfo{hasNextPage endCursor} nodes{id state body submittedAt author{login} reactions(first:100){nodes{content user{login}}}}}
-    reviewThreads(first:100,after:$threadsCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated path line comments(first:100){nodes{id body createdAt updatedAt author{login} reactions(first:100){nodes{content user{login}}}}}}
+    comments(first:100,after:$commentsCursor){pageInfo{hasNextPage endCursor} nodes{id url body createdAt updatedAt author{login} reactions(first:20){nodes{content user{login}}}}}
+    reviews(first:100,after:$reviewsCursor){pageInfo{hasNextPage endCursor} nodes{id url state body submittedAt author{login} reactions(first:20){nodes{content user{login}}}}}
+    reviewThreads(first:100,after:$threadsCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated path line comments(first:50){nodes{id url body createdAt updatedAt author{login} reactions(first:20){nodes{content user{login}}}}}}
   }}}
 }`;
 
@@ -62,7 +64,7 @@ function run(command: string, args: string[], input?: string): string {
 
 /** Execute a GitHub GraphQL request with typed variables. */
 function graphQl(query: string, variables: Record<string, string>): Record<string, unknown> {
-  const args = ['api', 'graphql', '-f', 'query=@-'];
+  const args = ['api', 'graphql', '-F', 'query=@-'];
   Object.entries(variables).forEach(([name, value]) => args.push('-F', `${name}=${value}`));
   return JSON.parse(run('gh', args, query)) as Record<string, unknown>;
 }
