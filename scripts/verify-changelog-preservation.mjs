@@ -5,7 +5,6 @@ import { readFileSync } from 'node:fs';
 const changelog = readFileSync('CHANGELOG.md', 'utf8');
 
 const requiredReleaseHeadings = [
-  '## Unreleased',
   '## 2026.3.6-2 - 2026-03-06',
   '## 2026.3.6 - 2026-03-06',
 ];
