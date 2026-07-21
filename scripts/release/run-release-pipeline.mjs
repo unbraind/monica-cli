@@ -207,7 +207,7 @@ function releasePushEnvironment() {
 function commitTagAndMaybePush(targetVersion, author, push) {
   const tag = `v${targetVersion}`;
   const identity = releaseIdentity(author);
-  git(['add', 'package.json', 'bun.lock', 'CHANGELOG.md']);
+  git(['add', '-u']);
   run('git', ['commit', '-m', `chore(release): cut ${targetVersion}`], { env: identity });
   run('git', ['tag', '-a', tag, '-m', `release: ${tag}`], { env: identity });
   if (push) {
