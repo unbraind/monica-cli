@@ -1,5 +1,6 @@
 export * from './client';
 export * from './capabilities';
+export * from './server-diagnostics';
 export * from './contacts';
 export * from './activities';
 export * from './notes';

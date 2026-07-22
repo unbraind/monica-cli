@@ -41,7 +41,7 @@ Monica CLI provides complete access to all Monica CRM features through a command
 - **Command Graph Export**: Emit a machine-readable CLI command graph with `monica info command-catalog`
 - **Output Schema Registry**: Discover machine contracts with `monica schemas list` and `monica schemas get <id>`
 - **Secret Hygiene Audit**: Run `monica --json audit` before pushing to detect tracked secrets and unsafe config perms
-- **Config Diagnostics**: Run `monica --json config doctor` for read-only safety, settings permissions, cache freshness, and connectivity checks
+- **Config Diagnostics**: Run `monica --json config doctor` for read-only safety, settings permissions, cache freshness, connectivity checks, and typed self-hosted server failure remediation
 - **API Coverage Research**: Emit endpoint/resource inventory with `monica --json api-research summary --instance-aware` (source select with `--source auto|api|monica|<path>`)
 - **Coverage Scorecard**: Use `monica --json api-research coverage --instance-aware` for compact mapped/support percentages, embedded `readOnlyActionPlan`, and deterministic next-command recommendations
 - **Coverage CI Gates**: Use `api-research coverage --fail-on-unmapped` and `--fail-on-unsupported` to enforce machine-checkable readiness in CI/agent pipelines (non-zero exit `2` with `gate` payload context)

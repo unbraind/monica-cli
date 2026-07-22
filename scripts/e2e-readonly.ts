@@ -77,6 +77,7 @@ function isExpectedFailure(result: RunResult, command: string, instanceUnavailab
     'HTTP 404',
     'Read-only mode enabled',
     'Global contact field listing is unavailable on this Monica instance',
+    'Failed to load trust proxies from Cloudflare server',
     'storage/logs/',
     'Failed to open stream: Permission denied',
   ];

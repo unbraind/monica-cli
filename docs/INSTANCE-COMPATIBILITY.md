@@ -56,6 +56,24 @@ The CLI now handles these group-contact mutation variants automatically:
 
 Fallback is only attempted when the primary endpoint returns `HTTP 404`.
 
+## Server Infrastructure Diagnostics
+
+Connection doctor and capability outputs preserve Monica's original error and add a
+machine-readable `diagnostic` object when the failure has a known operator remedy.
+Diagnostic objects contain a stable `code`, summary, cause, operator action,
+`retryable` flag, and upstream source URL. Unknown failures use `diagnostic: null`.
+
+For `monica_cloudflare_trust_proxy_fetch_failed`, Monica failed while fetching
+Cloudflare IPv4 or IPv6 ranges during request bootstrap. Repeating every API command
+will not establish endpoint support. Check outbound HTTPS and DNS from the Monica
+container, then review `TRUSTED_PROXIES` and Cloudflare proxy settings. This is an
+instance-side failure; changing the CLI token or disabling read-only mode does not fix it.
+
+```bash
+monica --json config doctor
+monica --json info capabilities --refresh
+```
+
 ## Agent-Safe Workflow
 
 1. Configure once with read-only enabled.

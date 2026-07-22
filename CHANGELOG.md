@@ -6,6 +6,10 @@
 
 - Complete Monica 4.x API parity and resilient instance diagnostics ([monica-api-4x-parity](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-api-4x-parity.toon))
 
+### Fixed
+
+- Classify Monica server infrastructure failures with actionable diagnostics ([monica-server-diagnostics](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-server-diagnostics.toon))
+
 ### Security
 
 - Prevent configuration secrets from reaching logging sinks ([monica-config-output-secret-sink](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-config-output-secret-sink.toon))

@@ -117,6 +117,7 @@ cat ./payload.yaml | monica --json schemas validate config-test --input-format y
       "message": "HTTP 404",
       "severity": "unsupported",
       "recommendedAction": "Groups endpoints are unavailable on this Monica instance/version; use groups tag-scan fallback or tags/contact lists instead.",
+      "diagnostic": null,
       "fallbackCommands": [
         "monica --json groups list --scan-tags --tag-max-pages 2",
         "monica --json contacts list --limit 50",

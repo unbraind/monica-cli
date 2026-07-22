@@ -1,5 +1,6 @@
 import type { MonicaApiError } from './client';
 import { get } from './client';
+import { classifyServerDiagnostic, type ServerDiagnostic } from './server-diagnostics';
 
 /** Describes the capability probe data contract. */
 export interface CapabilityProbe {
@@ -12,6 +13,7 @@ export interface CapabilityProbe {
   statusCode: number;
   message: string;
   state?: 'supported' | 'unsupported' | 'unavailable';
+  diagnostic?: ServerDiagnostic | null;
 }
 
 /** Describes the capability summary data contract. */
@@ -129,6 +131,7 @@ async function probeTarget(target: CapabilityTarget): Promise<CapabilityProbe> {
       statusCode: 200,
       message: 'OK',
       state: 'supported',
+      diagnostic: null,
     };
   } catch (error) {
     const details = getErrorDetails(error);
@@ -148,6 +151,7 @@ async function probeTarget(target: CapabilityTarget): Promise<CapabilityProbe> {
       state: fallbackSupported ? 'supported'
         : details.statusCode === 404 || details.statusCode === 405 ? 'unsupported'
           : 'unavailable',
+      diagnostic: classifyServerDiagnostic(details.message),
     };
   }
 }

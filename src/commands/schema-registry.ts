@@ -65,7 +65,7 @@ const CORE_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
           type: 'array',
           items: {
             type: 'object',
-            required: ['key', 'command', 'endpoint', 'statusCode', 'message', 'severity', 'recommendedAction', 'fallbackCommands'],
+            required: ['key', 'command', 'endpoint', 'statusCode', 'message', 'severity', 'recommendedAction', 'fallbackCommands', 'diagnostic'],
             properties: {
               key: { type: 'string' },
               command: { type: 'string' },
@@ -75,6 +75,17 @@ const CORE_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
               severity: { type: 'string', enum: ['unsupported', 'auth', 'rate-limited', 'error'] },
               recommendedAction: { type: 'string' },
               fallbackCommands: { type: 'array', items: { type: 'string' } },
+              diagnostic: {
+                type: ['object', 'null'],
+                properties: {
+                  code: { type: 'string' },
+                  summary: { type: 'string' },
+                  cause: { type: 'string' },
+                  operatorAction: { type: 'string' },
+                  retryable: { type: 'boolean' },
+                  sourceUrl: { type: 'string' },
+                },
+              },
             },
           },
         },

@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import * as api from '../api';
 import { loadCachedCapabilityReport, saveCapabilityReport } from '../utils/capability-cache';
+import { classifyServerDiagnostic, type ServerDiagnostic } from '../api/server-diagnostics';
 
 /** Describes the unsupported command entry data contract. */
 export interface UnsupportedCommandEntry {
@@ -12,6 +13,7 @@ export interface UnsupportedCommandEntry {
   severity: 'unsupported' | 'auth' | 'rate-limited' | 'error';
   recommendedAction: string;
   fallbackCommands: string[];
+  diagnostic: ServerDiagnostic | null;
 }
 
 /** Parses positive int. */
@@ -110,6 +112,7 @@ export function getUnsupportedCommands(report: api.CapabilityReport): Unsupporte
         statusCode: probe.statusCode,
       }),
       fallbackCommands: buildFallbackCommands(probe.key),
+      diagnostic: classifyServerDiagnostic(probe.message),
     }));
 }
 
@@ -117,14 +120,19 @@ export function getUnsupportedCommands(report: api.CapabilityReport): Unsupporte
 export function getUnavailableCommands(report: api.CapabilityReport): UnsupportedCommandEntry[] {
   return report.probes
     .filter((probe) => api.getCapabilityState(probe) === 'unavailable')
-    .map((probe) => ({
-      key: probe.key,
-      command: probe.command,
-      endpoint: probe.endpoint,
-      statusCode: probe.statusCode,
-      message: probe.message,
-      severity: classifySeverity(probe.statusCode),
-      recommendedAction: buildRecommendedAction({ key: probe.key, statusCode: probe.statusCode }),
-      fallbackCommands: [],
-    }));
+    .map((probe) => {
+      const diagnostic = classifyServerDiagnostic(probe.message);
+      return {
+        key: probe.key,
+        command: probe.command,
+        endpoint: probe.endpoint,
+        statusCode: probe.statusCode,
+        message: probe.message,
+        severity: classifySeverity(probe.statusCode),
+        recommendedAction: diagnostic?.operatorAction
+          ?? buildRecommendedAction({ key: probe.key, statusCode: probe.statusCode }),
+        fallbackCommands: [],
+        diagnostic,
+      };
+    });
 }

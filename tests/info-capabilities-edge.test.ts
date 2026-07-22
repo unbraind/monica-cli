@@ -42,7 +42,23 @@ describe('capability guidance edges', () => {
         { key: 'server', command: 'server', endpoint: '/server', supported: null, state: 'unavailable', statusCode: 500, message: 'offline' },
       ],
     });
-    expect(entries).toEqual([expect.objectContaining({ severity: 'error', fallbackCommands: [] })]);
+    expect(entries).toEqual([expect.objectContaining({
+      severity: 'error', fallbackCommands: [], diagnostic: null,
+    })]);
+  });
+
+  it('replaces generic retry advice with a typed server diagnosis', () => {
+    const [entry] = getUnavailableCommands({
+      generatedAt: '', summary: { total: 1, supported: 0, unsupported: 0 }, probes: [{
+        key: 'contacts', command: 'contacts list', endpoint: '/contacts', supported: null,
+        state: 'unavailable', statusCode: 500,
+        message: 'Failed to load trust proxies from Cloudflare server.',
+      }],
+    });
+    expect(entry.diagnostic).toMatchObject({
+      code: 'monica_cloudflare_trust_proxy_fetch_failed', retryable: false,
+    });
+    expect(entry.recommendedAction).toContain('outbound HTTPS and DNS');
   });
 
   it('uses a request-failed hint when an unsupported probe has no status code', () => {
