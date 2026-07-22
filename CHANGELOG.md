@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- Migrate Release Drafter category configuration before legacy removal ([monica-release-drafter-categories](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-release-drafter-categories.toon))
 - Classify Monica server infrastructure failures with actionable diagnostics ([monica-server-diagnostics](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-server-diagnostics.toon))
 
 ### Security
