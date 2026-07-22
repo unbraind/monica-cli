@@ -2,30 +2,32 @@ name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
 no-changes-template: '- No user-facing changes in this cycle.'
-version-resolver:
-  default: patch
-  labels:
-    - label: 'breaking-change'
-      bump: major
-    - label: 'feature'
-      bump: minor
-    - label: 'enhancement'
-      bump: minor
-    - label: 'fix'
-      bump: patch
-    - label: 'bug'
-      bump: patch
 categories:
   - title: 'Features'
-    labels: ['feature', 'enhancement']
+    semver-increment: minor
+    when:
+      labels: ['feature', 'enhancement']
   - title: 'Fixes'
-    labels: ['fix', 'bug']
+    semver-increment: patch
+    when:
+      labels: ['fix', 'bug']
   - title: 'Documentation'
-    labels: ['docs', 'documentation']
+    semver-increment: patch
+    when:
+      labels: ['docs', 'documentation']
   - title: 'Maintenance'
-    labels: ['chore', 'refactor', 'test']
-exclude-labels:
-  - 'skip-changelog'
+    semver-increment: patch
+    when:
+      labels: ['chore', 'refactor', 'test']
+  - type: version-resolver
+    semver-increment: major
+    when:
+      label: 'breaking-change'
+  - type: pre-exclude
+    when:
+      label: 'skip-changelog'
+  - type: version-resolver
+    semver-increment: patch
 template: |
   ## Changes
 

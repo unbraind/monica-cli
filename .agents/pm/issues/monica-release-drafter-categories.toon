@@ -1,0 +1,63 @@
+id: monica-release-drafter-categories
+title: Migrate Release Drafter category configuration before legacy removal
+description: Remove merged-head Release Drafter deprecation annotations while preserving changelog grouping and version resolution.
+type: Issue
+status: closed
+priority: 1
+tags[4]: ci,release-drafter,release-quality,workflow
+created_at: "2026-07-22T05:15:40.549Z"
+updated_at: "2026-07-22T05:17:54.203Z"
+deadline: "2026-07-29T05:15:40.549Z"
+closed_at: "2026-07-22T05:17:53.633Z"
+author: codex-root
+estimated_minutes: 60
+acceptance_criteria: "Release Drafter configuration uses current category classification syntax; feature/fix/docs/maintenance grouping, skip-changelog exclusion, and major/minor/patch resolution semantics are preserved; merged-head Release Draft has zero annotations; all local and GitHub gates pass"
+definition_of_ready: Merged-head annotations captured; all-status duplicate search completed; upstream Release Drafter PR 1558 migration guide reviewed.
+goal: Keep release automation warning-free and production-ready.
+objective: Eliminate deprecated Release Drafter configuration before removal.
+value: Prevents future release-draft breakage and keeps exact-head checks annotation-free.
+impact: Release notes and semantic version suggestions retain behavior on supported configuration.
+outcome: Release Draft completes successfully with zero annotations.
+why_now: The exact merged head exposes five deprecation warnings and upstream states the fields will be removed.
+parent: monica-platform
+reviewer: github-bots
+risk: low
+confidence: high
+sprint: 2026-07-release-drafter
+release: unreleased
+reporter: codex-root
+severity: medium
+environment: GitHub Actions release-drafter/release-drafter@v7 on merged master 191672e
+repro_steps: Inspect annotations for Release Draft run 29893136465 job 88837476936.
+resolution: "Replaced deprecated category labels, top-level exclusion, and legacy version resolver with when predicates, pre-exclude, semver increments, and version-resolver categories."
+expected_result: Release Drafter accepts supported configuration without deprecation annotations and preserves release-note/version behavior.
+actual_result: Configuration parses to seven current categories with no legacy label/exclude keys; full release gate passes. Merged-head zero-annotation proof will be captured after PR merge.
+affected_version: 2026.7.22
+fixed_version: unreleased
+component: release automation
+regression: false
+customer_impact: Future Release Drafter upgrades can break draft generation after deprecated fields are removed.
+dependencies[4]{id,kind,created_at,author,source_kind}:
+  monica-actions-remaining-majors,related,"2026-07-22T05:15:40.549Z",null,null
+  monica-auto-release,related,"2026-07-22T05:15:40.549Z",null,null
+  monica-prepared-changelog-check,discovered_from,"2026-07-22T05:15:40.549Z",null,null
+  monica-server-diagnostics,discovered_from,"2026-07-22T05:15:40.549Z",null,null
+comments[2]{created_at,author,text}:
+  "2026-07-22T05:15:40.549Z",codex-root,"Exact merged-head check annotations captured: four category label warnings and one top-level exclude-labels warning."
+  "2026-07-22T05:17:51.297Z",codex-root,"Migrated four changelog categories to when.labels with preserved semver increments, replaced skip-changelog with pre-exclude, added explicit breaking-change major resolution, and retained default patch resolution. Full local release gates pass at 100/100/100/100 coverage."
+notes[2]{created_at,author,text}:
+  "2026-07-22T05:15:40.549Z",codex-root,"Migrate version-resolver semantics too because upstream PR 1558 unifies all change classification, even though the current run did not annotate that block."
+  "2026-07-22T05:17:51.952Z",codex-root,"Authoritative migration source: https://github.com/release-drafter/release-drafter/pull/1558. The current syntax uses the unified category classification pipeline introduced there."
+learnings[2]{created_at,author,text}:
+  "2026-07-22T05:15:40.549Z",codex-root,A successful GitHub check can still carry actionable deprecation annotations; exact-head annotation inspection is required.
+  "2026-07-22T05:17:52.498Z",codex-root,"Default patch resolution is represented by a final version-resolver category without a when predicate; specific breaking-change major resolution precedes it, while changelog categories carry minor/patch increments directly."
+files[1]{path,scope,note}:
+  .github/release-drafter.yml,project,current category classification migration
+tests[3]{command,scope,timeout_seconds}:
+  "bun -e 'import YAML from \"yaml\"; YAML.parse(await Bun.file(\".github/release-drafter.yml\").text())'",project,30
+  "bun run verify:release",project,600
+  "bun run workflows:check",project,60
+docs[1]{path,scope,note}:
+  .github/release-drafter.yml,project,executable release configuration
+close_reason: Migrated Release Drafter classification syntax while preserving grouping and version resolution.
+body: "## Problem\n\nMerged-head Release Draft run `29893136465` succeeded but emitted five deprecation annotations. The configuration still uses legacy `categories[*].labels` and top-level `exclude-labels`, which Release Drafter will remove.\n\n## Source\n\nRelease Drafter PR 1558 is the authoritative migration guide. It moves category predicates under `when`, replaces top-level excludes with a `type: pre-exclude` category, and represents version resolution through category `semver-increment` plus `type: version-resolver` entries.\n\n## Scope\n\nMigrate `.github/release-drafter.yml` without changing generated category grouping or version-bump semantics. Verify repository workflows, YAML parsing, local release gates, PR checks, bot review, and a merged-head Release Draft run with zero annotations."
