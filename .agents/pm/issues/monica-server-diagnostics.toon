@@ -1,0 +1,84 @@
+id: monica-server-diagnostics
+title: Classify Monica server infrastructure failures with actionable diagnostics
+description: "Turn known Monica-originated infrastructure failures into typed, agent-actionable diagnostics without masking the underlying API error."
+type: Issue
+status: closed
+priority: 0
+tags[5]: agent-ux,api-research,diagnostics,read-only,self-hosted
+created_at: "2026-07-22T04:43:28.254Z"
+updated_at: "2026-07-22T05:05:54.255Z"
+deadline: "2026-07-29T04:43:28.254Z"
+closed_at: "2026-07-22T05:05:53.671Z"
+author: codex-root
+estimated_minutes: 180
+acceptance_criteria: "Known Cloudflare trust-proxy loader failures expose a stable diagnostic code, cause, operator action, and authoritative source link in structured connection and capability output; unknown server failures retain generic retry guidance; all schemas and documentation match runtime output; full release gates and actual read-only CLI validation pass without changing Monica data"
+definition_of_ready: Upstream 4.x routes and local all-status tracker inventory reviewed; duplicate search clean; private settings confirmed mode 0600 and read-only.
+goal: Make monica-cli dependable and agent-ready on heterogeneous self-hosted Monica installations.
+objective: Convert opaque instance-side HTTP 500 failures into deterministic remediation guidance.
+value: Agents can stop futile retries and hand operators the correct self-hosted fix path.
+impact: Faster incident diagnosis with no credential or CRM data exposure.
+outcome: Connection doctor and capability reports identify the Cloudflare proxy loader failure consistently.
+why_now: The configured production instance currently exhibits this exact failure and blocks all read-only API research.
+parent: monica-platform
+reviewer: github-bots
+risk: medium
+confidence: high
+sprint: 2026-07-server-diagnostics
+release: unreleased
+reporter: codex-root
+severity: high
+environment: Self-hosted Monica 4.x at private LAN URL; CLI 2026.7.21-2; readOnlyMode=true
+repro_steps: Run monica --json config test or monica --json info capabilities --refresh; observe HTTP 500 trust-proxy loader message.
+resolution: "Added stable Cloudflare trust-proxy failure classification across raw capability probes, instance profiles, unsupported/unavailable guidance, and config doctor; expanded nullable JSON Schema validation; hardened dogfood expected-failure classification; documented operator remediation; reconciled package version to 2026.7.22."
+expected_result: Known instance-side failures expose deterministic agent guidance while unknown failures retain safe generic behavior and all CRM writes remain blocked.
+actual_result: "Actual monica commands return monica_cloudflare_trust_proxy_fetch_failed with cause, operator action, non-retryable state, and upstream source; 841 tests pass at 100/100/100/100 coverage; release gates pass; read-only E2E reports 42 pass, 53 expected, 0 fail."
+affected_version: 2026.7.21-2
+fixed_version: unreleased
+component: configuration and capability diagnostics
+regression: false
+customer_impact: "All API command families appear generically unavailable, preventing agents from selecting a correct remediation."
+dependencies[5]{id,kind,created_at,author,source_kind}:
+  monica-api-4x-parity-plan,discovered_from,"2026-07-22T04:43:28.254Z",null,null
+  monica-config-output-secret-sink,related,"2026-07-22T04:43:28.254Z",null,null
+  monica-settings-permissions,related,"2026-07-22T04:43:28.254Z",null,null
+  monica-platform,related,"2026-07-22T04:43:39.126Z",null,null
+  monica-api-4x-parity,related,"2026-07-22T04:59:00.085Z",null,null
+comments[5]{created_at,author,text}:
+  "2026-07-22T04:43:28.254Z",codex-root,Live read-only reproduction confirmed the failure across config test and all 34 capability probes; no Monica records were modified.
+  "2026-07-22T04:48:52.364Z",codex-root,"Implementation now centralizes the diagnosis in the API layer so raw capability probes, instance profiles, and config doctor share one stable contract. The built CLI reproduced the exact private-instance failure and returned the expected non-retryable diagnostic without exposing credentials."
+  "2026-07-22T04:52:43.942Z",codex-root,Dogfood exposed that the read-only E2E harness treated the newly diagnosed Monica infrastructure message as an unexpected command failure even after capability probing proved the instance unhealthy. Updated the harness to classify that exact server failure as expected unavailability; write guards remain mandatory passes.
+  "2026-07-22T05:03:18.119Z",codex-root,"Final actual-CLI dogfood passed 95/95 outcomes: 42 successful commands, 53 expected instance-unavailability or client-side write blocks, and 0 failures. Settings were restored at mode 0600; no Monica data mutation request was issued."
+  "2026-07-22T05:04:01.156Z",codex-root,"Final verify:release correctly rejected stale package version 2026.7.21-2; today's unreleased production-ready head must use 2026.7.22. Reopened only this item to reconcile package and lockfile, then rerun all gates."
+notes[2]{created_at,author,text}:
+  "2026-07-22T04:43:28.254Z",codex-root,"Implementation must centralize message classification so config doctor, capability inventory, and future surfaces do not drift."
+  "2026-07-22T04:48:54.400Z",codex-root,The checked-in route snapshot remains identical to upstream Monica 4.x commit 32028ce3; no new API resource family is justified. Enhancement is deliberately diagnostic rather than duplicate parity work.
+learnings[3]{created_at,author,text}:
+  "2026-07-22T04:43:28.254Z",codex-root,Upstream API parity can be complete while instance operability remains blocked; route coverage and server health must remain separate dimensions.
+  "2026-07-22T04:48:55.709Z",codex-root,Capability probe payloads are the best canonical attachment point because downstream agent-context and instance-profile surfaces inherit the diagnosis while cached reports remain self-describing.
+  "2026-07-22T05:03:18.733Z",codex-root,"The global monica executable is symlinked to this checkout, so built-source validation and actual command invocation exercised the implementation directly; bun install -g . is unnecessary for this linked development layout and reports a harmless dependency-loop error."
+files[12]{path,scope,note}:
+  package.json,project,date-derived production release version
+  scripts/e2e-readonly.ts,project,known instance infrastructure failure handling
+  src/api/capabilities.ts,project,raw probe diagnostic integration
+  src/api/index.ts,project,public typed API export
+  src/api/server-diagnostics.ts,project,canonical typed classifier
+  src/commands/config-doctor.ts,project,structured connection diagnosis
+  src/commands/info-capabilities.ts,project,capability remediation guidance
+  src/commands/schema-registry.ts,project,nullable diagnostic schema
+  src/commands/schema-validator.ts,project,JSON Schema union type support
+  tests/config-doctor-edge.test.ts,project,connection diagnosis coverage
+  tests/info-capabilities-edge.test.ts,project,capability diagnosis coverage
+  tests/schema-validator.test.ts,project,nullable union validation coverage
+tests[5]{command,scope,timeout_seconds}:
+  bun dist/index.js --json info capabilities --refresh,project,120
+  "bun run test:coverage",project,240
+  "bun run verify:release:gates",project,600
+  "bun run version:check",project,60
+  bun scripts/e2e-readonly.ts,project,600
+docs[4]{path,scope,note}:
+  docs/COMMANDS.md,project,command diagnostic fields
+  docs/INSTANCE-COMPATIBILITY.md,project,self-hosted operator remediation
+  docs/OUTPUT-SCHEMAS.md,project,diagnostic output contract
+  docs/README.md,project,feature index
+close_reason: "Delivered typed Monica server infrastructure diagnostics with exact upstream research, version reconciliation, and read-only production-instance proof."
+body: "## Problem\n\nThe maintained Monica 4.x route inventory is already fully mapped, but live read-only research against the configured self-hosted instance returns HTTP 500 with `Failed to load trust proxies from Cloudflare server.` The CLI currently reduces this Monica-originated infrastructure failure to generic retry advice, so humans and agents cannot distinguish an instance configuration/dependency problem from a transient API failure.\n\n## Research basis\n\n- The checked-in 35-resource, 172-endpoint snapshot matches `monicahq/monica` branch `4.x` commit `32028ce3ce79cef38df5d27a297e5b20680f0065`.\n- The error originates in `monicahq/laravel-cloudflare` when Monica cannot fetch Cloudflare IPv4/IPv6 proxy ranges.\n- The configured instance is kept in global private settings with read-only mode enabled; no production records may be mutated.\n\n## Delivery scope\n\nAdd a typed, reusable server-diagnostic classifier; expose stable diagnostic codes and operator actions in connection doctor and capability reports; retain the original safe error message; document the diagnostic contract and self-hosted remediation; validate all output schemas, help, unit, coverage, source-quality, and actual read-only CLI paths.\n\n## Non-goals\n\nDo not modify Monica records, change the Monica server, expose credentials, or invent route families beyond the maintained 4.x source."

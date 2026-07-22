@@ -36,6 +36,26 @@ describe('configuration doctor edge cases', () => {
     const result = await runConfigDoctor({ apiUrl: 'https://example.test/api', apiKey: 'key' });
     expect(result.ok).toBe(false);
     expect(result.summary).toEqual({ pass: 0, warn: 3, fail: 1 });
+    const connection = (result.checks as Array<Record<string, unknown>>)
+      .find((check) => check.id === 'connection');
+    expect(connection?.details).toMatchObject({ diagnostic: null });
+  });
+
+  it('adds a typed diagnosis for the Monica Cloudflare proxy loader failure', async () => {
+    doctor.settingsStats.mockReturnValue({ mode: 0o100600 });
+    doctor.cacheStats.mockReturnValue(null);
+    doctor.connection.mockRejectedValue(new Error('Failed to load trust proxies from Cloudflare server.'));
+    const result = await runConfigDoctor({
+      apiUrl: 'https://example.test/api', apiKey: 'key', readOnlyMode: true,
+    });
+    const connection = (result.checks as Array<Record<string, unknown>>)
+      .find((check) => check.id === 'connection');
+    expect(connection?.details).toMatchObject({
+      diagnostic: {
+        code: 'monica_cloudflare_trust_proxy_fetch_failed',
+        retryable: false,
+      },
+    });
   });
 
   it('fails the settings check when stats disappear after configuration loads', async () => {

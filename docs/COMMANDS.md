@@ -1924,6 +1924,10 @@ JSON output includes severity and remediation fields:
 - `severity`: `unsupported` | `auth` | `rate-limited` | `error`
 - `recommendedAction`: human-readable fallback guidance
 - `fallbackCommands`: safe command alternatives for automated planners
+- `diagnostic`: typed instance-side diagnosis with stable code and operator action, or `null`
+
+Raw `info capabilities` probes and the `info instance-profile` unavailable-command
+inventory expose the same diagnostic object, so agents do not need to parse error text.
 
 Instance-specific fallback examples:
 - `contact-fields` unsupported globally: contact-scoped list and contact-scan alternatives are provided

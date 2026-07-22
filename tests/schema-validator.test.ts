@@ -2,6 +2,19 @@ import { describe, it, expect } from 'vitest';
 import { validateValueAgainstSchema } from '../src/commands/schema-validator';
 
 describe('schema validator', () => {
+  it('accepts nullable object union types', () => {
+    const schema = {
+      type: ['object', 'null'],
+      required: ['code'],
+      properties: { code: { type: 'string' } },
+    };
+    expect(validateValueAgainstSchema(null, schema)).toEqual([]);
+    expect(validateValueAgainstSchema({ code: 'known' }, schema)).toEqual([]);
+    expect(validateValueAgainstSchema('invalid', schema)).toEqual([
+      { path: '$', message: 'Expected type object,null but got string' },
+    ]);
+  });
+
   it('validates required keys and nested types', () => {
     const errors = validateValueAgainstSchema(
       { ok: true, data: [{ id: 1, name: 'A' }] },

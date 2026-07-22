@@ -3,6 +3,7 @@ import type { MonicaConfig } from '../types';
 import { GLOBAL_SETTINGS_PATH, getSettingsStats } from '../utils/settings';
 import { getCapabilityCachePath, getCapabilityCacheStats } from '../utils/capability-cache';
 import { verifyConfigConnection } from './config-connection';
+import { classifyServerDiagnostic } from '../api/server-diagnostics';
 
 type DoctorStatus = 'pass' | 'warn' | 'fail';
 
@@ -133,9 +134,11 @@ async function evaluateConnectionCheck(settings: Partial<MonicaConfig>): Promise
       },
     });
   } catch (error) {
+    const message = (error as Error).message;
     return buildCheck('connection', 'fail', 'Connection test failed', {
       apiUrl: settings.apiUrl,
-      error: (error as Error).message,
+      error: message,
+      diagnostic: classifyServerDiagnostic(message),
     });
   }
 }

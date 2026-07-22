@@ -1,6 +1,6 @@
 /** Describes the json schema data contract. */
 export interface JsonSchema {
-  type?: string;
+  type?: string | string[];
   enum?: unknown[];
   required?: string[];
   properties?: Record<string, JsonSchema>;
@@ -19,7 +19,8 @@ function typeOfValue(value: unknown): string {
   return typeof value;
 }
 
-function isTypeMatch(value: unknown, schemaType: string): boolean {
+function isTypeMatch(value: unknown, schemaType: string | string[]): boolean {
+  if (Array.isArray(schemaType)) return schemaType.some((candidate) => isTypeMatch(value, candidate));
   switch (schemaType) {
     case 'object':
       return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -60,7 +61,8 @@ export function validateValueAgainstSchema(value: unknown, schema: JsonSchema, p
     }
   }
 
-  if (schema.type === 'object' && schema.required) {
+  const schemaTypes = Array.isArray(schema.type) ? schema.type : [schema.type];
+  if (schemaTypes.includes('object') && value !== null && schema.required) {
     const record = value as Record<string, unknown>;
     for (const requiredKey of schema.required) {
       if (!(requiredKey in record)) {
@@ -72,7 +74,7 @@ export function validateValueAgainstSchema(value: unknown, schema: JsonSchema, p
     }
   }
 
-  if (schema.type === 'object' && schema.properties) {
+  if (schemaTypes.includes('object') && value !== null && schema.properties) {
     const record = value as Record<string, unknown>;
     for (const [key, propertySchema] of Object.entries(schema.properties)) {
       if (!(key in record)) continue;
@@ -80,7 +82,7 @@ export function validateValueAgainstSchema(value: unknown, schema: JsonSchema, p
     }
   }
 
-  if (schema.type === 'array' && schema.items && Array.isArray(value)) {
+  if (schemaTypes.includes('array') && schema.items && Array.isArray(value)) {
     value.forEach((entry, index) => {
       errors.push(...validateValueAgainstSchema(entry, schema.items as JsonSchema, `${path}[${index}]`));
     });
