@@ -2,13 +2,18 @@
 
 ## Unreleased
 
+### Fixed
+
+- Make generated agent tool contracts executable and mutation-safe ([monica-agent-tool-contracts](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-agent-tool-contracts.toon))
+
+## 2026.7.22 - 2026-07-22
+
 ### Added
 
 - Complete Monica 4.x API parity and resilient instance diagnostics ([monica-api-4x-parity](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-api-4x-parity.toon))
 
 ### Fixed
 
-- Make generated agent tool contracts executable and mutation-safe ([monica-agent-tool-contracts](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-agent-tool-contracts.toon))
 - Migrate Release Drafter category configuration before legacy removal ([monica-release-drafter-categories](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-release-drafter-categories.toon))
 - Classify Monica server infrastructure failures with actionable diagnostics ([monica-server-diagnostics](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-server-diagnostics.toon))
 
