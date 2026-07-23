@@ -2341,6 +2341,9 @@ monica agent-tools catalog
 ### agent-tools openai
 
 Export OpenAI function-calling tool payloads.
+Each function represents one executable leaf command. Its parameter schema
+contains positional arguments plus inherited global, parent, and local options;
+Commander-required arguments and options are listed in `required`.
 
 ```bash
 monica agent-tools openai
@@ -2357,6 +2360,8 @@ monica agent-tools openai-tools
 ### agent-tools anthropic
 
 Export Anthropic tool payloads.
+The tool set has the same lossless leaf-command coverage and effective input
+schema as the OpenAI export.
 
 ```bash
 monica agent-tools anthropic
@@ -2385,6 +2390,12 @@ monica agent-tools safe-commands --instance-aware
 Export MCP-ready tool metadata for CLI leaf commands. This includes `command`,
 `inputSchema`, and command safety metadata. Use `--instance-aware` to include
 capability-derived support flags.
+
+All three tool exporters wait for stdout to drain, so large catalogs remain
+complete valid JSON, TOON, or YAML when piped into automation. `safe-commands`
+uses the same conservative safety classifier: commands that modify Monica,
+persist setup/configuration, upload files, or export to a local path are not
+included.
 
 ```bash
 monica agent-tools mcp-tools

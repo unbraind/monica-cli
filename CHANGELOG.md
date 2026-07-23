@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Make generated agent tool contracts executable and mutation-safe ([monica-agent-tool-contracts](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-agent-tool-contracts.toon))
+
 ## 2026.7.22 - 2026-07-22
 
 ### Added

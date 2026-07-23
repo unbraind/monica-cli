@@ -240,6 +240,11 @@ monica notes create --body "Important note" --contact-id 1
 monica activities create --summary "Meeting" --happened-at "2024-01-15" --activity-type-id 1 --contact-id 1
 ```
 
+Agent tool schemas contain executable leaves, positional arguments, inherited
+flags, authoritative required inputs, and conservative mutation safety
+metadata. Large OpenAI, Anthropic, and MCP payloads remain complete when piped
+to other programs.
+
 ## Commands Overview
 
 | Command | Description |

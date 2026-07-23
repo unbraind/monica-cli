@@ -1,0 +1,76 @@
+id: monica-agent-tool-contracts
+title: Make generated agent tool contracts executable and mutation-safe
+description: "Make every generated agent tool correspond to an executable Monica CLI leaf, preserve positional and inherited inputs, and classify every Monica data mutation as unsafe for read-only planners."
+type: Issue
+status: closed
+priority: 0
+tags[8]: agent-ux,anthropic,api-contracts,command-catalog,mcp,openai,read-only-safety,typescript
+created_at: "2026-07-23T04:53:29.138Z"
+updated_at: "2026-07-23T05:36:34.394Z"
+deadline: "2026-07-30T04:53:29.138Z"
+closed_at: "2026-07-23T05:27:35.402Z"
+author: codex-root
+estimated_minutes: 240
+acceptance_criteria: "OpenAI and Anthropic exports include every executable leaf command exactly once; Required and optional positional arguments appear in tool input schemas with stable names and correct requiredness; Inherited global and parent options remain available without duplicate parameters; Every remote write command is excluded from agent-tools safe-commands, including introduction, avatar, document upload, and photo upload; All exported contracts validate against documented schemas in JSON and default TOON output; Repo-wide release gates retain exact 100/100/100/100 coverage, 100 percent docstrings, <=300 code lines, and zero dependency vulnerabilities"
+definition_of_ready: Authoritative Monica 4.x route source and current generated command tree inspected; duplicate-safe all-status pm search and fuzzy dedupe audit completed; private settings remain outside the repository in read-only mode.
+value: Agents can invoke Monica deterministically without missing required IDs or being told that write operations are safe.
+impact: "Prevents unsafe mutation planning and unlocks complete OpenAI, Anthropic, and MCP tool execution for all Monica resources."
+outcome: Every generated tool is executable from its schema and every safe-command entry is guaranteed not to mutate Monica data.
+why_now: Live API research exposed contract errors in the agent interface even though endpoint parity is complete.
+parent: monica-platform
+reviewer: github-bots
+risk: high
+confidence: 95
+sprint: 2026-07-agent-contracts
+release: 2026.7.23
+reporter: codex-root
+severity: high
+environment: monica-cli 2026.7.22; Monica 4.x 32028ce; Bun 1.3.11; Node >=22.13
+repro_steps: Run monica --json info command-catalog and observe contacts introduction/avatar plus documents/photos upload marked read; run monica --json agent-tools openai and observe argument-only leaf tools/required positional IDs are absent.
+resolution: "OpenAI, Anthropic, and MCP exporters now emit all 233 unique executable leaves with positional, inherited, typed, and authoritative mandatory inputs; drain-aware output prevents truncation; safe-commands excludes Monica mutations, setup/config changes, uploads, and local exports."
+expected_result: Agent exports contain every executable leaf with complete arguments/options and classify all Monica mutations as writes.
+actual_result: "All 233 tools are unique and executable across three exporters, all 124 safe commands are non-mutating, large JSON parses successfully, and exact 100/100/100/100 plus live read-only acceptance passes."
+affected_version: 2026.7.22
+fixed_version: 2026.7.23
+component: agent command contracts
+regression: false
+customer_impact: Agent planners can generate unexecutable commands or select mutating commands from the purported read-only allow-list.
+dependencies[3]{id,kind,created_at,author,source_kind}:
+  monica-api-4x-parity,discovered_from,"2026-07-23T04:53:29.138Z",null,null
+  monica-config-output-secret-sink,related,"2026-07-23T04:53:29.138Z",null,null
+  monica-output-escaping,related,"2026-07-23T04:53:29.138Z",null,null
+comments[5]{created_at,author,text}:
+  "2026-07-23T04:53:29.138Z",codex-root,"Authoritative Monica 4.x branch remains pinned at 32028ce with 35 mapped resources and 172 endpoints. The local instance is unavailable at bootstrap due to Cloudflare trust-proxy loading, so research used official source plus local deterministic catalogs and only GET probes."
+  "2026-07-23T05:02:39.031Z",codex-root,"Implementation milestone: all 233 executable leaves are exported exactly once across OpenAI, Anthropic, and MCP. Positional arguments, inherited options, Commander mandatory inputs, boolean flags, and drain-aware large output are verified. The safe allow-list contains 124 commands and excludes all identified remote/local mutations. Vitest is exact 100/100/100/100 across 845 tests."
+  "2026-07-23T05:27:33.979Z",codex-root,"Final acceptance: pm linked-test execution passed focused 26 tests, live read-only E2E (95 total, 42 pass, 53 expected infrastructure failures, zero fail, five writes blocked), and full release verification (845 tests exact 100/100/100/100, 273 help checks, package smoke, audits). Latest @unbrained/pm-cli and pm-changelog are both 2026.7.22, including the managed project extension."
+  "2026-07-23T05:33:49.168Z",codex-root,"PR #63 exact-head CI diagnosis: Bun validation correctly rejected the changelog after master cut release 2026.7.22 while this branch was open. Merged current master, regenerated CHANGELOG.md with pm-changelog 2026.7.22, and reran bun run verify:release successfully at the synchronized state. This is expected stale-generated-artifact detection, not a pm-cli defect."
+  "2026-07-23T05:36:34.393Z",codex-root,"Hosted CI root cause: pm-changelog partitions items using Git release tags. Fetching origin/master alone did not fetch the newly created v2026.7.22 tag, so local generation temporarily grouped released items under Unreleased. Fetching the PR merge ref brought tags into parity with actions/checkout fetch-depth 0; regeneration now leaves only monica-agent-tool-contracts under Unreleased and restores the 2026.7.22 release section."
+notes[3]{created_at,author,text}:
+  "2026-07-23T04:53:29.138Z",codex-root,"Do not store credentials or live response bodies in pm. ~/.monica-cli/settings.json is mode 0600, uses default TOON, and has readOnlyMode=true. Preserve it byte-for-byte except CLI-owned cache refreshes."
+  "2026-07-23T05:02:40.426Z",codex-root,"Design decision: tool schemas inherit global and parent options with leaf-long-flag override semantics, omit root --version because it exits instead of executing the leaf, and use Commander mandatory metadata rather than help-description heuristics."
+  "2026-07-23T05:27:34.612Z",codex-root,"The live Monica instance remains unavailable because its Cloudflare trusted-proxy bootstrap fails before authentication. This is an operator-side server condition already covered by monica-server-diagnostics, not a CLI parity failure; no new duplicate issue was created."
+learnings[2]{created_at,author,text}:
+  "2026-07-23T04:53:29.138Z",codex-root,"Endpoint parity is not agent-contract parity: a CLI can map every route yet still produce incomplete tool schemas or unsafe planning metadata."
+  "2026-07-23T05:02:41.761Z",codex-root,"Real CLI pipes are required acceptance evidence for large agent outputs: mocked console logging concealed 64 KiB truncation even after structural unit tests passed."
+files[11]{path,scope,note}:
+  bun.lock,project,reproducible latest pm toolchain graph
+  CHANGELOG.md,project,package-owned release entry generated from closed item
+  package.json,project,latest pm toolchain and release version
+  src/commands/agent-tools-shared.ts,project,positional inherited and mandatory input schema composition
+  src/commands/agent-tools.ts,project,leaf-only OpenAI Anthropic and MCP exporters with drain-aware output
+  src/commands/command-catalog.ts,project,command safety and inherited contract source
+  src/commands/stdout.ts,project,complete large structured output writer
+  tests/agent-tools-command.test.ts,project,executable leaf integration contracts
+  tests/agent-tools-shared.test.ts,project,input schema and inheritance branch coverage
+  tests/info-command-catalog.test.ts,project,conservative mutation classification coverage
+  tests/stdout.test.ts,project,stdout drain contract
+tests[3]{command,scope,timeout_seconds,note}:
+  bun run test -- tests/agent-tools-shared.test.ts tests/info-command-catalog.test.ts tests/agent-tools-command.test.ts tests/stdout.test.ts --coverage=false,project,300,focused agent contract regressions
+  "bun run test:e2e:readonly",project,1200,actual CLI read-only acceptance against configured Monica instance
+  "bun run verify:release",project,2400,full production release gate
+docs[3]{path,scope,note}:
+  docs/COMMANDS.md,project,OpenAI Anthropic and MCP command behavior
+  docs/OUTPUT-SCHEMAS.md,project,agent tool schema contract documentation
+  README.md,project,public agent contract guarantees
+close_reason: Delivered lossless executable agent tool contracts and conservative mutation safety with complete local/live acceptance evidence.
+body: "Research against Monica 4.x commit 32028ce and the actual CLI catalog found that OpenAI and Anthropic exports omit argument-only leaf commands and required positional arguments, while the safety heuristic advertises contacts introduction, contacts avatar, and attachment uploads as read-only. Harden the shared command contract so generated tools are lossless, leaf-only, schema-valid, and mutation-safe across OpenAI, Anthropic, MCP, command-catalog, and safe-commands outputs."

@@ -5,6 +5,12 @@ import * as infoCapabilities from '../src/commands/info-capabilities';
 import { Command } from 'commander';
 import * as fmt from '../src/formatters';
 
+vi.mock('../src/commands/stdout', () => ({
+  writeFormattedOutput: async (payload: unknown, format: string) => {
+    console.log(fmt.formatOutput(payload, format as never));
+  },
+}));
+
 vi.mock('../src/api/client', () => ({
   getConfig: vi.fn(() => ({
     apiUrl: 'https://test.api',
@@ -38,6 +44,7 @@ describe('agent-tools command', () => {
   it('creates agent-tools command with subcommands', () => {
     const cmd = createAgentToolsCommand();
     expect(cmd.name()).toBe('agent-tools');
+    expect(cmd.opts().format).toBe('toon');
     
     const subcommands = cmd.commands;
     expect(subcommands.length).toBeGreaterThanOrEqual(7);
@@ -86,6 +93,29 @@ describe('agent-tools command', () => {
     expect(payloads[1]).toHaveProperty('functions');
     expect(payloads[2]).toHaveProperty('tools');
     expect(payloads[3]).toHaveProperty('tools');
+  });
+
+  it('exports executable leaves with positional and inherited inputs', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const root = new Command().name('monica').option('--json', 'JSON output');
+    const contacts = root.command('contacts').option('--limit <number>', 'Page size');
+    contacts.command('get <contact-id>').description('Get contact');
+    root.addCommand(createAgentToolsCommand());
+    await root.parseAsync(['agent-tools', '--format', 'json', 'openai'], { from: 'user' });
+    const payload = JSON.parse(String(log.mock.calls.at(-1)?.[0]));
+    expect(payload.totalFunctions).toBe(payload.functions.length);
+    expect(payload.functions).toContainEqual(expect.objectContaining({
+      name: 'monica_contacts_get',
+      parameters: expect.objectContaining({
+        required: ['contact_id'],
+        properties: expect.objectContaining({
+          contact_id: expect.objectContaining({ type: 'string' }),
+          limit: expect.objectContaining({ type: 'number' }),
+          json: expect.objectContaining({ type: 'boolean' }),
+        }),
+      }),
+    }));
+    expect(payload.functions).not.toContainEqual(expect.objectContaining({ name: 'monica_contacts' }));
   });
 
   it('supports every export when agent-tools is used as the standalone root', async () => {

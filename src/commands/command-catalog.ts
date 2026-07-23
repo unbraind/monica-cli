@@ -5,6 +5,7 @@ import { getCapabilityState, type CapabilityReport } from '../api';
 export interface CommandOptionDescriptor {
   flags: string;
   description: string;
+  required?: boolean;
   defaultValue?: unknown;
 }
 
@@ -79,6 +80,12 @@ const WRITE_COMMAND_HINTS = [
   'career',
   'set-avatar',
   'delete-avatar',
+  'introduction',
+  'avatar',
+  'upload',
+  'setup',
+  'reset',
+  'export',
   'sign',
   'tag',
   'star',
@@ -86,10 +93,11 @@ const WRITE_COMMAND_HINTS = [
 
 const META_COMMANDS = ['help', 'version', 'config', 'info', 'schemas'];
 
-function toOptionDescriptor(option: { flags: string; description?: string; defaultValue?: unknown }): CommandOptionDescriptor {
+function toOptionDescriptor(option: { flags: string; description?: string; mandatory: boolean; defaultValue?: unknown }): CommandOptionDescriptor {
   return {
     flags: option.flags,
     description: option.description || '',
+    required: option.mandatory,
     defaultValue: option.defaultValue,
   };
 }
@@ -215,6 +223,7 @@ export function buildCommandCatalog(command: Command, parentPath = '', buildOpti
   const optionDescriptors = command.options.map((option) => toOptionDescriptor({
     flags: option.flags,
     description: option.description,
+    mandatory: option.mandatory,
     defaultValue: option.defaultValue,
   }));
   const args = command.registeredArguments.map((argument) => toArgumentDescriptor({

@@ -218,6 +218,27 @@ This payload is intended as a single deterministic planning input for agents.
 `instanceCapabilities.enabled=false` indicates static command catalog mode (no capability probe attached).
 `availability` is attached only for command families that map to capability probes.
 `usage` and `helpCommand` provide deterministic command invocation metadata for LLM/agent planners.
+Option descriptors also expose Commander's authoritative `required` bit; agent
+tool generation does not infer mandatory inputs from help prose.
+
+### Agent tool input contracts
+
+`agent-tools openai`, `agent-tools anthropic`, and `agent-tools mcp-tools`
+produce one tool per executable CLI leaf. Each tool input schema merges:
+
+- required and optional positional arguments, normalized from kebab-case to
+  snake_case;
+- global flags supported across the CLI;
+- options inherited from parent command groups;
+- leaf-specific options, which override an inherited option with the same long
+  flag; and
+- Commander's `mandatory` metadata for exact `required` arrays.
+
+Flag-only options use JSON Schema `boolean`; valued options remain scalar unless
+the CLI contract explicitly identifies another type. The root `--version`
+control flag is intentionally omitted because it exits before the leaf command
+executes. Large payloads use a drain-aware stdout path, preventing truncated
+JSON in pipelines.
 
 ### `agent-tools safe-commands`
 

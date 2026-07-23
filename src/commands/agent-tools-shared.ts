@@ -1,4 +1,8 @@
-import type { CommandCatalogNode, CommandOptionDescriptor } from './command-catalog';
+import type {
+  CommandArgumentDescriptor,
+  CommandCatalogNode,
+  CommandOptionDescriptor,
+} from './command-catalog';
 
 /** Describes the open ai function parameter data contract. */
 export interface OpenAIFunctionParameter {
@@ -22,23 +26,57 @@ export interface OpenAIFunctionSchema {
   };
 }
 
+/** Describes one executable leaf and its effective inherited options. */
+export interface ExecutableCommandContract {
+  node: CommandCatalogNode;
+  options: CommandOptionDescriptor[];
+}
+
+const NUMERIC_OPTION_VALUE_NAMES = new Set([
+  'age',
+  'amount',
+  'contact-id',
+  'day',
+  'days',
+  'frequency',
+  'id',
+  'latitude',
+  'limit',
+  'longitude',
+  'month',
+  'month-offset',
+  'ms',
+  'n',
+  'number',
+  'page',
+  'pages',
+  'photo-id',
+  'seconds',
+  'year',
+  'years',
+]);
+
+function normalizeParameterName(name: string): string {
+  return name.replace(/-/g, '_');
+}
+
 function buildSchemaParameter(option: CommandOptionDescriptor): { name: string; parameter: OpenAIFunctionParameter; required: boolean } | null {
   const flagMatch = option.flags.match(/--([a-zA-Z0-9-]+)/);
   if (!flagMatch) return null;
 
-  const name = flagMatch[1].replace(/-/g, '_');
+  const name = normalizeParameterName(flagMatch[1]);
   const description = option.description;
-  const isRequiredDescription = /\brequired\b/i.test(description);
   const takesValue = /<[^>]+>/.test(option.flags);
-  const required = isRequiredDescription && takesValue && option.defaultValue === undefined;
-  let type = 'string';
+  const valueName = option.flags.match(/<([^>]+)>/)?.[1];
+  const required = option.required === true && takesValue && option.defaultValue === undefined;
+  let type = takesValue ? 'string' : 'boolean';
   let enumValues: string[] | undefined;
 
-  if (option.flags.includes('<number>') || option.flags.includes('<n>')) {
+  if (valueName !== undefined && NUMERIC_OPTION_VALUE_NAMES.has(valueName)) {
     type = 'number';
-  } else if (option.flags.includes('<boolean>')) {
+  } else if (valueName === 'boolean') {
     type = 'boolean';
-  } else if (description.toLowerCase().includes('format')) {
+  } else if (valueName === 'format') {
     type = 'string';
     enumValues = ['toon', 'json', 'yaml', 'table', 'md'];
   }
@@ -61,10 +99,26 @@ function buildSchemaParameter(option: CommandOptionDescriptor): { name: string; 
 export function commandToOpenAIFunction(
   name: string,
   description: string,
-  options: CommandOptionDescriptor[]
+  options: CommandOptionDescriptor[],
+  arguments_: CommandArgumentDescriptor[] = [],
 ): OpenAIFunctionSchema {
   const properties: Record<string, OpenAIFunctionParameter> = {};
   const required: string[] = [];
+
+  arguments_.forEach((argument) => {
+    const name = normalizeParameterName(argument.name);
+    properties[name] = argument.variadic
+      ? {
+          type: 'array',
+          description: `${argument.required ? 'Required' : 'Optional'} variadic positional argument <${argument.name}>`,
+          items: { type: 'string' },
+        }
+      : {
+          type: 'string',
+          description: `${argument.required ? 'Required' : 'Optional'} positional argument <${argument.name}>`,
+        };
+    if (argument.required) required.push(name);
+  });
 
   options.forEach((option) => {
     const schemaParameter = buildSchemaParameter(option);
@@ -105,4 +159,25 @@ export function collectLeafCommands(node: CommandCatalogNode): CommandCatalogNod
     }
   });
   return leaves;
+}
+
+/** Collect executable leaves with root and parent options merged by long flag. */
+export function collectExecutableCommandContracts(root: CommandCatalogNode): ExecutableCommandContract[] {
+  const contracts: ExecutableCommandContract[] = [];
+  const visit = (node: CommandCatalogNode, inherited: CommandOptionDescriptor[]): void => {
+    const effective = new Map<string, CommandOptionDescriptor>();
+    [...inherited, ...node.options].forEach((option) => {
+      if (option.flags.includes('--version')) return;
+      const key = option.flags.match(/--[a-zA-Z0-9-]+/)?.[0] ?? option.flags;
+      effective.set(key, option);
+    });
+    const options = [...effective.values()];
+    if (node.subcommands.length === 0) {
+      contracts.push({ node, options });
+      return;
+    }
+    node.subcommands.forEach((child) => visit(child, options));
+  };
+  visit(root, []);
+  return contracts;
 }

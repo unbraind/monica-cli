@@ -199,6 +199,8 @@ describe('info command-catalog command', () => {
     contacts.addCommand(new Command('birthdate'));
     contacts.addCommand(new Command('deceased'));
     contacts.addCommand(new Command('stay-in-touch'));
+    contacts.addCommand(new Command('introduction'));
+    contacts.addCommand(new Command('avatar'));
     root.addCommand(contacts);
 
     const compliance = new Command('compliance');
@@ -215,6 +217,8 @@ describe('info command-catalog command', () => {
     const contactsBirthdate = findNode(tree as CatalogNode, ['contacts', 'birthdate']);
     const contactsDeceased = findNode(tree as CatalogNode, ['contacts', 'deceased']);
     const contactsStayInTouch = findNode(tree as CatalogNode, ['contacts', 'stay-in-touch']);
+    const contactsIntroduction = findNode(tree as CatalogNode, ['contacts', 'introduction']);
+    const contactsAvatar = findNode(tree as CatalogNode, ['contacts', 'avatar']);
     const complianceSign = findNode(tree as CatalogNode, ['compliance', 'sign']);
     const bulkTag = findNode(tree as CatalogNode, ['bulk', 'tag']);
     const bulkStar = findNode(tree as CatalogNode, ['bulk', 'star']);
@@ -222,9 +226,24 @@ describe('info command-catalog command', () => {
     expect(contactsBirthdate?.safety.operation).toBe('write');
     expect(contactsDeceased?.safety.operation).toBe('write');
     expect(contactsStayInTouch?.safety.operation).toBe('write');
+    expect(contactsIntroduction?.safety.operation).toBe('write');
+    expect(contactsAvatar?.safety.operation).toBe('write');
     expect(complianceSign?.safety.operation).toBe('write');
     expect(bulkTag?.safety.operation).toBe('write');
     expect(bulkStar?.safety.operation).toBe('write');
+  });
+
+  it('classifies persistent setup, export, and upload commands conservatively', () => {
+    const root = new Command('monica');
+    root.addCommand(new Command('setup'));
+    const bulk = root.command('bulk');
+    bulk.command('export');
+    const documents = root.command('documents');
+    documents.command('upload');
+    const tree = buildCommandCatalog(root);
+    expect(findNode(tree as CatalogNode, ['setup'])?.safety.operation).toBe('write');
+    expect(findNode(tree as CatalogNode, ['bulk', 'export'])?.safety.operation).toBe('write');
+    expect(findNode(tree as CatalogNode, ['documents', 'upload'])?.safety.operation).toBe('write');
   });
 
   it('classifies meta-only trees and upgrades duplicate capability roots', () => {
