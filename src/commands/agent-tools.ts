@@ -4,7 +4,12 @@ import * as fmt from '../formatters';
 import { buildCapabilitySupportIndex, buildCommandCatalog, type CommandCatalogNode } from './command-catalog';
 import * as infoCapabilities from './info-capabilities';
 import { resolveCommandOutputFormat } from './output-format';
-import { collectLeafCommands, commandToOpenAIFunction, walkCommandCatalog, type OpenAIFunctionSchema } from './agent-tools-shared';
+import { writeFormattedOutput } from './stdout';
+import {
+  collectExecutableCommandContracts,
+  commandToOpenAIFunction,
+  type OpenAIFunctionSchema,
+} from './agent-tools-shared';
 
 function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
@@ -32,7 +37,7 @@ interface ExcludedSafeCommandDescriptor {
 export function createAgentToolsCommand(): Command {
   const cmd = new Command('agent-tools')
     .description('Export agent/LLM integration schemas')
-    .option('-f, --format <format>', 'Output format (toon|json|yaml)', 'json');
+    .option('-f, --format <format>', 'Output format (toon|json|yaml)', 'toon');
 
   const exportOpenAi = async (actionCommand: Command): Promise<void> => {
     const format = getOutputFormat(actionCommand);
@@ -41,23 +46,19 @@ export function createAgentToolsCommand(): Command {
       const root = actionCommand.parent ?? actionCommand;
       const catalog = buildCommandCatalog(root);
 
-      const functions: OpenAIFunctionSchema[] = [];
-      walkCommandCatalog(catalog, (node) => {
-        if (node.options && node.options.length > 0) {
-          const schema = commandToOpenAIFunction(
-            node.fullCommand.replace('monica ', ''),
-            node.description,
-            node.options
-          );
-          functions.push(schema);
-        }
-      });
+      const functions: OpenAIFunctionSchema[] = collectExecutableCommandContracts(catalog)
+        .map(({ node, options }) => commandToOpenAIFunction(
+          node.fullCommand.replace('monica ', ''),
+          node.description,
+          options,
+          node.arguments,
+        ));
 
-      console.log(fmt.formatOutput({
+      await writeFormattedOutput({
         generatedAt: new Date().toISOString(),
         totalFunctions: functions.length,
         functions,
-      }, format));
+      }, format);
     } catch (error) {
       console.error(fmt.formatError(error as Error));
       process.exit(1);
@@ -71,27 +72,25 @@ export function createAgentToolsCommand(): Command {
       const root = actionCommand.parent ?? actionCommand;
       const catalog = buildCommandCatalog(root);
 
-      const tools: Array<{ name: string; description: string; input_schema: OpenAIFunctionSchema['parameters'] }> = [];
-      walkCommandCatalog(catalog, (node) => {
-        if (node.options && node.options.length > 0) {
-          const func = commandToOpenAIFunction(
-            node.fullCommand.replace('monica ', ''),
-            node.description,
-            node.options
-          );
-          tools.push({
-            name: func.name,
-            description: func.description,
-            input_schema: func.parameters,
-          });
-        }
+      const tools = collectExecutableCommandContracts(catalog).map(({ node, options }) => {
+        const func = commandToOpenAIFunction(
+          node.fullCommand.replace('monica ', ''),
+          node.description,
+          options,
+          node.arguments,
+        );
+        return {
+          name: func.name,
+          description: func.description,
+          input_schema: func.parameters,
+        };
       });
 
-      console.log(fmt.formatOutput({
+      await writeFormattedOutput({
         generatedAt: new Date().toISOString(),
         totalTools: tools.length,
         tools,
-      }, format));
+      }, format);
     } catch (error) {
       console.error(fmt.formatError(error as Error));
       process.exit(1);
@@ -151,7 +150,7 @@ export function createAgentToolsCommand(): Command {
 
       safeCommands.sort((a, b) => a.command.localeCompare(b.command));
       excludedCommands.sort((a, b) => a.command.localeCompare(b.command));
-      console.log(fmt.formatOutput({
+      await writeFormattedOutput({
         generatedAt: new Date().toISOString(),
         instanceCapabilities: options.instanceAware ? {
           enabled: true,
@@ -164,7 +163,7 @@ export function createAgentToolsCommand(): Command {
         commands: safeCommands,
         totalExcludedCommands: excludedCommands.length,
         excludedCommands,
-      }, format));
+      }, format);
     } catch (error) {
       console.error(fmt.formatError(error as Error));
       process.exit(1);
@@ -209,7 +208,7 @@ export function createAgentToolsCommand(): Command {
       try {
         const root = actionCommand.parent ?? actionCommand;
         const commandCatalog = buildCommandCatalog(root);
-        console.log(fmt.formatOutput({
+        await writeFormattedOutput({
           generatedAt: new Date().toISOString(),
           commandCatalog,
           aliases: {
@@ -218,7 +217,7 @@ export function createAgentToolsCommand(): Command {
             anthropic: 'agent-tools anthropic',
             anthropicTools: 'agent-tools anthropic-tools',
           },
-        }, format));
+        }, format);
       } catch (error) {
         console.error(fmt.formatError(error as Error));
         process.exit(1);
@@ -258,11 +257,12 @@ export function createAgentToolsCommand(): Command {
         }
 
         const catalog = buildCommandCatalog(root, '', { capabilitySupportByCommandRoot });
-        const tools = collectLeafCommands(catalog).map((node) => {
+        const tools = collectExecutableCommandContracts(catalog).map(({ node, options: effectiveOptions }) => {
           const schema = commandToOpenAIFunction(
             node.fullCommand.replace('monica ', ''),
             node.description,
-            node.options
+            effectiveOptions,
+            node.arguments,
           );
           return {
             name: schema.name,
@@ -274,7 +274,7 @@ export function createAgentToolsCommand(): Command {
           };
         });
 
-        console.log(fmt.formatOutput({
+        await writeFormattedOutput({
           generatedAt: new Date().toISOString(),
           schemaVersion: '1.0.0',
           instanceCapabilities: options.instanceAware ? {
@@ -286,7 +286,7 @@ export function createAgentToolsCommand(): Command {
           },
           totalTools: tools.length,
           tools,
-        }, format));
+        }, format);
       } catch (error) {
         console.error(fmt.formatError(error as Error));
         process.exit(1);

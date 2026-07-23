@@ -16,13 +16,13 @@
         "@types/node": "^22.20.1",
         "@typescript-eslint/eslint-plugin": "^8.65.0",
         "@typescript-eslint/parser": "^8.65.0",
-        "@unbrained/pm-cli": "2026.7.21",
+        "@unbrained/pm-cli": "2026.7.22",
         "@vitest/coverage-v8": "4.1.10",
         "eslint": "^10.7.0",
         "eslint-plugin-jsdoc": "^63.2.0",
         "globals": "^17.7.0",
         "jscpd": "^5.0.12",
-        "pm-changelog": "2026.7.18",
+        "pm-changelog": "2026.7.22",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3",
         "vitest": "^4.1.10",
@@ -257,7 +257,7 @@
 
     "@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.65.0", "", { "dependencies": { "@typescript-eslint/types": "8.65.0", "eslint-visitor-keys": "^5.0.0" } }, "sha512-8C71BQkGjiMmXtop7pHVJu1l2NNShFdkCyD6a2ezzs5vU/L3LRtb69EtcteFwz0mYMPzIgOw0n6OV4VBUWZd7A=="],
 
-    "@unbrained/pm-cli": ["@unbrained/pm-cli@2026.7.21", "", { "dependencies": { "@sentry/node": "^10.63.0", "@toon-format/toon": "^2.3.0", "@types/node": ">=22", "commander": "^15.0.0", "fast-glob": "^3.3.3", "fast-json-patch": "^3.1.1" }, "peerDependencies": { "typebox": "*" }, "optionalPeers": ["typebox"], "bin": { "pm-cli": "dist/cli.js", "pm": "dist/cli.js", "pm-mcp": "dist/mcp/server.js" } }, "sha512-U31SEZtw58QlR3DU/nqU5Cab6sz6DVjxqbg8JLt7lmfstdQWW3n+SW6K3xIQXDanvbQQSPOF26UjvnDzrOTaTw=="],
+    "@unbrained/pm-cli": ["@unbrained/pm-cli@2026.7.22", "", { "dependencies": { "@sentry/node": "^10.63.0", "@toon-format/toon": "^2.3.0", "@types/node": ">=22", "commander": "^15.0.0", "fast-glob": "^3.3.3", "fast-json-patch": "^3.1.1" }, "peerDependencies": { "typebox": "*" }, "optionalPeers": ["typebox"], "bin": { "pm-cli": "dist/cli.js", "pm": "dist/cli.js", "pm-mcp": "dist/mcp/server.js" } }, "sha512-quvTKd4T0LniFd5r52XDwmNQKxEK0eYWYB3lHWM/MeseL3+FKDm+0Vi3u5zA4cvW4PQ2eGFQW846NqW5i6eZPw=="],
 
     "@vitest/coverage-v8": ["@vitest/coverage-v8@4.1.10", "", { "dependencies": { "@bcoe/v8-coverage": "^1.0.2", "@vitest/utils": "4.1.10", "ast-v8-to-istanbul": "^1.0.0", "istanbul-lib-coverage": "^3.2.2", "istanbul-lib-report": "^3.0.1", "istanbul-reports": "^3.2.0", "magicast": "^0.5.2", "obug": "^2.1.1", "std-env": "^4.0.0-rc.1", "tinyrainbow": "^3.1.0" }, "peerDependencies": { "@vitest/browser": "4.1.10", "vitest": "4.1.10" }, "optionalPeers": ["@vitest/browser"] }, "sha512-IM49HmthevbgAO4anp1hwtoT9wYe59w0LR00gr+eagHE+ZJ5lK4sLPeO0ubgoJcwLk6dehU3R24N+FbEEKDc8g=="],
 
@@ -567,7 +567,7 @@
 
     "picomatch": ["picomatch@4.0.5", "", {}, "sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A=="],
 
-    "pm-changelog": ["pm-changelog@2026.7.18", "", { "peerDependencies": { "@unbrained/pm-cli": ">=2026.7.11" }, "bin": { "pm-changelog": "dist/cli.js" } }, "sha512-HPjZk02Oh/BY/HX/lPdfTk26v5QrhrXtJ6GmImnGE5QxgtGsqCr/CzA4+M7PuSBlbyv+qwDPeqjAHmfdE5cFcg=="],
+    "pm-changelog": ["pm-changelog@2026.7.22", "", { "peerDependencies": { "@unbrained/pm-cli": ">=2026.7.11" }, "bin": { "pm-changelog": "dist/cli.js" } }, "sha512-Vj7bBMchS6Tb4Bv4WYiPQLpJqi4DV/LpBfxHfxCSobQ4l19Moyu7JdCNpT5gJLZaOqSNDmNc7cRS5OoFrRiC4g=="],
 
     "postcss": ["postcss@8.5.19", "", { "dependencies": { "nanoid": "^3.3.12", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ=="],
 

@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- Make generated agent tool contracts executable and mutation-safe ([monica-agent-tool-contracts](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-agent-tool-contracts.toon))
 - Migrate Release Drafter category configuration before legacy removal ([monica-release-drafter-categories](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-release-drafter-categories.toon))
 - Classify Monica server infrastructure failures with actionable diagnostics ([monica-server-diagnostics](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-server-diagnostics.toon))
 
