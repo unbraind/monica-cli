@@ -6,7 +6,7 @@ status: closed
 priority: 0
 tags[8]: agent-ux,anthropic,api-contracts,command-catalog,mcp,openai,read-only-safety,typescript
 created_at: "2026-07-23T04:53:29.138Z"
-updated_at: "2026-07-23T05:27:38.762Z"
+updated_at: "2026-07-23T05:33:49.168Z"
 deadline: "2026-07-30T04:53:29.138Z"
 closed_at: "2026-07-23T05:27:35.402Z"
 author: codex-root
@@ -39,10 +39,11 @@ dependencies[3]{id,kind,created_at,author,source_kind}:
   monica-api-4x-parity,discovered_from,"2026-07-23T04:53:29.138Z",null,null
   monica-config-output-secret-sink,related,"2026-07-23T04:53:29.138Z",null,null
   monica-output-escaping,related,"2026-07-23T04:53:29.138Z",null,null
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-07-23T04:53:29.138Z",codex-root,"Authoritative Monica 4.x branch remains pinned at 32028ce with 35 mapped resources and 172 endpoints. The local instance is unavailable at bootstrap due to Cloudflare trust-proxy loading, so research used official source plus local deterministic catalogs and only GET probes."
   "2026-07-23T05:02:39.031Z",codex-root,"Implementation milestone: all 233 executable leaves are exported exactly once across OpenAI, Anthropic, and MCP. Positional arguments, inherited options, Commander mandatory inputs, boolean flags, and drain-aware large output are verified. The safe allow-list contains 124 commands and excludes all identified remote/local mutations. Vitest is exact 100/100/100/100 across 845 tests."
   "2026-07-23T05:27:33.979Z",codex-root,"Final acceptance: pm linked-test execution passed focused 26 tests, live read-only E2E (95 total, 42 pass, 53 expected infrastructure failures, zero fail, five writes blocked), and full release verification (845 tests exact 100/100/100/100, 273 help checks, package smoke, audits). Latest @unbrained/pm-cli and pm-changelog are both 2026.7.22, including the managed project extension."
+  "2026-07-23T05:33:49.168Z",codex-root,"PR #63 exact-head CI diagnosis: Bun validation correctly rejected the changelog after master cut release 2026.7.22 while this branch was open. Merged current master, regenerated CHANGELOG.md with pm-changelog 2026.7.22, and reran bun run verify:release successfully at the synchronized state. This is expected stale-generated-artifact detection, not a pm-cli defect."
 notes[3]{created_at,author,text}:
   "2026-07-23T04:53:29.138Z",codex-root,"Do not store credentials or live response bodies in pm. ~/.monica-cli/settings.json is mode 0600, uses default TOON, and has readOnlyMode=true. Preserve it byte-for-byte except CLI-owned cache refreshes."
   "2026-07-23T05:02:40.426Z",codex-root,"Design decision: tool schemas inherit global and parent options with leaf-long-flag override semantics, omit root --version because it exits instead of executing the leaf, and use Commander mandatory metadata rather than help-description heuristics."
