@@ -1,3 +1,4 @@
+import { encode as encodeToon } from '@toon-format/toon';
 import type { OutputFormat } from '../types';
 import { getDefaultFields } from './helpers';
 import { formatMarkdown } from './markdown';
@@ -75,86 +76,9 @@ function pickFields(record: Record<string, unknown>, fields: string[]): Record<s
   return selected;
 }
 
-/** Formats toon. */
+/** Encodes a value with the official lossless TOON codec. */
 export function formatToon<T>(data: T, fields?: string[]): string {
-  if (data === null || data === undefined) return 'null';
-  if (Array.isArray(data)) return formatToonArray(data, fields);
-  if (typeof data === 'object') return formatToonObject(data as Record<string, unknown>, fields, '');
-  return String(data);
-}
-
-function formatToonArray(items: unknown[], fields?: string[]): string {
-  if (items.length === 0) return '(empty)';
-
-  const lines: string[] = [];
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (typeof item === 'object' && item !== null) {
-      const obj = formatToonObjectCompact(item as Record<string, unknown>, fields);
-      lines.push(`${i}: ${obj}`);
-    } else {
-      lines.push(`${i}: ${formatPrimitive(item)}`);
-    }
-  }
-  return lines.join('\n');
-}
-
-function formatToonObject(obj: Record<string, unknown>, fields?: string[], indent = ''): string {
-  const entries = Object.entries(obj);
-  const filteredEntries = fields ? entries.filter(([key]) => fields.includes(key)) : entries;
-
-  const lines: string[] = [];
-  for (const [key, value] of filteredEntries) {
-    if (value === null || value === undefined) continue;
-    if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value as object).length === 0) continue;
-    lines.push(`${indent}${key}: ${formatValue(value, indent + '  ', fields)}`);
-  }
-  return lines.join('\n');
-}
-
-function formatToonObjectCompact(obj: Record<string, unknown>, fields?: string[]): string {
-  const entries = Object.entries(obj);
-  const filteredEntries = fields ? entries.filter(([key]) => fields.includes(key)) : entries.slice(0, 6);
-
-  const parts: string[] = [];
-  for (const [key, value] of filteredEntries) {
-    if (value === null || value === undefined) continue;
-    if (typeof value === 'object' && !Array.isArray(value)) {
-      const nested = formatToonObjectCompact(value as Record<string, unknown>);
-      if (nested) parts.push(`${key}:{${nested}}`);
-    } else {
-      parts.push(`${key}:${formatPrimitive(value)}`);
-    }
-  }
-  return parts.join(' ');
-}
-
-function formatValue(value: unknown, indent: string, fields?: string[]): string {
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '[]';
-    if (value.every((entry) => typeof entry !== 'object')) {
-      return `[${value.map(formatPrimitive).join(', ')}]`;
-    }
-    return `[${value.length} items]`;
-  }
-
-  if (typeof value === 'object') {
-    const nested = formatToonObject(value as Record<string, unknown>, fields, indent);
-    return nested ? `\n${nested}` : '{}';
-  }
-
-  return formatPrimitive(value);
-}
-
-function formatPrimitive(value: unknown): string {
-  if (value === null || value === undefined) return '';
-  if (typeof value === 'string') {
-    const truncated = value.length > 60 ? `${value.substring(0, 60)}...` : value;
-    if (/^[a-zA-Z0-9_\-./:@]+$/.test(truncated)) return truncated;
-    const escaped = truncated.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return `"${escaped}"`;
-  }
-  return String(value);
+  return encodeToon(filterDataByFields(data, fields));
 }
 
 /** Formats table. */

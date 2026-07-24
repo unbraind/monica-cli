@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.7.23 - 2026-07-23
+
+### Fixed
+
+- Recommend pm merge reconcile (2026.7.22) over raw history-repair in Multi-agent merge safety docs ([pmc-r9i0](https://github.com/unbraind/pm-changelog/blob/main/.agents/pm/issues/pmc-r9i0.toon))
+
+### Other
+
+- Adopt pm field-aware merge driver for multi-agent branch-merge safety ([pmc-api6](https://github.com/unbraind/pm-changelog/blob/main/.agents/pm/chores/pmc-api6.toon))
+
 ## 2026.7.18 - 2026-07-18
 
 ### Fixed

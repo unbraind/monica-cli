@@ -69,10 +69,10 @@ export function formatPaginatedResponse<T>(
     const info = `**Page ${response.meta.current_page}/${response.meta.last_page}** (${response.meta.total} total)`;
     return `${info}\n\n${formatMarkdown(filteredData, effectiveFields)}`;
   }
+  if (resolved === 'toon') return formatToon(filteredResponse);
   if (response.meta.total === 0) return 'No results';
   const info = response.meta.last_page === 1 ? '1/1' : `${response.meta.current_page}/${response.meta.last_page}`;
-  const data = resolved === 'toon' ? formatToon(filteredData, effectiveFields) : formatTable(filteredData, effectiveFields);
-  return `${info}\n${data}`;
+  return `${info}\n${formatTable(filteredData, effectiveFields)}`;
 }
 
 /** Formats a contact using its concise default field set. */

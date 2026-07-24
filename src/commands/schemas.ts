@@ -1,4 +1,5 @@
-import { Command } from 'commander';
+import { decode as decodeToon } from '@toon-format/toon';
+import { Command, InvalidArgumentError } from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse as parseYaml } from 'yaml';
@@ -9,7 +10,17 @@ import { resolveCommandOutputFormat } from './output-format';
 import { OUTPUT_SCHEMAS, findSchema } from './schema-registry';
 import { generateSampleFromSchema } from './schema-example';
 
-type InputFormat = 'auto' | 'json' | 'yaml' | 'yml';
+type InputFormat = 'auto' | 'json' | 'toon' | 'yaml' | 'yml';
+const INPUT_FORMATS: readonly InputFormat[] = ['auto', 'json', 'toon', 'yaml', 'yml'];
+
+/** Normalizes and validates a schema-validation input format. */
+export function parseSchemaInputFormat(value: string): InputFormat {
+  const normalized = value.trim().toLowerCase();
+  if (!INPUT_FORMATS.includes(normalized as InputFormat)) {
+    throw new InvalidArgumentError(`Invalid input format "${value}". Use: ${INPUT_FORMATS.join(', ')}`);
+  }
+  return normalized as InputFormat;
+}
 
 function getOutputFormat(command: Command): OutputFormat {
   return resolveCommandOutputFormat(command);
@@ -21,12 +32,16 @@ function resolveInputFormat(inputPath: string | undefined, inputFormat: InputFor
   if (!inputPath) return 'json';
   const ext = path.extname(inputPath).toLowerCase();
   if (ext === '.yaml' || ext === '.yml') return 'yaml';
+  if (ext === '.toon') return 'toon';
   return 'json';
 }
 
 function parseValidationInput(raw: string, inputFormat: Exclude<InputFormat, 'auto'>): unknown {
   if (inputFormat === 'json') {
     return JSON.parse(raw) as unknown;
+  }
+  if (inputFormat === 'toon') {
+    return decodeToon(raw);
   }
   return parseYaml(raw) as unknown;
 }
@@ -51,7 +66,10 @@ function readValidationInput(inputPath: string | undefined, inputFormat: InputFo
         // Fall through to error below.
       }
     }
-    throw new Error(`Input payload is not valid ${resolvedFormat === 'yaml' ? 'YAML' : 'JSON'}.`);
+    const formatLabel = resolvedFormat === 'yaml' || resolvedFormat === 'yml'
+      ? 'YAML'
+      : resolvedFormat.toUpperCase();
+    throw new Error(`Input payload is not valid ${formatLabel}.`);
   }
 }
 
@@ -123,8 +141,8 @@ export function createSchemasCommand(): Command {
 
   cmd
     .command('validate <schema-id> [input-path]')
-    .description('Validate input payload (JSON/YAML from file or stdin) against a registered schema')
-    .option('--input-format <format>', 'Input payload format (auto|json|yaml|yml)', 'auto')
+    .description('Validate input payload (JSON/TOON/YAML from file or stdin) against a registered schema')
+    .option('--input-format <format>', 'Input payload format (auto|json|toon|yaml|yml)', parseSchemaInputFormat, 'auto')
     .action(function (this: Command, schemaId: string, inputPath?: string): void {
       const actionCommand = this;
       const format = getOutputFormat(actionCommand);

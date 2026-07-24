@@ -102,20 +102,22 @@ export const API_RESEARCH_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
           type: 'object',
           required: ['resource', 'includeParameterized', 'idReplacement'],
           properties: {
-            resource: { type: 'string' },
+            resource: { type: ['string', 'null'] },
             includeParameterized: { type: 'boolean' },
             idReplacement: { type: 'number' },
           },
         },
         summary: {
           type: 'object',
-          required: ['total', 'supported', 'unsupported', 'unknownId', 'errors'],
+          required: ['total', 'supported', 'unsupported', 'unknownId', 'unavailable', 'errors', 'healthy'],
           properties: {
             total: { type: 'number' },
             supported: { type: 'number' },
             unsupported: { type: 'number' },
             unknownId: { type: 'number' },
+            unavailable: { type: 'number' },
             errors: { type: 'number' },
+            healthy: { type: 'boolean' },
           },
         },
         probes: {
@@ -131,7 +133,7 @@ export const API_RESEARCH_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
               probePath: { type: 'string' },
               probeParams: { type: 'object' },
               parameterized: { type: 'boolean' },
-              status: { type: 'string', enum: ['supported', 'unsupported', 'unknown-id', 'error'] },
+              status: { type: 'string', enum: ['supported', 'unsupported', 'unknown-id', 'unavailable', 'error'] },
               supported: {},
               statusCode: { type: 'number' },
               message: { type: 'string' },

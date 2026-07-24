@@ -62,6 +62,7 @@ describe('coverage contract edges', () => {
     };
     const formatted = formatPaginatedResponse(response, 'json', ['id']);
     expect(JSON.parse(formatted).data).toEqual([null, ['nested'], 'plain', { id: 1 }]);
+    expect(formatPaginatedResponse(response, 'table', ['id'])).toContain('1/1');
     expect(formatPaginatedResponse({ ...response, data: [], meta: { ...response.meta, total: 0 } }, 'md'))
       .toBe('*No results*');
     expect(formatPaginatedResponse({ ...response, data: [], meta: { ...response.meta, total: 0 } }, 'table'))

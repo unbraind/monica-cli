@@ -779,7 +779,7 @@ import {
 } from 'monica-cli';
 
 // Format output
-const output = formatOutput(data, 'toon');  // or 'json' or 'table'
+const output = formatOutput(data, 'toon');  // official lossless TOON
 
 // Format paginated response
 const formatted = formatPaginatedResponse(response, 'toon', ['id', 'name']);
@@ -793,3 +793,7 @@ console.log(formatSuccess('Contact created', 123));
 // Format deleted
 console.log(formatDeleted(123));
 ```
+
+`formatPaginatedResponse(..., 'toon')` encodes the complete filtered
+`{ data, links, meta }` envelope with `@toon-format/toon`. Consumers can
+round-trip it with that package's `decode` function.

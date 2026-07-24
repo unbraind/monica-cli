@@ -222,31 +222,32 @@ The CLI supports five output formats:
 
 ### toon (Default)
 
-Hierarchical format optimized for readability and AI agents:
+Lossless [official TOON](https://github.com/toon-format/toon) optimized for
+readability and AI agents. Paginated commands encode the complete `data`,
+`links`, and `meta` envelope:
 
 ```bash
 monica contacts list
 ```
 
+```toon
+data[2]{id,first_name,last_name}:
+  1,John,Doe
+  2,Jane,Smith
+links:
+  first: https://example.test/api/contacts?page=1
+  last: https://example.test/api/contacts?page=1
+  prev: null
+  next: null
+meta:
+  current_page: 1
+  last_page: 1
+  total: 2
 ```
-[2 items]
 
-── [0] ──
-  id: 1
-  first_name: "John"
-  last_name: "Doe"
-  gender: "male"
-  is_partial: false
-  created_at: "2024-01-15T10:30:00Z"
-
-── [1] ──
-  id: 2
-  first_name: "Jane"
-  last_name: "Smith"
-  gender: "female"
-  is_partial: false
-  created_at: "2024-01-16T14:20:00Z"
-```
+Strings and nested structures are never shortened for presentation. Use
+`monica schemas validate <schema-id> payload.toon` to decode and validate a
+TOON payload against a registered contract.
 
 ### JSON
 

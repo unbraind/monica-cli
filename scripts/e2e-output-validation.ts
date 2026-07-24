@@ -1,3 +1,4 @@
+import { decode as decodeToon } from '@toon-format/toon';
 import { parse as parseYaml } from 'yaml';
 
 export type OutputValidation = 'none' | 'json' | 'yaml' | 'markdown' | 'table' | 'toon';
@@ -44,11 +45,12 @@ function validateTable(stdout: string): string | null {
 }
 
 function validateToon(stdout: string): string | null {
-  const lines = stdout.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (lines.length < 2) return 'Toon validation failed: expected at least pagination and first data row';
-  if (!/^\d+\/\d+$/u.test(lines[0])) return 'Toon validation failed: missing pagination header (page/total)';
-  if (!/^\d+:\s/u.test(lines[1])) return 'Toon validation failed: missing indexed row prefix ("0: ...")';
-  return null;
+  try {
+    decodeToon(stdout);
+    return null;
+  } catch {
+    return 'TOON validation failed: stdout is not valid official TOON';
+  }
 }
 
 export function validateOutput(

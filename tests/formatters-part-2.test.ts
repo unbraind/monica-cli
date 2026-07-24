@@ -1,3 +1,4 @@
+import { decode as decodeToon } from '@toon-format/toon';
 import { afterEach, describe, it, expect } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import {
@@ -27,11 +28,10 @@ describe('formatPaginatedResponse', () => {
     const response: PaginatedResponse<Contact> = {
       data: [{ id: 1, object: 'contact', first_name: 'Test', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
       links: { first: 'url', last: 'url', prev: null, next: null },
-      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+      meta: { current_page: 1, from: 1, last_page: 2, path: 'url', per_page: 10, to: 1, total: 15 },
     };
     const result = formatPaginatedResponse(response, 'toon');
-    expect(result).toContain('1/1');
-    expect(result).toContain('id:1');
+    expect(decodeToon(result)).toEqual(response);
   });
 
   it('formats paginated response in json format', () => {
@@ -106,10 +106,10 @@ describe('formatPaginatedResponse', () => {
       meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
     };
     const result = formatPaginatedResponse(response, 'toon');
-    expect(result).toContain('1/1');
-    expect(result).toContain('id:7');
-    expect(result).not.toContain('first_name');
-    expect(result).not.toContain('Raw');
+    expect(decodeToon(result)).toEqual({
+      ...response,
+      data: [{ id: 7 }],
+    });
   });
 
   it('applies runtime field selection override to paginated table output', () => {
@@ -117,10 +117,10 @@ describe('formatPaginatedResponse', () => {
     const response: PaginatedResponse<Contact> = {
       data: [{ id: 7, object: 'contact', first_name: 'Raw', last_name: null, nickname: null, gender: 'male', is_partial: false, is_dead: false, last_called: null, last_activity_together: null, stay_in_touch_frequency: null, stay_in_touch_trigger_date: null, information: {}, created_at: '2024-01-01', updated_at: '2024-01-01' }],
       links: { first: 'url', last: 'url', prev: null, next: null },
-      meta: { current_page: 1, from: 1, last_page: 1, path: 'url', per_page: 10, to: 1, total: 1 },
+      meta: { current_page: 1, from: 1, last_page: 2, path: 'url', per_page: 10, to: 1, total: 15 },
     };
     const result = formatPaginatedResponse(response, 'table');
-    expect(result).toContain('1/1');
+    expect(result).toContain('1/2');
     expect(result).toContain('\nid');
     expect(result).toContain('\n7');
     expect(result).not.toContain('first_name');
