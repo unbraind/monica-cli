@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Adopt lossless official TOON and executable output contracts ([monica-official-toon-contracts](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-official-toon-contracts.toon))
+
 ## 2026.7.24 - 2026-07-24
 
 ### Fixed

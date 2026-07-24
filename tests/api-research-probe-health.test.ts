@@ -4,6 +4,8 @@ import * as client from '../src/api/client';
 import * as fmt from '../src/formatters';
 import { createApiResearchCommand } from '../src/commands/api-research';
 import { buildProbePayload } from '../src/commands/api-research-probe';
+import { findSchema } from '../src/commands/schema-registry';
+import { validateValueAgainstSchema } from '../src/commands/schema-validator';
 
 vi.mock('fs', () => ({ readFileSync: vi.fn() }));
 vi.mock('../src/api/client', () => ({ get: vi.fn() }));
@@ -49,6 +51,9 @@ describe('API research probe health semantics', () => {
       healthy: false,
     });
     expect(payload.probes[0]).toMatchObject({ status: 'unavailable', supported: null });
+    const schema = findSchema('api-research-probe');
+    if (!schema) throw new Error('api-research-probe schema is not registered');
+    expect(validateValueAgainstSchema(payload, schema.schema)).toEqual([]);
   });
 
   it('keeps non-HTTP runtime failures distinct from API support', async () => {

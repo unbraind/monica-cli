@@ -1,3 +1,4 @@
+import { decode as decodeToon } from '@toon-format/toon';
 import { afterEach, describe, it, expect } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import {
@@ -38,13 +39,14 @@ describe('formatToon', () => {
   });
 
   it('formats empty array', () => {
-    expect(formatToon([])).toBe('(empty)');
+    expect(formatToon([])).toBe('[]');
   });
 
-  it('formats array of objects', () => {
-    const result = formatToon([{ id: 1 }, { id: 2 }]);
-    expect(result).toContain('0:');
-    expect(result).toContain('1:');
+  it('formats and decodes arrays of objects losslessly', () => {
+    const value = [{ id: 1 }, { id: 2 }];
+    const result = formatToon(value);
+    expect(result).toContain('[2]{id}:');
+    expect(decodeToon(result)).toEqual(value);
   });
 
   it('formats simple object', () => {
@@ -59,10 +61,10 @@ describe('formatToon', () => {
     expect(result).toContain('name:');
   });
 
-  it('truncates long strings', () => {
+  it('preserves long strings', () => {
     const longStr = 'a'.repeat(150);
     const result = formatToon({ text: longStr });
-    expect(result).toContain('...');
+    expect(decodeToon(result)).toEqual({ text: longStr });
   });
 
   it('escapes backslashes before quotes in quoted strings', () => {

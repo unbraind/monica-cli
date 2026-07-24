@@ -37,11 +37,11 @@ describe('e2e output validation', () => {
   });
 
   it('accepts valid toon output', () => {
-    const toon = '1/1\n0: id:1 first_name:Adrian';
+    const toon = 'data[1]{id,first_name}:\n  1,Adrian\nmeta:\n  current_page: 1\n  last_page: 1';
     expect(validateOutput(toon, 'toon')).toBeNull();
   });
 
   it('rejects invalid toon output', () => {
-    expect(validateOutput('1/1\nid:1', 'toon')).toContain('Toon validation failed');
+    expect(validateOutput('data[2]{id}:\n  1', 'toon')).toContain('TOON validation failed');
   });
 });

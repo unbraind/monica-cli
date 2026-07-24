@@ -1,7 +1,8 @@
+import { encode as encodeToon } from '@toon-format/toon';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as fmt from '../src/formatters';
-import { createSchemasCommand } from '../src/commands/schemas';
+import { createSchemasCommand, parseSchemaInputFormat } from '../src/commands/schemas';
 
 vi.mock('fs', () => ({
   readFileSync: vi.fn(),
@@ -95,6 +96,36 @@ describe('schemas command', () => {
     expect(payload.inputFormat).toBe('yaml');
     expect(payload.errors).toEqual([]);
     expect(exitSpy).not.toHaveBeenCalled();
+  });
+
+  it('validates official TOON payloads from files and explicit stdin input', async () => {
+    const readFileSyncMock = fs.readFileSync as unknown as ReturnType<typeof vi.fn>;
+    readFileSyncMock.mockReturnValue(encodeToon({ ok: true, apiUrl: 'http://example/api' }));
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined as never) as (code?: string | number | null | undefined) => never);
+
+    await createSchemasCommand().parseAsync([
+      '--format', 'json', 'validate', 'config-test', '/tmp/payload.toon',
+    ], { from: 'user' });
+    expect(JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]))).toMatchObject({
+      ok: true,
+      inputFormat: 'toon',
+    });
+
+    await createSchemasCommand().parseAsync([
+      '--format', 'json', 'validate', 'config-test', '--input-format', 'toon',
+    ], { from: 'user' });
+    expect(JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]))).toMatchObject({
+      ok: true,
+      inputFormat: 'toon',
+    });
+    expect(exitSpy).not.toHaveBeenCalled();
+  });
+
+  it('rejects unsupported schema input formats before reading input', async () => {
+    vi.mocked(fs.readFileSync).mockClear();
+    expect(parseSchemaInputFormat(' TOON ')).toBe('toon');
+    expect(() => parseSchemaInputFormat('toml')).toThrow('Invalid input format "toml"');
+    expect(fs.readFileSync).not.toHaveBeenCalled();
   });
 
   it('fails validation for invalid payload', async () => {

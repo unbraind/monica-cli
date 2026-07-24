@@ -60,6 +60,9 @@ This starts an interactive wizard and stores settings in `~/.monica-cli/settings
 `monica setup` is a direct alias for `monica config setup`.
 By default, setup keeps `read-only` safety mode enabled unless `--read-write` is explicitly provided.
 Setup also persists `defaultFormat` (`toon` by default) so you can set a global output mode for automation.
+Default TOON is encoded by the official
+[`@toon-format/toon`](https://github.com/toon-format/toon) codec and preserves
+the complete selected payload without truncating strings or nested records.
 Settings should use `readOnlyMode` (canonical key). Legacy `readOnly` is still accepted and normalized automatically.
 Optional `user-email`/`user-password` prompts are only shown when those values already exist or are explicitly provided.
 Setup validates URL/email/key safety (`api-key` must be non-empty without whitespace; `user-password` requires `user-email`).
@@ -169,6 +172,10 @@ monica --json info agent-context
 
 # Generate deterministic schema example payloads for mocks/tests/agents
 monica --json schemas sample info-capabilities
+
+# Validate JSON, YAML, or official TOON against a registered output schema
+monica schemas validate config-test ./payload.toon
+cat payload.toon | monica --json schemas validate config-test --input-format toon
 
 # Export full machine-readable command graph for agent planners
 monica --json info command-catalog

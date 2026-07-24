@@ -24,15 +24,28 @@ monica --json schemas get agent-runbook
 monica --json schemas sample info-capabilities
 monica --json schemas validate config-test ./payload.json
 monica --json schemas validate config-test ./payload.yaml
+monica --json schemas validate config-test ./payload.toon
 cat ./payload.json | monica --json schemas validate config-test
 cat ./payload.yaml | monica --json schemas validate config-test --input-format yaml
+cat ./payload.toon | monica --json schemas validate config-test --input-format toon
 ```
 
 ## Scope
 
-- Canonical machine format is JSON (`--json` or `--raw` where applicable).
-- `toon`, `yaml`, `table`, and `md` are alternate renderings of the same underlying payload.
-- For deterministic automation (`jq`, CI/CD, agent tool calls), prefer JSON.
+- JSON (`--json` or `--raw` where applicable) is the canonical format for
+  `jq`; default `toon` is the lossless official
+  [`@toon-format/toon`](https://github.com/toon-format/toon) encoding of the
+  same selected payload.
+- Official TOON output can be decoded independently and passed directly to
+  `schemas validate` from a `.toon` file or stdin with
+  `--input-format toon`.
+- `yaml`, `table`, and `md` remain alternate renderings; table and Markdown
+  are presentation formats rather than round-trip serialization contracts.
+- Paginated TOON encodes the complete `{data, links, meta}` envelope. It does
+  not prepend a non-TOON page marker, truncate strings, or collapse nested
+  records.
+- For deterministic automation, use JSON with `jq`, TOON with an official
+  decoder, or YAML with a standards-compliant parser.
 - Some list commands can return compatibility fallback envelopes on instances with missing endpoints (for example `contact-fields list`, `pet-categories list`).
 - `groups list` fallback (`/groups` unavailable) returns the normal group list schema, with values derived from `tags` records.
 
@@ -64,6 +77,14 @@ cat ./payload.yaml | monica --json schemas validate config-test --input-format y
 ```
 
 ## Common Envelopes
+
+### `api-research probe`
+
+Probe status is one of `supported`, `unsupported`, `unknown-id`,
+`unavailable`, or `error`. `unavailable` means authentication, rate limiting,
+networking, or server bootstrap prevented capability detection; it must not be
+treated as evidence that a Monica endpoint is unsupported. The summary exposes
+separate `unavailable`, `errors`, and `healthy` fields.
 
 ### `info capabilities`
 

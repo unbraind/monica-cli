@@ -131,6 +131,15 @@ async function probeEndpoint(
   const probeRequest = resolveProbeRequest(resource, key, endpointPath, idReplacement);
   const probePath = probeRequest.path;
   const probeParams = probeRequest.params;
+  const probeContext = {
+    resource,
+    key,
+    method: 'GET',
+    referencePath: endpointPath,
+    probePath,
+    ...(probeParams ? { probeParams } : {}),
+    parameterized,
+  };
   try {
     if (probeParams) {
       await get<unknown>(probePath, probeParams);
@@ -138,13 +147,7 @@ async function probeEndpoint(
       await get<unknown>(probePath);
     }
     return {
-      resource,
-      key,
-      method: 'GET',
-      referencePath: endpointPath,
-      probePath,
-      probeParams,
-      parameterized,
+      ...probeContext,
       status: 'supported',
       supported: true,
       statusCode: 200,
@@ -154,13 +157,7 @@ async function probeEndpoint(
     const apiError = toApiErrorLike(error);
     if (!apiError) {
       return {
-        resource,
-        key,
-        method: 'GET',
-        referencePath: endpointPath,
-        probePath,
-        probeParams,
-        parameterized,
+        ...probeContext,
         status: 'error',
         supported: null,
         statusCode: 0,
@@ -170,13 +167,7 @@ async function probeEndpoint(
 
     if (parameterized && apiError.statusCode === 404) {
       return {
-        resource,
-        key,
-        method: 'GET',
-        referencePath: endpointPath,
-        probePath,
-        probeParams,
-        parameterized,
+        ...probeContext,
         status: 'unknown-id',
         supported: null,
         statusCode: apiError.statusCode,
@@ -186,13 +177,7 @@ async function probeEndpoint(
 
     const unsupported = apiError.statusCode === 404 || apiError.statusCode === 405;
     return {
-      resource,
-      key,
-      method: 'GET',
-      referencePath: endpointPath,
-      probePath,
-      probeParams,
-      parameterized,
+      ...probeContext,
       status: unsupported ? 'unsupported' : 'unavailable',
       supported: unsupported ? false : null,
       statusCode: apiError.statusCode,

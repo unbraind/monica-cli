@@ -140,17 +140,18 @@ monica schemas sample <schema-id> [options]
 
 ### schemas validate
 
-Validate JSON/YAML input against a registered schema ID.
+Validate JSON, YAML, or official TOON input against a registered schema ID.
 
 ```bash
 monica schemas validate <schema-id> [input-path] [options]
 cat payload.json | monica --json schemas validate <schema-id>
 cat payload.yaml | monica --json schemas validate <schema-id> --input-format yaml
+cat payload.toon | monica --json schemas validate <schema-id> --input-format toon
 ```
 
 | Option | Description |
 |--------|-------------|
-| `--input-format <format>` | Input payload format (`auto`\|`json`\|`yaml`\|`yml`) |
+| `--input-format <format>` | Input payload format (`auto`\|`json`\|`toon`\|`yaml`\|`yml`) |
 
 ## api-research
 
@@ -2314,15 +2315,18 @@ monica schemas sample <schema-id>
 
 ### schemas validate
 
-Validate a JSON or YAML payload against a built-in schema.
+Validate a JSON, YAML, or official TOON payload against a built-in schema.
 
 ```bash
 monica schemas validate <schema-id> [input-path] [options]
 cat payload.yaml | monica schemas validate <schema-id> --input-format yaml
+cat payload.toon | monica schemas validate <schema-id> --input-format toon
 ```
 
 Options:
-- `--input-format <format>`: `auto` (default), `json`, `yaml`, or `yml`
+- `--input-format <format>`: `auto` (default), `json`, `toon`, `yaml`, or `yml`.
+  `.toon`, `.yaml`, and `.yml` file extensions are auto-detected; use an
+  explicit format for deterministic stdin validation.
 
 ---
 

@@ -1,3 +1,4 @@
+import { decode as decodeToon } from '@toon-format/toon';
 import { describe, expect, it } from 'vitest';
 import {
   formatActivity,
@@ -16,18 +17,20 @@ import { formatMarkdown } from '../src/formatters/markdown';
 import { formatYaml } from '../src/formatters/yaml';
 
 describe('formatter edge behavior', () => {
-  it('covers primitive, null, nested, escaped, truncated, and filtered TOON values', () => {
+  it('covers primitive, null, nested, escaped, lossless, and filtered TOON values', () => {
     expect(formatOutput('value', 'invalid' as never)).toBe('value');
     expect(formatToon(undefined)).toBe('null');
     expect(formatToon(42)).toBe('42');
-    expect(formatToon(['simple value', null])).toContain('0: "simple value"');
-    expect(formatToon({ empty: {}, list: [], primitives: [1, 2], objects: [{ id: 1 }] }))
-      .toContain('objects: [1 items]');
-    expect(formatToon({ nested: { empty: {} } })).toContain('nested: {}');
-    expect(formatToon([{ nested: {} }, { nested: { id: 1 } }])).toContain('nested:{id:1}');
-    expect(formatToon({ omitted: null, missing: undefined, shown: 1 })).toBe('shown: 1');
-    expect(formatToon({ quote: 'a "quoted" \\ value' })).toContain('\\"quoted\\"');
-    expect(formatToon({ long: 'x'.repeat(70) })).toContain('...');
+    const value = {
+      empty: {},
+      list: [],
+      primitives: ['simple value', null],
+      objects: [{ nested: {} }, { nested: { id: 1 } }],
+      omitted: null,
+      quote: 'a "quoted" \\ value',
+      long: 'x'.repeat(70),
+    };
+    expect(decodeToon(formatToon(value))).toEqual(value);
     expect(formatToon({ a: 1, b: 2 }, ['b'])).toBe('b: 2');
     expect(formatOutput('plain', 'json', { fields: ['id'] })).toBe('"plain"');
   });

@@ -324,6 +324,9 @@ Notes:
   - `MONICA_E2E_REPORT_PATH=/abs/path/report.json` to override report location
   - `MONICA_E2E_FAIL_ON_TIMEOUT=1` to fail on endpoint timeouts instead of marking them expected
 - Emits a sanitized machine-readable report to `~/.monica-cli/cache/e2e-readonly-last.json` by default (contains command statuses and summary only, no API payload data)
+- TOON validation uses the official strict decoder, so malformed row counts,
+  non-TOON pagination prefixes, and lossy presentation-only output fail the
+  acceptance run.
 
 ## Release Checklist
 

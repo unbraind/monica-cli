@@ -1,0 +1,82 @@
+id: monica-official-toon-contracts
+title: Adopt lossless official TOON and executable output contracts
+description: "Replace the lossy handwritten TOON-like renderer with @toon-format/toon 4, validate real TOON by decoding it, close runtime/schema drift for unavailable API diagnostics, and update the repository-local PM/changelog toolchain."
+type: Issue
+status: closed
+priority: 0
+tags[8]: agent-ux,api-contracts,formatting,lossless,output-schema,pm-governance,toon,typescript
+created_at: "2026-07-24T20:59:00.157Z"
+updated_at: "2026-07-24T21:50:37.380Z"
+deadline: "2026-07-26T20:59:00.157Z"
+closed_at: "2026-07-24T21:50:36.038Z"
+author: codex-root
+estimated_minutes: 360
+acceptance_criteria: "Default TOON output is emitted by @toon-format/toon 4 and decodes losslessly for nested records, arrays, long strings, nulls, and pagination envelopes; Every declared output schema accepts representative runtime payloads, and api-research probe schema includes supported, unsupported, unknown-id, unavailable, and error states with accurate counters; All command help, docs, schema examples, agent exports, and read-only E2E output validators reflect official TOON semantics; Repository PM dependencies and managed pm-changelog extension use the latest published versions without changing generated changelog by hand; Release gates pass with exact 100/100/100/100 source coverage, 100 percent export documentation, source files within 300 LOC, zero unjustified any/dynamic imports/duplication/security findings, and packed Bun/npm smoke proof; Live validation uses actual monica commands with read-only mode and proves mutations are blocked before network access; no private data is committed"
+parent: monica-platform
+reviewer: unbraind
+risk: high
+confidence: 94
+sprint: 2026-07-output-contracts
+release: next
+reporter: codex-root
+severity: high
+environment: "Monica stable 4.x CLI, Bun 1.3.11, Node 22+, local read-only instance"
+repro_steps: "Run formatToon on a value containing a string longer than 60 characters or an array of nested objects, then attempt official TOON decode; inspect api-research-probe schema status enum against the runtime unavailable state."
+resolution: "Replaced the lossy formatter with the official TOON codec, reconciled runtime/schema states, upgraded the PM/changelog toolchain, patched the dependency advisory, synchronized released master, selected the semver-compatible stable PM build without relaxing peers, and documented the npm dist-tag defect upstream."
+expected_result: "Default TOON is official, lossless, schema-valid, independently decodable, and safe for agent automation across the mapped Monica 4.x surface."
+actual_result: Official TOON 4.0.0 is lossless and schema-valid; merged-base release gates pass at candidate 2026.7.24-2; strict npm installation succeeds with stable PM CLI 2026.7.24 and pm-changelog 2026.7.23; upstream dist-tag defect is tracked in unbraind/pm-cli#681.
+affected_version: 2026.7.23
+fixed_version: 2026.7.24-2
+component: output-contracts
+regression: false
+customer_impact: Agents can receive incomplete CRM records or reject truthful unavailable diagnostics despite nominal schema support.
+dependencies[7]{id,kind,created_at,author,source_kind}:
+  monica-agent-tool-contracts,discovered_from,"2026-07-24T20:59:00.157Z",null,null
+  monica-api-4x-parity,discovered_from,"2026-07-24T20:59:00.157Z",null,null
+  monica-api-4x-parity-plan,implements,"2026-07-24T20:59:00.157Z",null,null
+  monica-auto-release,related,"2026-07-24T20:59:00.157Z",null,null
+  monica-config-output-secret-sink,related,"2026-07-24T20:59:00.157Z",null,null
+  monica-output-escaping,related,"2026-07-24T20:59:00.157Z",null,null
+  monica-server-diagnostics,verifies,"2026-07-24T20:59:00.157Z",null,null
+comments[11]{created_at,author,text}:
+  "2026-07-24T20:59:00.157Z",codex-root,"Research baseline: Monica 4.x remains pinned at commit 32028ce with 35 resources and 172 already mapped endpoints. The local instance remains unavailable at server bootstrap, so no route incompatibility item is warranted."
+  "2026-07-24T20:59:04.352Z",codex-root,"Implementation decision: use the package-owned encode/decode APIs after inspecting @toon-format/toon 4.0.0 declarations; retain field filtering before encoding so all output modes share the same selected payload."
+  "2026-07-24T21:05:11.082Z",codex-root,"Implementation milestone: official TOON 4.0.0 now round-trips selected payloads and full pagination envelopes; schemas validate accepts .toon and explicit TOON stdin; the api-research unavailable runtime payload validates against its registered schema. Repository dev tooling is @unbrained/pm-cli 2026.7.24-3 and PM-managed pm-changelog 2026.7.23."
+  "2026-07-24T21:22:04.045Z",codex-root,"Security gate finding: GHSA-pm4m-ph32-ghv5 newly marked js-yaml 5.0.0 through 5.2.1 high severity. The existing root override is raised to first fixed 5.2.2; bun audit now reports zero vulnerabilities. This is dependency drift, not a pm-cli/SDK defect, so no upstream pm-cli issue is appropriate."
+  "2026-07-24T21:35:28.773Z",codex-root,"Final acceptance: 846 tests at exact 100/100/100/100; 579/579 documented exports; 273/273 help leaves; 95 live read-only checks with 42 pass, 53 expected unavailable, zero fail, and five writes blocked; Node/npm and Bun packed smoke passed at 2026.7.24; bun audit and tracked-secret audits report zero findings; PM validation/health/dedupe are clean."
+  "2026-07-24T21:37:59.227Z",codex-root,"Post-close self-review tightened the public command contract: schemas validate help now names JSON/TOON/YAML and --input-format normalizes valid values while rejecting unsupported formats before input is read. Focused tests, typecheck, lint, and 580/580 documentation coverage pass."
+  "2026-07-24T21:41:23.351Z",codex-root,"Exact final verify:release passed after schema-input parser hardening with 847 tests, exact 100/100/100/100, 580/580 documented exports, 273/273 help commands, npx/bunx packed version 2026.7.24, zero bun-audit vulnerabilities, and clean history/version audits."
+  "2026-07-24T21:44:55.287Z",codex-root,"CI review finding: Bun changelog verification ran against a stale merge base after v2026.7.24 landed on master, while npm rejected pm-changelog's broad peer range with the current prerelease-tagged PM CLI. Synchronize master, preserve generated changelog history, and make the npm installation graph deterministic before re-closing."
+  "2026-07-24T21:46:56.466Z",codex-root,"Dependency decision: npm's latest tag currently points to @unbrained/pm-cli 2026.7.24-3, but semver excludes that prerelease from pm-changelog's >=2026.7.11 peer range and npm install fails. Use the semver-higher stable 2026.7.24 for both global and project PM while reporting the erroneous latest-tag interoperability upstream; do not weaken npm peer enforcement."
+  "2026-07-24T21:47:13.623Z",codex-root,"Upstream follow-through: filed unbraind/pm-cli#681 after an all-state duplicate search. The report documents that npm latest points to a prerelease excluded by stable peer ranges and recommends restoring a stable latest tag or publishing the newer build with compatible semver."
+  "2026-07-24T21:50:34.430Z",codex-root,"Merged-base acceptance: verify:release passes at 2026.7.24-2 with 847 tests and exact 100/100/100/100 coverage, 580/580 documented exports, 273/273 help leaves, npx and bunx packed consumer proof, zero dependency vulnerabilities, and clean history/version scans. npm install succeeds under strict peer resolution with PM 2026.7.24."
+notes[2]{created_at,author,text}:
+  "2026-07-24T20:59:00.157Z",codex-root,"Privacy decision: do not record credentials, contact identifiers, response bodies, or signed URLs. ~/.monica-cli/settings.json remains mode 0600 with defaultFormat=toon and readOnlyMode=true."
+  "2026-07-24T21:35:27.019Z",codex-root,"Live acceptance remained read-only. The configured instance still fails before authentication while loading Cloudflare trust proxies; route mapping remains 35 of 35 resources and 172 endpoints, and the failure is correctly represented as unavailable rather than unsupported."
+learnings[2]{created_at,author,text}:
+  "2026-07-24T20:59:00.157Z",codex-root,"Endpoint parity is insufficient when the default serialization can discard values; agent-safe parity requires a lossless, independently decodable output contract."
+  "2026-07-24T21:35:27.814Z",codex-root,"A format is not agent-safe merely because it is concise: the codec must be official, round-trippable, lossless for JSON-compatible values, and validated at the real stdout boundary."
+files[10]{path,scope,note}:
+  bun.lock,project,reproducible production and PM dependency graph
+  package.json,project,reproducible production and PM dependency graph
+  scripts/e2e-output-validation.ts,project,official decoder acceptance
+  src/commands/api-research-probe.ts,project,real TOON schema validation coverage
+  src/commands/schema-registry-api-research.ts,project,runtime schema parity
+  src/commands/schemas.ts,project,real TOON schema validation coverage
+  src/formatters/resources.ts,project,real TOON schema validation coverage
+  src/formatters/toon.ts,project,official TOON codec integration
+  tests/formatters.test.ts,project,real TOON schema validation coverage
+  tests/schemas-command.test.ts,project,real TOON schema validation coverage
+tests[2]{command,scope,timeout_seconds}:
+  "bun run test:coverage",project,600
+  "bun run test:e2e:readonly",project,1200
+docs[7]{path,scope,note}:
+  docs/API.md,project,strict decoder acceptance gate
+  docs/COMMANDS.md,project,strict decoder acceptance gate
+  docs/CONFIGURATION.md,project,strict decoder acceptance gate
+  docs/DEVELOPMENT.md,project,validation and quality workflow
+  docs/OUTPUT-SCHEMAS.md,project,official TOON and schema contract
+  docs/README.md,project,strict decoder acceptance gate
+  README.md,project,strict decoder acceptance gate
+close_reason: "Official TOON contracts and runner-compatible PM dependencies are complete on the released master base; exact quality, package, security, privacy, and read-only evidence is green."
+body: "## Context\nThe stable Monica 4.x route inventory is still complete, but the default formatter is not the official TOON implementation: it truncates strings, collapses nested object arrays, and cannot round-trip structured output. The live read-only instance also exposes an unavailable diagnostic state that is absent from the declared api-research probe schema.\n\n## Delivery\n- Adopt the official @toon-format/toon 4 codec using its shipped TypeScript types.\n- Preserve field selection and pagination while making structured TOON lossless and decodable.\n- Validate TOON output with the official decoder in unit and real-CLI acceptance paths.\n- Reconcile API research runtime payloads and published schemas, including unavailable infrastructure states.\n- Upgrade @unbrained/pm-cli and pm-changelog to current published versions and regenerate only through pm-changelog.\n- Update all affected docs, help/examples, agent contracts, and release evidence.\n\n## Safety\nAll local Monica validation remains GET-only with readOnlyMode enabled. Credentials and live payloads stay under ~/.monica-cli and must not enter tracker data, Git, logs, or PR text."

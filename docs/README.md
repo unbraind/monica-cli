@@ -6,7 +6,8 @@ A comprehensive CLI interface for the Monica CRM API, optimized for AI agents an
 
 Monica CLI provides complete access to all Monica CRM features through a command-line interface. It supports five output formats:
 
-- **toon** (default): Hierarchical, human-readable format optimized for agents
+- **toon** (default): Lossless
+  [official TOON](https://github.com/toon-format/toon) optimized for agents
 - **json**: Standard JSON output for programmatic processing
 - **yaml**: Structured text output for CI/CD, config-style workflows, and LLM-friendly snapshots
 - **table**: ASCII table format for quick scanning
@@ -39,7 +40,7 @@ Monica CLI provides complete access to all Monica CRM features through a command
 - **Deterministic Versioning**: Enforced semver-safe `YYYY.M.D` (first release of day) / `YYYY.M.D-<daily-release-number>` versioning via bun scripts and release tags (no zero-padding; release-count-based)
 - **Release Quality Gate**: `bun run verify:release` validates typecheck/build/tests, packed `npx`/`bunx` execution, and history secret scanning
 - **Command Graph Export**: Emit a machine-readable CLI command graph with `monica info command-catalog`
-- **Output Schema Registry**: Discover machine contracts with `monica schemas list` and `monica schemas get <id>`
+- **Output Schema Registry**: Discover machine contracts with `monica schemas list`, inspect them with `monica schemas get <id>`, and validate JSON, YAML, or TOON payloads with `monica schemas validate`
 - **Secret Hygiene Audit**: Run `monica --json audit` before pushing to detect tracked secrets and unsafe config perms
 - **Config Diagnostics**: Run `monica --json config doctor` for read-only safety, settings permissions, cache freshness, connectivity checks, and typed self-hosted server failure remediation
 - **API Coverage Research**: Emit endpoint/resource inventory with `monica --json api-research summary --instance-aware` (source select with `--source auto|api|monica|<path>`)
@@ -95,7 +96,7 @@ monica-cli/
 │   ├── utils/             # Utility functions
 │   │   └── settings.ts    # Configuration management
 │   └── formatters/        # Output formatters
-│       └── toon.ts        # Toon format implementation
+│       └── toon.ts        # Official TOON codec and output routing
 ├── tests/                 # Test files
 └── docs/                  # Documentation
 ```
