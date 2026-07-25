@@ -2,13 +2,20 @@
 
 TypeScript API documentation for monica-cli.
 
-The stable API inventory is derived from Monica's maintained `4.x` API routes and controllers. The checked-in machine-readable snapshots are [`api-reference.json`](./api-reference.json) and [`monica-api-reference.json`](./monica-api-reference.json); refresh or inspect them with `monica api-research`. Source research is intentionally read-only.
+The CLI models two authoritative API editions independently:
 
-Verify that the bundled source commit is still the current public `4.x` head:
+- **stable** — Monica v4.1.2 / branch `4.x`, with the complete 35-resource API in [`monica-api-reference.json`](./monica-api-reference.json);
+- **next** — the current Monica `main` Sanctum API, with authenticated-user, account-user, and vault routes in [`monica-api-next-reference.json`](./monica-api-next-reference.json).
+
+The legacy [`api-reference.json`](./api-reference.json) remains available for compatibility. Source research is public and read-only.
+
+Verify that either bundled source commit is still the corresponding public branch head:
 
 ```bash
-monica --json api-research source-status
-monica --json api-research source-status --fail-on-stale --fail-on-unavailable
+monica --json api-research source-status --edition stable
+monica --json api-research source-status --edition next
+monica --json api-research source-status --edition next --fail-on-stale --fail-on-unavailable
+monica --json api-research coverage --source next --fail-on-unmapped
 ```
 
 `current` means the bundled commit equals the authoritative branch head.
@@ -16,6 +23,32 @@ monica --json api-research source-status --fail-on-stale --fail-on-unavailable
 means freshness could not be proven, not that the API is stale. The command
 only reads public GitHub branch metadata and never calls the configured Monica
 instance. The inherited `--request-timeout-ms` option bounds this public lookup.
+
+## Current Monica API
+
+The current `main` branch uses `auth:sanctum`, UUID resource identifiers, a
+`read` token ability for user/vault reads, and a `write` ability for vault
+mutations. Every route currently declared in upstream `routes/api.php` maps to
+one explicit CLI leaf:
+
+```bash
+monica users current
+monica users list [--all]
+monica users get <uuid>
+monica vaults list [--all]
+monica vaults get <uuid>
+monica vaults create --name <name> [--description <text>]
+monica vaults update <uuid> --name <name> [--description <text>]
+monica vaults patch <uuid> [--name <name>] [--description <text>]
+monica vaults delete <uuid>
+```
+
+`vaults update` sends `PUT`; `vaults patch` sends `PATCH`. In read-only mode all
+four vault write leaves are rejected before any network call. The setup
+connection check tries stable `/me` first and falls back to current `/user`
+only when the stable route returns HTTP 404 or 405. Authentication,
+infrastructure, and timeout failures are preserved instead of being hidden by
+an edition fallback.
 
 ## Monica 4.x parity additions
 

@@ -33,4 +33,26 @@ describe('configuration connection verification', () => {
       apiUrl: 'https://example.test/api', apiKey: 'key',
     })).rejects.toThrow('Connection to https://example.test/api failed: offline');
   });
+
+  it('falls back from the stable user route to the current API user route', async () => {
+    vi.spyOn(api, 'setConfig').mockImplementation(() => undefined);
+    vi.spyOn(api, 'getUser').mockRejectedValue(new api.MonicaApiError('missing', 31, 404));
+    vi.spyOn(api, 'getAuthenticatedUser').mockResolvedValue({
+      data: { id: 'user-1', email: 'u@example.test' },
+    } as never);
+
+    await expect(verifyConfigConnection({
+      apiUrl: 'https://example.test/api', apiKey: 'key',
+    })).resolves.toMatchObject({ data: { id: 'user-1' } });
+  });
+
+  it('reports a current-edition failure after a stable route miss', async () => {
+    vi.spyOn(api, 'setConfig').mockImplementation(() => undefined);
+    vi.spyOn(api, 'getUser').mockRejectedValue(new api.MonicaApiError('missing', 31, 405));
+    vi.spyOn(api, 'getAuthenticatedUser').mockRejectedValue(new Error('forbidden'));
+
+    await expect(verifyConfigConnection({
+      apiUrl: 'https://example.test/api', apiKey: 'key',
+    })).rejects.toThrow('failed for stable and next API editions: forbidden');
+  });
 });

@@ -91,7 +91,7 @@ export class MonicaApiError extends Error {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   params?: Record<string, string | number | undefined>;
 }
@@ -212,6 +212,11 @@ export async function post<T>(endpoint: string, body?: unknown): Promise<T> {
 /** Executes the put operation. */
 export async function put<T>(endpoint: string, body?: unknown): Promise<T> {
   return request<T>(endpoint, { method: 'PUT', body });
+}
+
+/** Executes an HTTP PATCH operation. */
+export async function patch<T>(endpoint: string, body?: unknown): Promise<T> {
+  return request<T>(endpoint, { method: 'PATCH', body });
 }
 
 /** Executes the del operation. */

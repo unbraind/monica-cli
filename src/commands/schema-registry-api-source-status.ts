@@ -4,12 +4,13 @@ import type { OutputSchemaDescriptor } from './schema-registry';
 export const API_SOURCE_STATUS_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [{
   id: 'api-research-source-status',
   title: 'api-research source-status',
-  description: 'Public upstream freshness verdict for the bundled Monica stable API reference',
+  description: 'Public upstream freshness verdict for a bundled Monica API edition',
   schema: {
     type: 'object',
-    required: ['generatedAt', 'state', 'current', 'source', 'upstream', 'error', 'gate', 'recommendedActions'],
+    required: ['generatedAt', 'edition', 'state', 'current', 'source', 'upstream', 'error', 'gate', 'recommendedActions'],
     properties: {
       generatedAt: { type: 'string' },
+      edition: { type: 'string', enum: ['stable', 'next'] },
       state: { type: 'string', enum: ['current', 'stale', 'unavailable'] },
       current: { type: ['boolean', 'null'] },
       source: {

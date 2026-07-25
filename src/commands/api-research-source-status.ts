@@ -19,6 +19,7 @@ interface GitHubBranchResponse {
 
 /** Describes options for checking the bundled API source. */
 export interface SourceStatusOptions {
+  edition?: 'stable' | 'next';
   failOnStale?: boolean;
   failOnUnavailable?: boolean;
 }
@@ -26,6 +27,7 @@ export interface SourceStatusOptions {
 /** Describes the machine-readable bundled API source freshness result. */
 export interface SourceStatusPayload {
   generatedAt: string;
+  edition: 'stable' | 'next';
   state: 'current' | 'stale' | 'unavailable';
   current: boolean | null;
   source: {
@@ -54,7 +56,8 @@ export async function buildSourceStatusPayload(
   options: SourceStatusOptions,
   fetcher: typeof fetch = fetch
 ): Promise<SourceStatusPayload> {
-  const source = loadBundledMonicaProvenance();
+  const edition = options.edition ?? 'stable';
+  const source = loadBundledMonicaProvenance(edition);
   const failOnStale = options.failOnStale === true;
   const failOnUnavailable = options.failOnUnavailable === true;
   const apiUrl = source
@@ -102,16 +105,17 @@ export async function buildSourceStatusPayload(
   if (failOnStale && state === 'stale') reasons.push('bundled API source is stale');
   if (failOnUnavailable && state === 'unavailable') reasons.push('upstream source could not be verified');
   const recommendedActions = state === 'current'
-    ? ['monica --json api-research coverage --fail-on-unmapped']
+    ? [`monica --json api-research coverage --source ${edition === 'next' ? 'next' : 'monica'} --fail-on-unmapped`]
     : state === 'stale'
       ? [
-        'Refresh docs/monica-api-reference.json from the authoritative 4.x routes',
-        'monica --json api-research coverage --fail-on-unmapped',
+        `Refresh docs/monica-api-${edition === 'next' ? 'next-' : ''}reference.json from the authoritative ${(source as NonNullable<typeof source>).branch} routes`,
+        `monica --json api-research coverage --source ${edition === 'next' ? 'next' : 'monica'} --fail-on-unmapped`,
       ]
-      : ['Retry monica --json api-research source-status before claiming current compatibility'];
+      : [`Retry monica --json api-research source-status --edition ${edition} before claiming current compatibility`];
 
   return {
     generatedAt: new Date().toISOString(),
+    edition,
     state,
     current: state === 'unavailable' ? null : state === 'current',
     source: source
@@ -139,13 +143,18 @@ export async function buildSourceStatusPayload(
 export function attachApiResearchSourceStatusSubcommand(command: Command): void {
   command
     .command('source-status')
-    .description('Verify bundled Monica API provenance against the current public 4.x branch')
+    .description('Verify bundled stable or next Monica API provenance against its public branch')
+    .option('--edition <edition>', 'API edition: stable|next', 'stable')
     .option('--fail-on-stale', 'Exit with code 2 when the authoritative branch has advanced')
     .option('--fail-on-unavailable', 'Exit with code 2 when public upstream verification is unavailable')
     .action(async function (this: Command): Promise<void> {
       const format: OutputFormat = resolveCommandOutputFormat(this);
       try {
-        const payload = await buildSourceStatusPayload(this.opts() as SourceStatusOptions);
+        const options = this.opts() as SourceStatusOptions & { edition?: string };
+        if (options.edition !== 'stable' && options.edition !== 'next') {
+          throw new Error(`Invalid API edition "${options.edition}". Expected stable or next.`);
+        }
+        const payload = await buildSourceStatusPayload(options as SourceStatusOptions);
         console.log(fmt.formatOutput(payload, format));
         if (payload.gate.failed) process.exit(2);
       } catch (caught) {

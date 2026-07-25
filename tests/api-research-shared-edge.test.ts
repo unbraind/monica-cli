@@ -11,6 +11,10 @@ describe('API reference selection edge cases', () => {
   it('selects named references and falls back to API docs when Monica docs cannot load', () => {
     expect(parseSourceOption('api').format).toBe('api-reference');
     expect(parseSourceOption('monica').format).toBe('monica-api-reference');
+    expect(parseSourceOption('next')).toMatchObject({
+      format: 'monica-api-reference',
+      path: expect.stringContaining('monica-api-next-reference.json'),
+    });
     reference.read.mockImplementation(() => { throw new Error('missing'); });
     expect(parseSourceOption('auto').format).toBe('api-reference');
     reference.read.mockReturnValue(JSON.stringify({ resources: { contacts: {} } }));

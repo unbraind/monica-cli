@@ -42,6 +42,10 @@ export const DocumentFields = ['id', 'name'];
 export const GiftFields = ['id', 'name', 'status', 'amount'];
 /** Provides the photo output fields. */
 export const PhotoFields = ['id', 'original_filename'];
+/** Provides the current Monica API account-user output fields. */
+export const AccountUserFields = ['id', 'name', 'email', 'created_at', 'updated_at'];
+/** Provides the current Monica API vault output fields. */
+export const VaultFields = ['id', 'name', 'description', 'created_at', 'updated_at'];
 
 /** Formats a paginated API response and includes its page metadata. */
 export function formatPaginatedResponse<T>(

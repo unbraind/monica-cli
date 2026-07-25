@@ -70,11 +70,11 @@ function getOutputFormat(command: Command): OutputFormat {
 }
 
 function hasPathParameter(endpointPath: string): boolean {
-  return /:[a-z0-9_]+/i.test(endpointPath);
+  return /(?::[a-z0-9_]+|\{[a-z0-9_]+\})/i.test(endpointPath);
 }
 
 function resolveProbePath(endpointPath: string, idReplacement: number): string {
-  return endpointPath.replace(/:[a-z0-9_]+/gi, String(idReplacement));
+  return endpointPath.replace(/(?::[a-z0-9_]+|\{[a-z0-9_]+\})/gi, String(idReplacement));
 }
 
 function toApiErrorLike(error: unknown): ApiErrorLike | null {
@@ -235,8 +235,8 @@ export function attachApiResearchProbeSubcommand(cmd: Command): void {
     .command('probe')
     .description('Read-only probe of documented GET endpoints against the current Monica instance')
     .option('--resource <name>', 'Filter by resource name (case-insensitive substring)')
-    .option('--source <source>', 'Reference source: auto|api|monica|<custom-json-path>', 'auto')
-    .option('--include-parameterized', 'Probe GET endpoints with :id-style path params by replacing params with --id-replacement')
+    .option('--source <source>', 'Reference source: auto|api|monica|next|<custom-json-path>', 'auto')
+    .option('--include-parameterized', 'Probe GET endpoints with :id or {id} path params by replacing them with --id-replacement')
     .option('--id-replacement <id>', 'Replacement id used for parameterized endpoint probing (default: 1)', parsePositiveInt, 1)
     .option('--fail-on-unsupported', 'Exit with code 1 when unsupported endpoints are detected')
     .option('--fail-on-unavailable', 'Exit with code 1 when instance/auth/network failures prevent support detection')

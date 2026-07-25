@@ -41,6 +41,7 @@ describe('api-research source-status', () => {
 
     expect(payload).toMatchObject({
       state: 'current',
+      edition: 'stable',
       current: true,
       source: {
         repository: 'monicahq/monica',
@@ -51,7 +52,7 @@ describe('api-research source-status', () => {
       upstream: { commit: BUNDLED_COMMIT },
       error: null,
       gate: { enabled: false, failed: false },
-      recommendedActions: ['monica --json api-research coverage --fail-on-unmapped'],
+      recommendedActions: ['monica --json api-research coverage --source monica --fail-on-unmapped'],
     });
     expect(fetcher).toHaveBeenCalledWith(
       'https://api.github.com/repos/monicahq/monica/branches/4.x',
@@ -77,6 +78,48 @@ describe('api-research source-status', () => {
     expect(payload.recommendedActions).toContain(
       'Refresh docs/monica-api-reference.json from the authoritative 4.x routes',
     );
+  });
+
+  it('verifies the separately bundled current-main edition', async () => {
+    const nextCommit = 'next-head';
+    setReference({
+      repository: 'monicahq/monica',
+      branch: 'main',
+      commit: nextCommit,
+      routeFile: 'routes/api.php',
+    });
+    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      commit: { sha: nextCommit },
+    })));
+
+    const payload = await buildSourceStatusPayload({ edition: 'next' }, fetcher);
+
+    expect(payload).toMatchObject({
+      edition: 'next',
+      state: 'current',
+      source: { branch: 'main', bundledCommit: nextCommit },
+      recommendedActions: [
+        'monica --json api-research coverage --source next --fail-on-unmapped',
+      ],
+    });
+  });
+
+  it('recommends refreshing the next-edition snapshot when main advances', async () => {
+    setReference({
+      repository: 'monicahq/monica',
+      branch: 'main',
+      commit: 'bundled-next',
+      routeFile: 'routes/api.php',
+    });
+    const payload = await buildSourceStatusPayload(
+      { edition: 'next' },
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ commit: { sha: 'new-next' } }))),
+    );
+
+    expect(payload.recommendedActions).toEqual([
+      'Refresh docs/monica-api-next-reference.json from the authoritative main routes',
+      'monica --json api-research coverage --source next --fail-on-unmapped',
+    ]);
   });
 
   it('keeps HTTP and malformed upstream failures distinct from staleness', async () => {
@@ -152,6 +195,16 @@ describe('api-research source-status', () => {
     attachApiResearchSourceStatusSubcommand(command);
 
     await command.parseAsync(['source-status'], { from: 'user' });
+
+    expect(exit).toHaveBeenCalledWith(1);
+  });
+
+  it('rejects unknown editions before public lookup', async () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    const command = new Command().option('--format <format>', '', 'json');
+    attachApiResearchSourceStatusSubcommand(command);
+
+    await command.parseAsync(['source-status', '--edition', 'future'], { from: 'user' });
 
     expect(exit).toHaveBeenCalledWith(1);
   });

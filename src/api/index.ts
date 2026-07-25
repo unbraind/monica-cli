@@ -26,3 +26,5 @@ export * from './pet-categories';
 export * from './places';
 export * from './life-events';
 export * from './statistics';
+export * from './users';
+export * from './vaults';

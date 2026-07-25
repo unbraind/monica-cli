@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add Monica next-generation API editions and vault management ([monica-next-api-editions](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-next-api-editions.toon))
+
 ### Fixed
 
 - Verify bundled Monica API source freshness ([monica-api-source-freshness](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-api-source-freshness.toon))

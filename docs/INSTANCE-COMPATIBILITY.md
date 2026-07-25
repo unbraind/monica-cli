@@ -12,31 +12,56 @@ monica info capabilities --format json
 
 This performs GET-only checks and does not modify Monica data.
 
+## API Editions
+
+Compatibility is edition-specific:
+
+| Edition | Upstream | Authentication | CLI surface |
+|---|---|---|---|
+| Stable | v4.1.2 / `4.x` | OAuth bearer token | Complete 35-resource stable API |
+| Next | current `main` | Sanctum bearer token with `read`/`write` abilities | Authenticated user, account users, and vault CRUD |
+
+Use `monica --json api-research source-status --edition stable|next` to verify
+public source freshness, and `--source monica|next` on the other
+`api-research` commands to select the inventory. `users current`, `users list`,
+and `vaults list` are included in GET-only capability probing.
+
+`config test`, `config doctor`, and the setup wizard support both editions.
+They fall back from stable `/me` to current `/user` only for HTTP 404/405, so a
+real authentication, timeout, or infrastructure failure remains visible.
+
 ## Latest Verified Results
 
-Probe run date: **March 4, 2026**  
+Probe run date: **July 26, 2026**
 Instance type: self-hosted Monica API
 
-- Probed resources: `31`
-- Supported: `28`
-- Unsupported: `3`
+- Read-only CLI checks: `108`
+- Passed locally or against public sources: `52`
+- Authenticated checks classified unavailable: `56`
+- Unexpected failures: `0`
 
-Unsupported on the verified instance:
+The live instance currently fails authenticated API bootstrap while loading
+Cloudflare trust-proxy ranges. That infrastructure failure affects both stable
+and next-edition GET routes, so it cannot establish endpoint support or API
+incompatibility. Public source checks, schemas, command catalogs, local
+diagnostics, and client-side write guards remain verifiable.
 
-- `groups` (`/groups?limit=1`) -> HTTP 404
-- `pet-categories` (`/petcategories?limit=1`) -> HTTP 404
-- Global `contact-fields list` endpoint (`/contactfields?limit=1`) returns HTTP 405
-  - CLI now auto-falls back to read-only contact scan for `monica contact-fields list`
-  - strict mode: `monica contact-fields list --no-auto-scan`
-  - scoped mode: `monica contact-fields list <contact-id>`
+The result is intentionally reported as `unavailable`, not `unsupported`.
+Re-run `monica --json info capabilities --refresh` after restoring the
+instance's outbound Cloudflare access to obtain endpoint-specific evidence.
 
 ## End-to-End CLI Validation (Read-Only)
 
-Validated on **March 2, 2026** with global settings + `readOnlyMode: true` using the actual `monica` binary.
+Validated on **July 26, 2026** with global settings + `readOnlyMode: true` using the actual `monica` binary.
 
-- Setup wizard test: `monica config setup --non-interactive ... --read-only` succeeded and persisted settings in `~/.monica-cli/settings.json`.
-- JSON schema/parse checks: command outputs were validated with `jq` for representative `list`, `info`, and `search` command paths.
-- Write safety check: mutating commands remain blocked by client-side read-only guard before issuing POST/PUT/DELETE/upload requests.
+- The harness completed all `108` checks with `0` unexpected failures and
+  restored `~/.monica-cli/settings.json`.
+- Output validation covered TOON plus JSON, YAML, table, Markdown, and raw
+  programmatic paths where applicable.
+- Stable and next-edition source status, next-source coverage, and both new
+  output schemas passed.
+- POST, PUT, PATCH, DELETE, and upload-style mutations remain blocked by the
+  client-side read-only guard before a request can leave the process.
 
 ## What This Means
 

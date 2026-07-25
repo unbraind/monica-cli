@@ -48,6 +48,37 @@ Use the leaf `--help` output for the complete introduction date/reminder option 
 
 Complete reference for all Monica CLI commands.
 
+## Current Monica API commands
+
+These commands map the complete API currently declared on Monica `main`. They
+use UUID identifiers and coexist with the stable 4.x command families.
+
+### users
+
+```bash
+monica users current
+monica users list [--all]
+monica users get <uuid>
+```
+
+`current`, `list`, and `get` are read-only. `list` supports inherited `--page`
+and `--limit`; `--all` follows the pagination envelope to completion.
+
+### vaults
+
+```bash
+monica vaults list [--all]
+monica vaults get <uuid>
+monica vaults create --name <name> [--description <text>]
+monica vaults update <uuid> --name <name> [--description <text>]
+monica vaults patch <uuid> [--name <name>] [--description <text>]
+monica vaults delete <uuid>
+```
+
+`update` uses HTTP PUT and `patch` uses HTTP PATCH, matching the two upstream
+resource routes. Deleting a vault also deletes everything it contains; keep
+`readOnlyMode=true` unless that destructive action is explicitly intended.
+
 ## Global Options
 
 | Option | Description |
@@ -155,12 +186,12 @@ cat payload.toon | monica --json schemas validate <schema-id> --input-format too
 
 ## api-research
 
-Summarize Monica API resource and endpoint inventory from reference docs (`docs/api-reference.json` and `docs/monica-api-reference.json`).
+Summarize Monica API resource and endpoint inventory from the stable and current reference documents.
 
 ### api-research source-status
 
-Verify the bundled Monica API provenance against the current public stable
-`4.x` branch. This does not call the configured Monica instance.
+Verify the bundled stable (`4.x`) or next (`main`) Monica API provenance. This
+does not call the configured Monica instance.
 
 ```bash
 monica api-research source-status [options]
@@ -168,6 +199,7 @@ monica api-research source-status [options]
 
 | Option | Description |
 |--------|-------------|
+| `--edition <edition>` | API edition: `stable` (default) or `next` |
 | `--fail-on-stale` | Exit with status `2` when upstream has advanced beyond the bundled commit |
 | `--fail-on-unavailable` | Exit with status `2` when public upstream verification cannot complete |
 
@@ -187,7 +219,7 @@ monica api-research summary [options]
 |--------|-------------|
 | `--resource <name>` | Filter resources by case-insensitive substring |
 | `--with-endpoints` | Include per-endpoint method/path rows in payload |
-| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`<custom-json-path>` |
+| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`next`\|`<custom-json-path>` |
 | `--instance-aware` | Attach live capability support metadata by command root (GET-only probe) |
 | `--supported-only` | Requires `--instance-aware`; include only resources supported on this instance |
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
@@ -213,7 +245,7 @@ monica api-research coverage [options]
 | Option | Description |
 |--------|-------------|
 | `--resource <name>` | Filter resources by case-insensitive substring |
-| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`<custom-json-path>` |
+| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`next`\|`<custom-json-path>` |
 | `--instance-aware` | Attach live capability support metadata by command root (GET-only probe) |
 | `--supported-only` | Requires `--instance-aware`; include only resources supported on this instance |
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
@@ -238,7 +270,7 @@ monica api-research backlog [options]
 | Option | Description |
 |--------|-------------|
 | `--resource <name>` | Filter resources by case-insensitive substring |
-| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`<custom-json-path>` |
+| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`next`\|`<custom-json-path>` |
 | `--instance-aware` | Include `instance-unsupported` backlog items from live capability probes, including command families missing from the selected reference source |
 | `--supported-only` | Requires `--instance-aware`; include only resources supported on this instance |
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
@@ -259,7 +291,7 @@ monica api-research actions [options]
 | Option | Description |
 |--------|-------------|
 | `--resource <name>` | Filter resources by case-insensitive substring |
-| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`<custom-json-path>` |
+| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`next`\|`<custom-json-path>` |
 | `--instance-aware` | Include `instance-unsupported` backlog items from live capability probes |
 | `--supported-only` | Requires `--instance-aware`; include only resources supported on this instance |
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
@@ -280,8 +312,8 @@ monica api-research probe [options]
 | Option | Description |
 |--------|-------------|
 | `--resource <name>` | Filter resources by case-insensitive substring |
-| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`<custom-json-path>` |
-| `--include-parameterized` | Probe `:id` paths by replacing params with `--id-replacement` |
+| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`next`\|`<custom-json-path>` |
+| `--include-parameterized` | Probe `:id` or `{id}` paths by replacing params with `--id-replacement` |
 | `--id-replacement <id>` | Numeric replacement id for `:id` placeholders (default: `1`) |
 
 ## agent-runbook
@@ -312,7 +344,7 @@ monica api-research snapshot [options]
 | Option | Description |
 |--------|-------------|
 | `--resource <name>` | Filter resources by case-insensitive substring |
-| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`<custom-json-path>` |
+| `--source <source>` | Reference source: `auto`\|`api`\|`monica`\|`next`\|`<custom-json-path>` |
 | `--instance-aware` | Attach live capability support metadata by command root |
 | `--supported-only` | Requires `--instance-aware`; include only resources supported on this instance |
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
@@ -320,7 +352,7 @@ monica api-research snapshot [options]
 | `--unmapped-only` | Include only resources that currently have no direct CLI command mapping |
 | `--refresh` | Force capability re-probe instead of using cache |
 | `--cache-ttl <seconds>` | Capability cache TTL in seconds |
-| `--include-parameterized` | Probe `:id` paths by replacing params with `--id-replacement` |
+| `--include-parameterized` | Probe `:id` or `{id}` paths by replacing params with `--id-replacement` |
 | `--id-replacement <id>` | Numeric replacement id for `:id` placeholders (default: `1`) |
 
 ## contacts

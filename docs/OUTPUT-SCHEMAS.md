@@ -16,6 +16,8 @@ monica --json schemas get search-results
 monica --json schemas get audit-report
 monica --json schemas get api-research-summary
 monica --json schemas get api-research-source-status
+monica --json schemas get next-account-user
+monica --json schemas get next-vault
 monica --json schemas get api-research-backlog
 monica --json schemas get api-research-actions
 monica --json schemas get api-research-coverage
@@ -372,6 +374,7 @@ Use this as a deterministic orchestration plan for agent bootstrap in read-only 
 ```json
 {
   "generatedAt": "2026-07-25T00:00:00.000Z",
+  "edition": "stable",
   "state": "current",
   "current": true,
   "source": {
@@ -393,10 +396,15 @@ Use this as a deterministic orchestration plan for agent bootstrap in read-only 
     "reasons": []
   },
   "recommendedActions": [
-    "monica --json api-research coverage --fail-on-unmapped"
+    "monica --json api-research coverage --source monica --fail-on-unmapped"
   ]
 }
 ```
+
+Pass `--edition next` to verify
+[`monica-api-next-reference.json`](./monica-api-next-reference.json) against
+public `main`. The payload keeps the same schema and sets `edition` to `next`;
+its coverage action uses `--source next`.
 
 The `state` values are intentionally separate:
 
@@ -407,6 +415,15 @@ The `state` values are intentionally separate:
 
 Use `--fail-on-stale` and optionally `--fail-on-unavailable` for CI. A failed
 gate exits with status `2` after writing the complete schema-valid payload.
+
+### Current API resources
+
+`next-account-user` validates `users current` and `users get` resource payloads.
+It requires string `id`, `name`, `email`, timestamps, and `links.self`.
+`next-vault` validates vault resource payloads and additionally requires a
+nullable `description`. Paginated `users list` and `vaults list` responses use
+the existing `paginated-list` envelope; each `data[]` entry follows the
+corresponding next-resource schema.
 
 ### `api-research summary`
 
