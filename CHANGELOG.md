@@ -1,10 +1,12 @@
 # Changelog
 
-## 2026.7.25 - 2026-07-25
+## Unreleased
 
 ### Added
 
 - Add Monica next-generation API editions and vault management ([monica-next-api-editions](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/issues/monica-next-api-editions.toon))
+
+## 2026.7.25 - 2026-07-25
 
 ### Fixed
 
