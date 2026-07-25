@@ -6,6 +6,7 @@ import { resolveCommandOutputFormat } from './output-format';
 import { buildProbePayload } from './api-research-probe';
 import type { ApiResearchSummaryOptions } from './api-research-types';
 import { attachApiResearchProbeSubcommand } from './api-research-probe';
+import { attachApiResearchSourceStatusSubcommand } from './api-research-source-status';
 import { buildBacklogPayload } from './api-research-backlog';
 import { buildActionsPayload } from './api-research-actions';
 import { buildCoveragePayload, buildSummaryPayload } from './api-research-summary';
@@ -198,5 +199,6 @@ export function createApiResearchCommand(): Command {
     });
 
   attachApiResearchProbeSubcommand(cmd);
+  attachApiResearchSourceStatusSubcommand(cmd);
   return cmd;
 }

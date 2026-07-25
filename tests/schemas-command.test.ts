@@ -38,6 +38,7 @@ describe('schemas command', () => {
     expect(payload.schemas.some((item: { id: string }) => item.id === 'api-research-probe')).toBe(true);
     expect(payload.schemas.some((item: { id: string }) => item.id === 'api-research-backlog')).toBe(true);
     expect(payload.schemas.some((item: { id: string }) => item.id === 'api-research-actions')).toBe(true);
+    expect(payload.schemas.some((item: { id: string }) => item.id === 'api-research-source-status')).toBe(true);
     expect(payload.schemas.some((item: { id: string }) => item.id === 'api-research-coverage')).toBe(true);
     expect(payload.schemas.some((item: { id: string }) => item.id === 'api-research-snapshot')).toBe(true);
     expect(payload.schemas.some((item: { id: string }) => item.id === 'agent-runbook')).toBe(true);

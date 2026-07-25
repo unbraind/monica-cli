@@ -157,6 +157,24 @@ cat payload.toon | monica --json schemas validate <schema-id> --input-format too
 
 Summarize Monica API resource and endpoint inventory from reference docs (`docs/api-reference.json` and `docs/monica-api-reference.json`).
 
+### api-research source-status
+
+Verify the bundled Monica API provenance against the current public stable
+`4.x` branch. This does not call the configured Monica instance.
+
+```bash
+monica api-research source-status [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--fail-on-stale` | Exit with status `2` when upstream has advanced beyond the bundled commit |
+| `--fail-on-unavailable` | Exit with status `2` when public upstream verification cannot complete |
+
+The structured state is `current`, `stale`, or `unavailable`. Network and
+GitHub API failures are never classified as stale. The inherited
+`--request-timeout-ms` option bounds the public branch lookup.
+
 ### api-research summary
 
 Emit machine-readable API coverage data for agent planning.
@@ -175,8 +193,6 @@ monica api-research summary [options]
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
 | `--mapped-only` | Include only resources with a direct CLI command mapping |
 | `--unmapped-only` | Include only resources that currently have no direct CLI command mapping |
-| `--fail-on-unmapped` | Exit with status `2` when unmapped resources are present (CI gate) |
-| `--fail-on-unsupported` | With `--instance-aware`, exit with status `2` when unsupported commands are present |
 | `--refresh` | Force capability re-probe instead of using cache |
 | `--cache-ttl <seconds>` | Capability cache TTL in seconds |
 
@@ -203,6 +219,8 @@ monica api-research coverage [options]
 | `--unsupported-only` | Requires `--instance-aware`; include only resources unsupported on this instance |
 | `--mapped-only` | Include only resources with a direct CLI command mapping |
 | `--unmapped-only` | Include only resources that currently have no direct CLI command mapping |
+| `--fail-on-unmapped` | Exit with status `2` when unmapped resources are present (CI gate) |
+| `--fail-on-unsupported` | With `--instance-aware`, exit with status `2` when unsupported commands are present |
 | `--refresh` | Force capability re-probe instead of using cache |
 | `--cache-ttl <seconds>` | Capability cache TTL in seconds |
 
@@ -282,7 +300,6 @@ monica agent-runbook [options]
 | `--cache-ttl <seconds>` | Capability cache TTL in seconds |
 
 `agent-runbook` outputs machine-readable `steps` and `excludedSteps` payloads and is designed for deterministic orchestration in CI/agents.
-| `--fail-on-unsupported` | Exit code `1` when unsupported endpoints are detected |
 
 ### api-research snapshot
 

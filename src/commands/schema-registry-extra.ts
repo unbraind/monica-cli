@@ -2,12 +2,14 @@ import type { OutputSchemaDescriptor } from './schema-registry';
 import { AGENT_OUTPUT_SCHEMAS } from './schema-registry-agent';
 import { API_RESEARCH_OUTPUT_SCHEMAS } from './schema-registry-api-research';
 import { API_RESEARCH_COVERAGE_OUTPUT_SCHEMAS } from './schema-registry-api-research-coverage';
+import { API_SOURCE_STATUS_OUTPUT_SCHEMAS } from './schema-registry-api-source-status';
 
 /** Provides the additional output schemas value. */
 export const ADDITIONAL_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
   ...AGENT_OUTPUT_SCHEMAS,
   ...API_RESEARCH_OUTPUT_SCHEMAS,
   ...API_RESEARCH_COVERAGE_OUTPUT_SCHEMAS,
+  ...API_SOURCE_STATUS_OUTPUT_SCHEMAS,
   {
     id: 'schemas-sample',
     title: 'schemas sample',

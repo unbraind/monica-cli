@@ -1,0 +1,87 @@
+id: monica-api-source-freshness
+title: Verify bundled Monica API source freshness
+description: Add a machine-readable read-only command that verifies the checked-in Monica stable 4.x API snapshot against the current authoritative upstream branch so humans and agents can distinguish proven-current coverage from stale bundled evidence.
+type: Issue
+status: closed
+priority: 0
+tags[8]: agent-ux,api-contracts,api-research,documentation,provenance,read-only,schema,upstream-verification
+created_at: "2026-07-25T00:14:08.722Z"
+updated_at: "2026-07-25T00:56:02.313Z"
+deadline: "2026-07-27T00:14:08.722Z"
+closed_at: "2026-07-25T00:56:01.296Z"
+author: codex-root
+estimated_minutes: 420
+acceptance_criteria: "The CLI exposes documented api-research source-status help and machine output in every supported format; The command verifies the current monicahq/monica 4.x head against checked-in provenance and classifies current, stale, and unavailable states separately; --fail-on-stale exits 2 only for proven drift and preserves a structured payload; A registered output schema validates all source-status states and real CLI output; Agent catalogs and read-only E2E include the new command without enabling any mutation; Latest compatible pm-changelog is installed and latest global pm-cli use is documented without weakening npm peer resolution; Exact 100/100/100/100 coverage, 100 percent docstrings, all help leaves, package smoke, security, privacy, duplication, PM, and changelog gates pass; No private Monica data or credentials enter Git, PM history, logs, commits, or PR text"
+definition_of_ready: Authoritative upstream branch and snapshot provenance are identifiable; existing all-status PM lineage has been searched; local settings are read-only and private.
+goal: Continuously verifiable stable Monica API compatibility
+objective: Make API coverage freshness independently provable by the CLI
+value: Prevents agents from treating a complete but stale API snapshot as current
+impact: Raises confidence in automation and future API parity work without touching CRM data
+outcome: A schema-backed freshness verdict suitable for local use and CI
+why_now: "The latest research revalidated the snapshot manually, revealing that the proof is not yet executable by CLI consumers"
+parent: monica-platform
+reviewer: unbraind
+risk: high
+confidence: 95
+sprint: 2026-07-api-provenance
+release: next
+reporter: codex-root
+severity: high
+environment: Monica stable 4.x public GitHub repository; monica-cli 2026.7.24-2; Bun 1.3.11; Node 22+
+repro_steps: Run monica api-research summary and inspect source metadata; there is no command that verifies the bundled commit against the current upstream 4.x head or fails CI when it drifts.
+resolution: "Added a public upstream source-status command with current, stale, and unavailable classification; published its schema and agent/read-only contracts; upgraded pm-changelog; corrected API research documentation; remediated the newly disclosed brace-expansion advisory; and recorded first-party PM extension warnings upstream."
+expected_result: "Agents can independently verify that the bundled API reference is current, stale, or temporarily unverifiable using a safe structured CLI command."
+actual_result: "The actual monica CLI verifies the bundled Monica 4.x commit against the public authoritative branch, honors the inherited request timeout, reports current today, emits validated TOON/JSON/YAML/table/Markdown, exposes a structured CI gate, and remains mutation-safe. Coverage passes with 854 tests at exact 100/100/100/100 and 587/587 documented exports. Live read-only acceptance passes 44 commands, classifies 53 systemic host failures as expected, blocks five writes before network access, and has zero unexpected failures."
+affected_version: 2026.7.24-2
+fixed_version: 2026.7.25
+component: api-research
+regression: false
+customer_impact: A future upstream route change could leave automation confidently using outdated coverage until a manual audit notices.
+dependencies[7]{id,kind,created_at,author,source_kind}:
+  monica-agent-tool-contracts,related,"2026-07-25T00:14:08.722Z",null,null
+  monica-api-4x-parity,discovered_from,"2026-07-25T00:14:08.722Z",null,null
+  monica-api-4x-parity-plan,implements,"2026-07-25T00:14:08.722Z",null,null
+  monica-auto-release,related,"2026-07-25T00:14:08.722Z",null,null
+  monica-config-output-secret-sink,related,"2026-07-25T00:14:08.722Z",null,null
+  monica-official-toon-contracts,discovered_from,"2026-07-25T00:14:08.722Z",null,null
+  monica-server-diagnostics,related,"2026-07-25T00:14:08.722Z",null,null
+comments[7]{created_at,author,text}:
+  "2026-07-25T00:14:08.722Z",codex-root,"Research baseline on 2026-07-25: official stable release remains v4.1.2 and branch 4.x remains at the bundled commit; the bundled reference is current at research time."
+  "2026-07-25T00:19:14.191Z",codex-root,"PM tooling milestone: global pm-cli is current at 2026.7.24-3; managed and repository pm-changelog are upgraded to 2026.7.24. Project package doctor exposed first-party calendar/guide-shell global output service warnings; after exact and keyword duplicate searches, filed unbraind/pm-cli#687 rather than suppressing the diagnostic."
+  "2026-07-25T00:26:28.329Z",codex-root,"Implementation milestone: source-status now emits schema-backed current/stale/unavailable results, supports separate stale and unavailable CI gates, is present in actual CLI/help/schema/e2e surfaces, and latest pm-changelog 2026.7.24 is installed. Focused gates and 853-test coverage pass at exact 100/100/100/100 with 587/587 documented exports."
+  "2026-07-25T00:51:00.684Z",codex-root,"Release gate remediation: GitHub reviewed GHSA-mh99-v99m-4gvg affects brace-expansion through 5.0.7 and is fixed in 5.0.8. Raised the existing root override to 5.0.8; bun why confirms the fixed graph and bun audit reports zero vulnerabilities. This is third-party advisory drift, not a pm-cli defect."
+  "2026-07-25T00:53:50.749Z",codex-root,"Final tracker acceptance: PM-linked verify:release passes after brace-expansion 5.0.8 remediation; 853 tests are exact 100/100/100/100, 587/587 exports documented, 274/274 help leaves pass, npx and bunx packed version 2026.7.25 pass, bun audit is clean, and history/version scans are clean."
+  "2026-07-25T00:55:04.267Z",codex-root,"Post-close self-review finding: the new public GitHub lookup needed to honor the inherited --request-timeout-ms contract. Added the shared abort controller, explicit timeout classification, tests, and docs before PR publication."
+  "2026-07-25T00:56:00.170Z",codex-root,"Timeout-hardened acceptance: 854 tests pass at exact 100/100/100/100, 587/587 exports remain documented, source quality and lint pass, and the real CLI verifies the current upstream commit with an explicit 5-second inherited timeout."
+notes[3]{created_at,author,text}:
+  "2026-07-25T00:14:08.722Z",codex-root,"Privacy boundary: upstream freshness uses only public GitHub repository metadata. Local Monica credentials and CRM response data are explicitly excluded from tracker evidence."
+  "2026-07-25T00:19:16.387Z",codex-root,"Compatibility constraint remains explicit: npm latest for @unbrained/pm-cli is prerelease 2026.7.24-3, which does not satisfy pm-changelog's stable >=2026.7.24 peer range under npm semver. Keep the project dev dependency at stable 2026.7.24 while using the latest global CLI; upstream dist-tag issue remains tracked as #681."
+  "2026-07-25T00:53:52.162Z",codex-root,"Live instance result remains an infrastructure classification, not an API parity failure: 44 commands pass, 53 expected Cloudflare trust-proxy bootstrap failures, zero unexpected failures, and five remote mutations are blocked locally. No CRM records were changed."
+learnings[2]{created_at,author,text}:
+  "2026-07-25T00:14:08.722Z",codex-root,"Complete endpoint mapping and current endpoint mapping are different claims; agents need an executable freshness proof, not a manually asserted timestamp."
+  "2026-07-25T00:53:53.300Z",codex-root,"Freshness gates must distinguish proven drift from inability to verify: only a successful authoritative lookup with a different commit establishes stale state; transport or response failures remain unavailable."
+files[10]{path,scope,note}:
+  bun.lock,project,reproducible toolchain dependency graph
+  package.json,project,version and latest compatible PM changelog toolchain
+  scripts/e2e-readonly-commands.ts,project,actual CLI read-only acceptance
+  src/commands/api-research-shared.ts,project,bundled provenance loader
+  src/commands/api-research-source-status.ts,project,upstream source freshness implementation
+  src/commands/api-research.ts,project,source-status command registration
+  src/commands/schema-registry-api-source-status.ts,project,machine output contract
+  src/commands/schema-registry-extra.ts,project,schema registry composition
+  tests/api-research-source-status.test.ts,project,current stale unavailable and gate coverage
+  tests/schemas-command.test.ts,project,schema discovery coverage
+tests[5]{command,scope,timeout_seconds}:
+  "bun run test:coverage",project,600
+  "bun run test:e2e:help",project,600
+  "bun run test:e2e:readonly",project,1200
+  "bun run verify:release",project,1200
+  monica --json api-research source-status --fail-on-stale,project,60
+docs[5]{path,scope,note}:
+  docs/API.md,project,authoritative API provenance and freshness workflow
+  docs/COMMANDS.md,project,source-status help and corrected coverage flag ownership
+  docs/OUTPUT-SCHEMAS.md,project,state semantics and CI gate schema
+  docs/README.md,project,feature discovery
+  README.md,project,top-level source freshness examples
+close_reason: "API source freshness verification, timeout safety, and release evidence are complete"
+body: "## Context\nThe CLI maps the full stable Monica 4.x API, but freshness is currently established manually outside the product. Agents can inspect the bundled commit but cannot ask the CLI to verify whether that commit is still the current upstream 4.x head.\n\n## Delivery\n- Add an `api-research source-status` command backed by the official GitHub repository and branch metadata.\n- Compare bundled repository, branch, commit, and route file provenance with the live upstream head without calling or mutating Monica CRM data.\n- Emit deterministic, schema-validated TOON/JSON/YAML/table/Markdown output and offer a CI freshness gate.\n- Keep network failures distinct from stale sources and return actionable agent commands.\n- Update help, agent contracts, docs, package tooling, and read-only end-to-end coverage.\n\n## Safety\nNo CRM endpoint or private payload is involved. The command reads only the public GitHub API and bundled reference metadata. Credentials, host data, and raw live CRM responses remain outside Git and PM."
