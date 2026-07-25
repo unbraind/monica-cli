@@ -51,6 +51,19 @@ export type ChangelogGroupBy = "version" | "release" | "milestone";
  * `"category"` is the default and reproduces the historical
  * keep-a-changelog grouping (Added/Changed/Fixed/...) byte-for-byte. */
 export type ChangelogSectionBy = "category" | "type" | "status" | "label";
+/** How pm item IDs are rendered as references in generated changelog entries,
+ * controlled by the opt-in `--item-ref-style` flag.
+ * - `"auto"` (default): an internal `.toon` blob link when `itemUrlBase` is set,
+ *   otherwise a neutral `(id)` label. Reproduces the historical behavior exactly.
+ * - `"label"`: always a neutral `(id)` label — never a link. Safe for changelogs
+ *   published to a public registry, where internal `.agents/pm/...` blob URLs leak
+ *   tracker structure and may 404.
+ * - `"toon"`: force the internal `.toon` blob link (requires `itemUrlBase`; falls
+ *   back to a label when `itemUrlBase` is unset).
+ * - `"github"`: render a public GitHub issue/PR link derived from the item's
+ *   `gh:owner/repo#number` provenance tag (as written by pm-github); items lacking
+ *   a valid provenance tag fall back to a neutral label. */
+export type ChangelogItemRefStyle = "auto" | "label" | "toon" | "github";
 export interface ChangelogReleaseWindow {
     heading: string;
     /** Git tag name (e.g. "v1.2.0") for this window. When set, items whose
@@ -78,6 +91,10 @@ export interface GenerateChangelogOptions {
      * When set, each item ID in the changelog becomes a hyperlink:
      * `[pmc-abc]({itemUrlBase}/pmc-abc.toon)` */
     itemUrlBase?: string;
+    /** OPT-IN: how pm item IDs are rendered as references. Absent → `"auto"`, which
+     * reproduces the historical behavior (blob link when `itemUrlBase` is set, else a
+     * neutral label). See {@link ChangelogItemRefStyle}. */
+    itemRefStyle?: ChangelogItemRefStyle;
     /** OPT-IN: within-release grouping. Absent or `"category"` reproduces the
      * historical keep-a-changelog grouping byte-for-byte. */
     sectionBy?: ChangelogSectionBy;
@@ -111,6 +128,23 @@ export interface GenerateChangelogOptions {
     /** OPT-IN: include a suggested semver bump in the `--changelog-json`
      * document. Never alters default markdown. Absent → no suggestion emitted. */
     suggestSemver?: boolean;
+    /** OPT-IN: honor an item's `release` field (or `metadata.release`) when a
+     * single version window is generated, matching what `releaseWindows`
+     * (`--all-release-tags`) already does. An item that declares a release is
+     * pinned to that release: it is kept when the release matches `version` (no
+     * matter what its timestamps say) and dropped otherwise. Absent → the release
+     * field is ignored outside `releaseWindows`, reproducing historical behavior.
+     *
+     * This is what lets a tracker closed long after its fix shipped stay out of
+     * the current release: `pm update <id> --release <shipped-version>` records
+     * where the work actually landed, and generation stops trusting `closed_at`. */
+    respectItemRelease?: boolean;
+    /** OPT-IN: drop items carrying any of these tags from every generation path,
+     * giving repos an ignore convention (e.g. `changelog:ignore`) for pm items
+     * that are legitimately tracked but are not user-facing package changes.
+     * Matching is case-insensitive and trims surrounding whitespace.
+     * Absent/empty → no items are excluded by tag. */
+    excludeTags?: string[];
 }
 /** A truthy `breaking` flag may live directly on a pm item or in its metadata.
  * Used only by the opt-in `--breaking-changes` / `--suggest-semver` features. */
@@ -225,12 +259,20 @@ export interface ChangelogSelectionReport {
         include_empty: boolean;
         limit?: number;
         since_version?: string;
+        /** Present only when `--exclude-tag` was used: the normalized tag list. */
+        exclude_tags?: string[];
+        /** Present only when `--respect-item-release` was used. */
+        respect_item_release?: boolean;
     };
     stage_counts: {
         input: number;
         after_title: number;
+        after_excluded_tags: number;
         after_status: number;
         after_time: number;
+        /** Present only when release attribution ran (`--respect-item-release`
+         * outside `releaseWindows`). */
+        after_item_release?: number;
         after_release_windows?: number;
         candidate_sections: number;
         visible_sections: number;
@@ -239,15 +281,19 @@ export interface ChangelogSelectionReport {
     };
     excluded_counts: {
         missing_title: number;
+        excluded_tag: number;
         status: number;
         time_window: number;
+        item_release: number;
         release_window: number;
         hidden_by_visibility: number;
     };
     sample_items: {
         missing_title: string[];
+        excluded_tag: string[];
         status: string[];
         time_window: string[];
+        item_release: string[];
         release_window: string[];
         hidden_by_visibility: string[];
     };

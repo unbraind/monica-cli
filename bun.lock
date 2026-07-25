@@ -23,7 +23,7 @@
         "eslint-plugin-jsdoc": "^63.2.0",
         "globals": "^17.7.0",
         "jscpd": "^5.0.12",
-        "pm-changelog": "2026.7.23",
+        "pm-changelog": "2026.7.24",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3",
         "vitest": "^4.1.10",
@@ -31,7 +31,7 @@
     },
   },
   "overrides": {
-    "brace-expansion": "5.0.7",
+    "brace-expansion": "5.0.8",
     "fast-uri": "3.1.4",
     "flatted": "3.4.2",
     "js-yaml": "5.2.2",
@@ -304,7 +304,7 @@
 
     "balanced-match": ["balanced-match@4.0.4", "", {}, "sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA=="],
 
-    "brace-expansion": ["brace-expansion@5.0.7", "", { "dependencies": { "balanced-match": "^4.0.2" } }, "sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA=="],
+    "brace-expansion": ["brace-expansion@5.0.8", "", { "dependencies": { "balanced-match": "^4.0.2" } }, "sha512-JZyDyq3D4AUifKTPOB7DELf6XsB3WdPuNxCtob1vFXPsSXhdAiHBWJ/tJ8HAc9aH84BK+5JFZLNkJKx3G9kzQg=="],
 
     "braces": ["braces@3.0.3", "", { "dependencies": { "fill-range": "^7.1.1" } }, "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA=="],
 
@@ -574,7 +574,7 @@
 
     "picomatch": ["picomatch@4.0.5", "", {}, "sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A=="],
 
-    "pm-changelog": ["pm-changelog@2026.7.23", "", { "peerDependencies": { "@unbrained/pm-cli": ">=2026.7.11" }, "bin": { "pm-changelog": "dist/cli.js" } }, "sha512-+qUOljQkFalPE8+pfZ0l8c/+XxAxd7oPigr961tuZ2zcwpcs6n1G3ubBIWkuByZ51+z9zada7OaXWu3PK533Gg=="],
+    "pm-changelog": ["pm-changelog@2026.7.24", "", { "peerDependencies": { "@unbrained/pm-cli": ">=2026.7.24" }, "bin": { "pm-changelog": "dist/cli.js" } }, "sha512-3ixc8HLx//s/0NEXE9/LB5yd7MaKajC5N88u9XQtV37UJQcUNxKiPRKdoEOcBLFe7gUXgP1IFWNywjukbXmQPQ=="],
 
     "postcss": ["postcss@8.5.19", "", { "dependencies": { "nanoid": "^3.3.12", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ=="],
 

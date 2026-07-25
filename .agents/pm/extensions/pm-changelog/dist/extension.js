@@ -6,19 +6,34 @@ import { buildChangelogDocument, createChangelog, createChangelogSummary, explai
 import { MissingTagHistoryError, resolveReleaseContext, resolveReleaseTagWindows } from "./release-context.js";
 const sdkExports = pmSdk;
 const listAllItemMetadata = (sdkExports.listAllItemMetadata ?? sdkExports[["listAll", "Front", "Matter"].join("")]);
+/** Determine whether an unknown command result carries valid pre-rendered changelog output. */
+function isRenderedCommandResult(value) {
+    return (typeof value === "object" &&
+        value !== null &&
+        "pmChangelogRendered" in value &&
+        value.pmChangelogRendered === true &&
+        "output" in value &&
+        typeof value.output === "string");
+}
+/** Serialize a structured changelog value into the marker consumed by scoped renderers. */
 function renderedCommandResult(value) {
-    const output = `${JSON.stringify(value, null, 2)}\n`;
+    // `value` is `unknown`, so `undefined`/functions/symbols are reachable inputs;
+    // `JSON.stringify` returns `undefined` for those, which would print the literal
+    // string "undefined" instead of JSON. Reject rather than emit invalid output.
+    const serialized = JSON.stringify(value, null, 2);
+    if (serialized === undefined) {
+        throw new TypeError("Rendered changelog value is not JSON-serializable");
+    }
+    const output = `${serialized}\n`;
     return { pmChangelogRendered: true, output };
 }
+/** Return owned pre-rendered output or defer unrelated results to the host renderer. */
 function renderCommandResult(context) {
-    const result = context?.result;
-    return result?.pmChangelogRendered === true && typeof result.output === "string"
-        ? result.output
-        : null;
+    return isRenderedCommandResult(context?.result) ? context.result.output : null;
 }
 export default defineExtension({
     name: "pm-changelog",
-    version: "2026.7.23",
+    version: "2026.7.24",
     activate(api) {
         api.registerCommand({
             name: "changelog generate",
@@ -67,6 +82,9 @@ export default defineExtension({
                 { long: "--include-empty", description: "Emit an empty release section when no items match" },
                 { long: "--include-links", description: "Include item URLs in generated entries (default: false)" },
                 { long: "--item-url-base", value_name: "url", description: "Make item IDs clickable links to .toon files under the base URL" },
+                { long: "--item-ref-style", value_name: "style", description: "How item IDs render: auto (default), label (neutral/public-safe), toon (force blob link), github (public issue/PR link from gh:owner/repo#N provenance tag)" },
+                { long: "--exclude-tag", value_name: "list", description: "Omit items carrying any of these comma-separated tags (ignore convention, e.g. changelog:ignore)" },
+                { long: "--respect-item-release", description: "Treat an item release field as the authority for its single version window: keep it when it matches the release version regardless of timestamps, drop it otherwise (--all-release-tags always honors the field)" },
                 { long: "--check", description: "Do not write; report whether the changelog would change" },
             ],
             async run(ctx) {
@@ -162,6 +180,9 @@ export default defineExtension({
                     includeEmpty: booleanOption(ctx.options, "include-empty", "includeEmpty"),
                     includeLinks: booleanOption(ctx.options, "include-links", "includeLinks"),
                     itemUrlBase: stringOption(ctx.options, "item-url-base", "itemUrlBase"),
+                    itemRefStyle: itemRefStyleOption(ctx.options),
+                    respectItemRelease: booleanOption(ctx.options, "respect-item-release", "respectItemRelease"),
+                    excludeTags: excludeTagsOption(ctx.options),
                 };
                 const selectionReport = booleanOption(ctx.options, "explain", "explain")
                     ? explainChangelogSelection(generationOptions)
@@ -279,6 +300,9 @@ export default defineExtension({
                 { long: "--include-links", description: "Include item URLs in generated entries (default: false)" },
                 { long: "--include-metadata", description: "Append compact item metadata (type/status/priority/release/milestone) to each entry" },
                 { long: "--item-url-base", value_name: "url", description: "Make item IDs clickable links to .toon files under the base URL" },
+                { long: "--item-ref-style", value_name: "style", description: "How item IDs render: auto (default), label (neutral/public-safe), toon (force blob link), github (public issue/PR link from gh:owner/repo#N provenance tag)" },
+                { long: "--exclude-tag", value_name: "list", description: "Omit items carrying any of these comma-separated tags (ignore convention, e.g. changelog:ignore)" },
+                { long: "--respect-item-release", description: "Treat an item release field as the authority for its single version window: keep it when it matches the release version regardless of timestamps, drop it otherwise (--all-release-tags always honors the field)" },
             ],
         };
         const registerExporterWithMetadata = api.registerExporter;
@@ -320,6 +344,9 @@ export default defineExtension({
                 includeLinks: booleanOption(ctx.options, "include-links", "includeLinks"),
                 includeMetadata: booleanOption(ctx.options, "include-metadata", "includeMetadata"),
                 itemUrlBase: stringOption(ctx.options, "item-url-base", "itemUrlBase"),
+                itemRefStyle: itemRefStyleOption(ctx.options),
+                respectItemRelease: booleanOption(ctx.options, "respect-item-release", "respectItemRelease"),
+                excludeTags: excludeTagsOption(ctx.options),
             });
             const outputPath = stringOption(ctx.options, "output", "output");
             if (format === "json") {
@@ -345,12 +372,20 @@ export default defineExtension({
             api.registerFlags("changelog export", changelogExportMetadata.flags);
         }
         // Register renderer overrides so json-mode results print verbatim JSON to
-        // stdout under both the default (toon) and global --json renderers. Guarded
-        // for older hosts without renderer support.
-        const registerRenderer = api.registerRenderer;
-        if (typeof registerRenderer === "function") {
-            registerRenderer("toon", renderCommandResult);
-            registerRenderer("json", renderCommandResult);
+        // stdout under both the default (toon) and global --json renderers. The host
+        // enforces command and result ownership before invoking either callback.
+        if (typeof api.registerRenderer === "function") {
+            // Pass the ownership object straight to registerRenderer — no cast — so
+            // TypeScript validates it against pm-cli 2026.7.24's registerRenderer
+            // signature (the ownership param type is not re-exported from /sdk, but the
+            // call site is still fully checked). The host enforces `commands` +
+            // `resultDiscriminator` before invoking either callback.
+            const rendererOwnership = {
+                commands: ["changelog generate", "changelog export"],
+                resultDiscriminator: isRenderedCommandResult,
+            };
+            api.registerRenderer("toon", renderCommandResult, rendererOwnership);
+            api.registerRenderer("json", renderCommandResult, rendererOwnership);
         }
     },
 });
@@ -422,6 +457,29 @@ function stringOption(options, kebabKey, camelKey) {
 }
 function booleanOption(options, kebabKey, camelKey) {
     return Boolean(options[kebabKey] ?? options[camelKey]);
+}
+function itemRefStyleOption(options) {
+    const value = stringOption(options, "item-ref-style", "itemRefStyle");
+    if (value === undefined)
+        return undefined;
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "auto" || normalized === "label" || normalized === "toon" || normalized === "github") {
+        return normalized;
+    }
+    throw new PmCliError("--item-ref-style must be 'auto', 'label', 'toon', or 'github'", EXIT_CODE.USAGE);
+}
+/** OPT-IN (`--exclude-tag`): comma-separated tag list, or an array when the host
+ * passes a repeated flag. Absent/blank → `undefined`, which leaves generation
+ * unfiltered. */
+function excludeTagsOption(options) {
+    const raw = options["exclude-tag"] ?? options["excludeTag"] ?? options["exclude-tags"] ?? options["excludeTags"];
+    if (raw === undefined || raw === null)
+        return undefined;
+    const values = (Array.isArray(raw) ? raw : [raw])
+        .flatMap((entry) => String(entry).split(","))
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+    return values.length > 0 ? values : undefined;
 }
 function parseLimitOption(options) {
     const raw = options["limit"];

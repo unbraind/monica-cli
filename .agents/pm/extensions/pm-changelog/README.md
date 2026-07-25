@@ -63,9 +63,56 @@ npx pm-changelog --stdout --body-preview 80       # append first 80 chars of eac
 npx pm-changelog --stdout --emoji-prefix          # prefix headings with emoji (Added 🎉, Fixed 🐛, ...)
 npx pm-changelog --stdout --include-metadata      # append type/status/priority/release/milestone per item
 npx pm-changelog --stdout --json --explain        # emit selection diagnostics (counts + exclusion hints) for agents
+npx pm-changelog --stdout --item-ref-style github  # link item IDs to public GitHub issues/PRs, not .agents/pm blobs
+npx pm-changelog --stdout --item-ref-style label   # neutral (id) labels — safe for a published/public changelog
+npx pm-changelog --stdout --respect-item-release    # honor each item's release field, not just closed_at
+npx pm-changelog --stdout --exclude-tag changelog:ignore  # keep tagged items out of the changelog entirely
 ```
 
+`--item-ref-style` controls how pm item IDs render as references:
+
+- `auto` (default) — an internal `.toon` blob link when `--item-url-base` is set, otherwise a neutral `(id)` label. Byte-for-byte identical to prior behavior.
+- `label` — always a neutral `(id)` label, never a link. Use for changelogs published to a public registry, where `.agents/pm/...` blob URLs leak tracker structure and may 404.
+- `toon` — force the internal `.toon` blob link (requires `--item-url-base`; falls back to a label when it is unset).
+- `github` — render a public GitHub issue/PR link derived from the item's `gh:owner/repo#number` provenance tag (written by [pm-github](https://github.com/unbraind/pm-github)); items without a valid provenance tag fall back to a neutral label.
+
 See [Usage](docs/usage.md#opt-in-enhancements) for details.
+
+### Release attribution: work that shipped before its tracker was closed
+
+By default an item lands in the release window that contains its `closed_at` (falling back to
+`updated_at`/`created_at`). In multi-agent workflows an agent often ships the fix in one release and
+closes the tracker during a later one, which would date months-old work as new — and is why
+shipped-but-unclosed trackers pile up: closing them corrupts the changelog.
+
+Record where the work actually landed and generation stops trusting `closed_at`:
+
+```bash
+pm update <id> --release 2026.6.1        # the release the fix actually shipped in
+npx pm-changelog --stdout --release-version 2026.7.24 --respect-item-release
+```
+
+With `--respect-item-release`, an item that declares a `release` (top-level field or
+`metadata.release`) is **pinned** to it: kept when it matches the generated version regardless of
+timestamps, dropped otherwise (including from an unversioned `Unreleased` window — it already
+shipped). Items without a declared release keep the plain time-window behavior, so output is
+unchanged for workspaces that never set the field. `--all-release-tags` already honors the field and
+is unaffected; the flag makes the single-window path (`--since-previous-tag --until-release-tag`,
+`changelog:check`, release notes) agree with it. `--explain` reports what attribution dropped.
+
+### Excluding items
+
+`--exclude-tag <tags>` (repeatable, comma-separated) omits items carrying any listed tag from every
+generation path — an ignore convention for pm items that are legitimately tracked but are not
+user-facing package changes (upstream issue mirrors, internal chores, superseded work):
+
+```bash
+pm update <id> --add-tags changelog:ignore
+npx pm-changelog --stdout --exclude-tag changelog:ignore
+```
+
+Matching is case-insensitive and trims whitespace. The item stays in the tracker with its full
+history — only the generated changelog skips it.
 
 ## Docs
 

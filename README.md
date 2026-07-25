@@ -181,6 +181,7 @@ cat payload.toon | monica --json schemas validate config-test --input-format too
 monica --json info command-catalog
 
 # Summarize Monica API resource/endpoint coverage from local reference docs
+monica --json api-research source-status --fail-on-stale
 monica --json api-research summary --instance-aware
 monica --json api-research coverage --instance-aware
 monica --json api-research coverage --instance-aware --fail-on-unsupported
@@ -216,6 +217,7 @@ monica --json schemas get agent-tools-safe-commands
 monica --json schemas get search-results
 monica --json schemas get audit-report
 monica --json schemas get api-research-summary
+monica --json schemas get api-research-source-status
 monica --json schemas get api-research-backlog
 monica --json schemas get api-research-actions
 monica --json schemas get api-research-coverage

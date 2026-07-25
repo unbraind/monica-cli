@@ -4,6 +4,19 @@ TypeScript API documentation for monica-cli.
 
 The stable API inventory is derived from Monica's maintained `4.x` API routes and controllers. The checked-in machine-readable snapshots are [`api-reference.json`](./api-reference.json) and [`monica-api-reference.json`](./monica-api-reference.json); refresh or inspect them with `monica api-research`. Source research is intentionally read-only.
 
+Verify that the bundled source commit is still the current public `4.x` head:
+
+```bash
+monica --json api-research source-status
+monica --json api-research source-status --fail-on-stale --fail-on-unavailable
+```
+
+`current` means the bundled commit equals the authoritative branch head.
+`stale` means upstream advanced and the snapshots require review. `unavailable`
+means freshness could not be proven, not that the API is stale. The command
+only reads public GitHub branch metadata and never calls the configured Monica
+instance. The inherited `--request-timeout-ms` option bounds this public lookup.
+
 ## Monica 4.x parity additions
 
 The public TypeScript surface includes stable resource families and profile actions that older generated API documentation can omit:

@@ -30,9 +30,18 @@ interface MonicaReferenceResource {
   endpoints?: MonicaReferenceEndpoint[];
 }
 
+/** Describes the authoritative source recorded in the bundled Monica reference. */
+export interface MonicaReferenceProvenance {
+  repository: string;
+  branch: string;
+  commit: string;
+  routeFile: string;
+}
+
 interface MonicaReferenceDocument {
   version?: string;
   baseUrl?: string;
+  source?: MonicaReferenceProvenance;
   resources?: Record<string, MonicaReferenceResource>;
 }
 
@@ -125,6 +134,21 @@ function resolveCliCommand(resourceName: string): { command: string; mapped: boo
 function loadMonicaReference(): MonicaReferenceDocument {
   const raw = fs.readFileSync(MONICA_REFERENCE_PATH, 'utf-8');
   return JSON.parse(raw) as MonicaReferenceDocument;
+}
+
+/** Loads authoritative provenance from the bundled Monica API reference. */
+export function loadBundledMonicaProvenance(): MonicaReferenceProvenance | null {
+  const source = loadMonicaReference().source;
+  if (
+    !source
+    || !source.repository
+    || !source.branch
+    || !source.commit
+    || !source.routeFile
+  ) {
+    return null;
+  }
+  return source;
 }
 
 /** Parses source option. */

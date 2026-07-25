@@ -15,6 +15,7 @@ monica --json schemas get agent-tools-safe-commands
 monica --json schemas get search-results
 monica --json schemas get audit-report
 monica --json schemas get api-research-summary
+monica --json schemas get api-research-source-status
 monica --json schemas get api-research-backlog
 monica --json schemas get api-research-actions
 monica --json schemas get api-research-coverage
@@ -365,6 +366,47 @@ Use this as a deterministic orchestration plan for agent bootstrap in read-only 
 ```
 
 `partial: true` indicates best-effort mode returned results even though one or more resource types failed.
+
+### `api-research source-status`
+
+```json
+{
+  "generatedAt": "2026-07-25T00:00:00.000Z",
+  "state": "current",
+  "current": true,
+  "source": {
+    "repository": "monicahq/monica",
+    "branch": "4.x",
+    "routeFile": "routes/api.php",
+    "bundledCommit": "32028ce3ce79cef38df5d27a297e5b20680f0065"
+  },
+  "upstream": {
+    "apiUrl": "https://api.github.com/repos/monicahq/monica/branches/4.x",
+    "commit": "32028ce3ce79cef38df5d27a297e5b20680f0065"
+  },
+  "error": null,
+  "gate": {
+    "enabled": true,
+    "failed": false,
+    "failOnStale": true,
+    "failOnUnavailable": false,
+    "reasons": []
+  },
+  "recommendedActions": [
+    "monica --json api-research coverage --fail-on-unmapped"
+  ]
+}
+```
+
+The `state` values are intentionally separate:
+
+- `current`: the bundled and upstream commits match.
+- `stale`: upstream returned a different commit.
+- `unavailable`: freshness could not be verified, including network, HTTP,
+  malformed-response, or missing-provenance failures.
+
+Use `--fail-on-stale` and optionally `--fail-on-unavailable` for CI. A failed
+gate exits with status `2` after writing the complete schema-valid payload.
 
 ### `api-research summary`
 
