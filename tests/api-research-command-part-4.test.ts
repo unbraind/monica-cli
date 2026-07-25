@@ -230,7 +230,8 @@ describe('api-research command', () => {
       endpoints: {
         activities: {
           methods: {
-            get: { method: 'GET', path: '/activities/:id' },
+            getColon: { method: 'GET', path: '/activities/:id' },
+            getBraced: { method: 'GET', path: '/activities/{activity}' },
           },
         },
       },
@@ -244,11 +245,12 @@ describe('api-research command', () => {
     await cmd.parseAsync(['--format', 'json', 'probe', '--include-parameterized', '--id-replacement', '999999'], { from: 'user' });
 
     const payload = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]));
-    expect(payload.summary.total).toBe(1);
-    expect(payload.summary.unknownId).toBe(1);
+    expect(payload.summary.total).toBe(2);
+    expect(payload.summary.unknownId).toBe(2);
     expect(payload.summary.unsupported).toBe(0);
     expect(payload.probes[0].status).toBe('unknown-id');
     expect(payload.probes[0].supported).toBeNull();
     expect(getMock).toHaveBeenCalledWith('/activities/999999');
+    expect(getMock).toHaveBeenCalledTimes(2);
   });
 });

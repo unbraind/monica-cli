@@ -11,3 +11,4 @@ export * from './company';
 export * from './reference';
 export * from './pet';
 export * from './stable-api';
+export * from './next-api';

@@ -77,6 +77,8 @@ const CAPABILITY_TARGETS: CapabilityTarget[] = [
   { key: 'currencies', command: 'currencies list', endpoint: '/currencies?limit=1' },
   { key: 'tags', command: 'tags list', endpoint: '/tags?limit=1' },
   { key: 'user', command: 'user show', endpoint: '/me' },
+  { key: 'accountUsers', command: 'users list', endpoint: '/users?limit=1' },
+  { key: 'vaults', command: 'vaults list', endpoint: '/vaults?limit=1' },
   { key: 'relationships', command: 'relationships types', endpoint: '/relationshiptypes?limit=1' },
   { key: 'relationshipTypeGroups', command: 'relationships groups', endpoint: '/relationshiptypegroups?limit=1' },
   { key: 'activityTypes', command: 'activity-types list', endpoint: '/activitytypes?limit=1' },

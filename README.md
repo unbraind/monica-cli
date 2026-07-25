@@ -66,6 +66,8 @@ the complete selected payload without truncating strings or nested records.
 Settings should use `readOnlyMode` (canonical key). Legacy `readOnly` is still accepted and normalized automatically.
 Optional `user-email`/`user-password` prompts are only shown when those values already exist or are explicitly provided.
 Setup validates URL/email/key safety (`api-key` must be non-empty without whitespace; `user-password` requires `user-email`).
+Connection verification supports both API editions: stable `/me` is tried
+first, with a current `/user` fallback only after HTTP 404/405.
 For automation you can also run:
 
 ```bash
@@ -150,6 +152,11 @@ monica life-events list
 monica statistics get
 monica reminders upcoming 0
 
+# Current Monica main API resources (UUID identifiers)
+monica users current
+monica users list
+monica vaults list
+
 # Stable Monica 4.x contact profile operations
 monica contacts introduction 1 --info "Met at a conference"
 monica contacts avatar 1 --source gravatar
@@ -157,6 +164,11 @@ monica contacts career 1 --job "Engineer" --company "Acme"
 
 # Check endpoint support on your Monica server version
 monica info capabilities
+
+# Verify both public source editions and current-main route coverage
+monica --json api-research source-status --edition stable
+monica --json api-research source-status --edition next
+monica --json api-research coverage --source next --fail-on-unmapped
 
 # Force a fresh capability probe (skip cache)
 monica info capabilities --refresh
@@ -181,7 +193,8 @@ cat payload.toon | monica --json schemas validate config-test --input-format too
 monica --json info command-catalog
 
 # Summarize Monica API resource/endpoint coverage from local reference docs
-monica --json api-research source-status --fail-on-stale
+monica --json api-research source-status --edition stable --fail-on-stale
+monica --json api-research source-status --edition next --fail-on-stale
 monica --json api-research summary --instance-aware
 monica --json api-research coverage --instance-aware
 monica --json api-research coverage --instance-aware --fail-on-unsupported
@@ -189,6 +202,8 @@ monica --json api-research coverage --fail-on-unmapped
 monica --json api-research summary --source monica --with-endpoints
 monica --json api-research summary --source monica --unmapped-only
 monica --json api-research summary --source monica --mapped-only
+monica --json api-research summary --source next --with-endpoints
+monica --json api-research coverage --source next --fail-on-unmapped
 monica --json api-research backlog
 monica --json api-research backlog --instance-aware
 monica --json api-research backlog --instance-aware --unsupported-only
@@ -218,6 +233,8 @@ monica --json schemas get search-results
 monica --json schemas get audit-report
 monica --json schemas get api-research-summary
 monica --json schemas get api-research-source-status
+monica --json schemas get next-account-user
+monica --json schemas get next-vault
 monica --json schemas get api-research-backlog
 monica --json schemas get api-research-actions
 monica --json schemas get api-research-coverage

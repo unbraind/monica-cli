@@ -76,7 +76,12 @@ export function getLocationPayload(): { path: string; exists: boolean; modifiedA
 /** Builds connection payload. */
 export function buildConnectionPayload(
   settings: Partial<MonicaConfig>,
-  user: { id?: number; name?: string; email?: string; account?: { id?: number } }
+  user: {
+    id?: number | string;
+    name?: string;
+    email?: string;
+    account?: { id?: number | string };
+  }
 ): Record<string, unknown> {
   return {
     ok: true,

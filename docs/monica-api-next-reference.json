@@ -1,0 +1,93 @@
+{
+  "version": "main",
+  "baseUrl": "/api",
+  "generated": "2026-07-26",
+  "source": {
+    "repository": "monicahq/monica",
+    "branch": "main",
+    "commit": "e08e91734170b6bbd582cb578532c3948196124e",
+    "routeFile": "routes/api.php"
+  },
+  "authentication": {
+    "type": "Bearer Token",
+    "middleware": "auth:sanctum",
+    "readAbility": "read",
+    "writeAbility": "write"
+  },
+  "pagination": {
+    "defaultPerPage": 10,
+    "maximumPerPage": 100,
+    "parameters": ["page", "limit"]
+  },
+  "resources": {
+    "authenticatedUser": {
+      "description": "Authenticated account user",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/user",
+          "description": "Get the authenticated user",
+          "cli": "monica users current"
+        }
+      ]
+    },
+    "accountUsers": {
+      "description": "Users belonging to the authenticated account",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/users",
+          "description": "List account users",
+          "cli": "monica users list"
+        },
+        {
+          "method": "GET",
+          "path": "/users/{user}",
+          "description": "Get an account user",
+          "cli": "monica users get <id>"
+        }
+      ]
+    },
+    "vaults": {
+      "description": "Private vaults belonging to the authenticated account",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/vaults",
+          "description": "List vaults",
+          "cli": "monica vaults list"
+        },
+        {
+          "method": "POST",
+          "path": "/vaults",
+          "description": "Create a vault",
+          "cli": "monica vaults create"
+        },
+        {
+          "method": "GET",
+          "path": "/vaults/{vault}",
+          "description": "Get a vault",
+          "cli": "monica vaults get <id>"
+        },
+        {
+          "method": "PUT",
+          "path": "/vaults/{vault}",
+          "description": "Replace a vault",
+          "cli": "monica vaults update <id>"
+        },
+        {
+          "method": "PATCH",
+          "path": "/vaults/{vault}",
+          "description": "Partially update a vault",
+          "cli": "monica vaults patch <id>"
+        },
+        {
+          "method": "DELETE",
+          "path": "/vaults/{vault}",
+          "description": "Delete a vault and its contents",
+          "cli": "monica vaults delete <id>"
+        }
+      ]
+    }
+  }
+}

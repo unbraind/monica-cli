@@ -46,6 +46,12 @@ export interface DeleteResponse {
   id: number;
 }
 
+/** Describes a delete response from Monica editions that use UUID identifiers. */
+export interface StringDeleteResponse {
+  deleted: boolean;
+  id: string;
+}
+
 /** Describes the api error data contract. */
 export interface ApiError {
   message?: string;

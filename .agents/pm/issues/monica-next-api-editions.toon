@@ -1,0 +1,84 @@
+id: monica-next-api-editions
+title: Add Monica next-generation API editions and vault management
+description: "Expose the complete current Monica main-branch API alongside stable 4.x with typed users and vaults commands, edition-aware provenance, schemas, docs, agent contracts, and read-only-safe acceptance."
+type: Issue
+status: closed
+priority: 0
+tags[10]: agent-ux,api-contracts,api-research,chandler,documentation,monica-next,read-only-safety,sanctum,typescript,vaults
+created_at: "2026-07-25T22:29:01.605Z"
+updated_at: "2026-07-25T23:16:05.025Z"
+deadline: "2026-08-01T22:29:01.605Z"
+closed_at: "2026-07-25T23:16:04.255Z"
+author: codex-root
+estimated_minutes: 480
+acceptance_criteria: "Every route currently declared by Monica main routes/api.php is represented by a typed CLI command and versioned reference entry; Stable 4.x compatibility remains complete and next-edition commands classify unsupported versus unavailable safely; All help, docs, output schemas, agent catalogs, setup/doctor guidance, and changelog state match runtime behavior; Exact 100/100/100/100 source coverage, 100 percent docstrings, under-300-LOC source files, zero duplication/security/privacy findings, packed npm/Bun proof, PM validation, and read-only live acceptance pass"
+why_now: "Authoritative main has a concrete public API that differs from frozen stable 4.x, and latest-version compatibility now requires explicit edition modeling."
+parent: monica-platform
+reviewer: github-bots
+risk: high
+confidence: 96
+sprint: 2026-07-next-api
+release: next
+reporter: codex-root
+severity: high
+environment: Monica stable 4.x and current main APIs; Bun 1.3.11; Node 22+; private live instance read-only
+repro_steps: Compare authoritative main routes/api.php with monica info command-catalog and docs/monica-api-reference.json; users and vaults are absent.
+resolution: "Added typed users and vault commands for all nine current main routes, edition-specific source provenance and coverage, schemas, conservative setup fallback, empty-PATCH validation, agent-safe help/docs, and latest PM toolchain."
+expected_result: "Agents can inspect API editions and invoke every current stable or main endpoint through typed, schema-valid, documented commands."
+actual_result: "All nine current-main routes are represented by typed users and vault commands; stable 4.x remains intact; empty vault patches are rejected; exact coverage, source quality, packaged consumer, help, security, PM, and 108-check read-only live acceptance gates pass with infrastructure unavailability classified separately."
+affected_version: 2026.7.25
+component: api-editions
+regression: false
+customer_impact: Users and agents targeting current Monica development instances cannot discover or manage the available account and vault API through monica-cli.
+dependencies[7]{id,kind,created_at,author,source_kind}:
+  monica-agent-tool-contracts,verifies,"2026-07-25T22:29:01.605Z",null,null
+  monica-api-4x-parity,discovered_from,"2026-07-25T22:29:01.605Z",null,null
+  monica-api-4x-parity-plan,implements,"2026-07-25T22:29:01.605Z",null,null
+  monica-api-source-freshness,discovered_from,"2026-07-25T22:29:01.605Z",null,null
+  monica-config-output-secret-sink,related,"2026-07-25T22:29:01.605Z",null,null
+  monica-official-toon-contracts,verifies,"2026-07-25T22:29:01.605Z",null,null
+  monica-server-diagnostics,related,"2026-07-25T22:29:01.605Z",null,null
+comments[5]{created_at,author,text}:
+  "2026-07-25T22:29:01.605Z",codex-root,"Duplicate search across all 61 items found no canonical Monica main/Sanctum users/vaults edition item. Stable 4.x parity and source freshness remain closed predecessors, so this is a new child of monica-platform rather than a reopened duplicate."
+  "2026-07-25T22:57:06.623Z",codex-root,"Latest-source research verified stable 4.x at v4.1.2 and current main at its public head. The current route inventory contains GET /user, GET /users, GET /users/{user}, and six vault CRUD routes; CLI source-status keeps stable and next provenance separate so current main does not silently redefine the stable contract."
+  "2026-07-25T22:57:12.074Z",codex-root,"Privacy-safe live acceptance completed with the actual monica executable: 108 checks, 52 passes, 56 expected infrastructure-unavailable outcomes, and 0 unexpected failures. Stable/next source checks and schemas pass; POST, PUT, PATCH, and DELETE vault commands were each blocked before network access. Settings were restored and no live payloads were persisted in the repository."
+  "2026-07-25T23:01:31.801Z",codex-root,"Full release gate passed: 865 tests at exact 100/100/100/100, 611/611 documented exports, every source file at or below 300 code lines, 4.27 percent duplicated lines below the 5 percent gate, 285/285 help checks, clean Bun dependency/history/version audits, and isolated npx plus bunx package consumers reporting 2026.7.25."
+  "2026-07-25T23:16:03.295Z",codex-root,Final artifact review added an explicit no-op PATCH rejection so vaults patch cannot send an empty payload; focused tests and full 100/100/100/100 coverage pass afterward. The bundled next source commit was rechecked against the public main head and remains current.
+notes[2]{created_at,author,text}:
+  "2026-07-25T22:29:01.605Z",codex-root,"Authoritative sources: monicahq/monica main routes/api.php and its UserController, VaultController, UserResource, and VaultResource. Private settings and payloads remain outside the repository under ~/.monica-cli."
+  "2026-07-25T22:57:08.626Z",codex-root,"Connection verification falls back from stable /me to current /user only on HTTP 404 or 405. Authentication, timeout, and infrastructure errors are preserved without fallback so diagnostics cannot misclassify a broken server as an edition mismatch."
+learnings[2]{created_at,author,text}:
+  "2026-07-25T22:29:01.605Z",codex-root,"API completeness must be edition-specific: stable 4.x and current main expose disjoint route sets and authentication stacks, so a single unversioned parity percentage is misleading."
+  "2026-07-25T22:57:10.617Z",codex-root,"The live instance still fails authenticated bootstrap while fetching Cloudflare trust-proxy ranges. Treat that as infrastructure unavailable, not endpoint unsupported; public provenance and local schema checks remain valid, while only a successful or route-specific response can establish compatibility."
+files[18]{path,scope,note}:
+  bun.lock,project,reproducible dependency graph
+  docs/monica-api-next-reference.json,project,authoritative current main route inventory
+  package.json,project,latest PM toolchain
+  scripts/e2e-readonly-commands.ts,project,real CLI edition acceptance and all write-method guards
+  src/api/capabilities.ts,project,GET-only users and vault capability probes
+  src/api/client.ts,project,typed PATCH transport and pre-network read-only guard
+  src/api/users.ts,project,current user and paginated account-user client
+  src/api/vaults.ts,project,typed vault GET POST PUT PATCH DELETE client
+  src/commands/api-research-shared.ts,project,stable and next bundled provenance selection
+  src/commands/api-research-source-status.ts,project,edition-aware public provenance
+  src/commands/config-connection.ts,project,conservative stable-to-next connection fallback
+  src/commands/schema-registry-next-api.ts,project,machine-readable user and vault schemas
+  src/commands/users.ts,project,current main authenticated and account user commands
+  src/commands/vaults.ts,project,current main vault CRUD commands
+  src/types/next-api.ts,project,typed current API resource and mutation contracts
+  tests/api-research-source-status.test.ts,project,stable and next freshness branch coverage
+  tests/config-connection.test.ts,project,edition fallback and infrastructure failure coverage
+  tests/next-api.test.ts,project,current edition route command pagination and safety coverage
+tests[2]{command,scope,timeout_seconds,note}:
+  "bun run test:e2e:readonly",project,1200,GET-only live acceptance and pre-network write guards
+  "bun run verify:release",project,2400,full production release gate
+docs[7]{path,scope,note}:
+  docs/API.md,project,edition compatibility and route documentation
+  docs/COMMANDS.md,project,users vaults and research help
+  docs/CONFIGURATION.md,project,edition-aware setup and connection verification
+  docs/INSTANCE-COMPATIBILITY.md,project,stable versus next support contract
+  docs/OUTPUT-SCHEMAS.md,project,typed user and vault output contracts
+  docs/README.md,project,documentation index for new current API surface
+  README.md,project,public compatibility summary
+close_reason: Implemented and verified every current Monica main API route while preserving the complete stable 4.x edition.
+body: "## Context\nMonica stable 4.x remains fully mapped, but authoritative main now exposes a separate Sanctum API for the authenticated user, account users, and vault CRUD. The CLI currently models only stable 4.x, so agents cannot reason about or invoke the latest available API edition.\n\n## Delivery\n- Preserve the stable 4.x catalog while adding an authoritative main-edition catalog and freshness verification.\n- Add typed users and vaults command groups for every current main API route.\n- Detect and document edition compatibility without misclassifying unavailable infrastructure.\n- Keep default TOON, JSON/YAML/Markdown/table schemas, agent exports, setup/doctor guidance, and help contracts aligned.\n- Upgrade repository PM tooling to the latest compatible published versions.\n\n## Safety\nLive acceptance is GET-only with readOnlyMode enabled. Mutations are covered by mocked integration tests and must be rejected before network access against the private instance. No credentials, user/vault identifiers, response payloads, or signed paths may enter Git, PM, logs, or GitHub."

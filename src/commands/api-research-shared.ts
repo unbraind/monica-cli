@@ -78,6 +78,13 @@ export interface ResourceSummary {
 
 const API_REFERENCE_PATH = path.resolve(__dirname, '..', '..', 'docs', 'api-reference.json');
 const MONICA_REFERENCE_PATH = path.resolve(__dirname, '..', '..', 'docs', 'monica-api-reference.json');
+const MONICA_NEXT_REFERENCE_PATH = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  'docs',
+  'monica-api-next-reference.json',
+);
 
 const RESOURCE_TO_COMMAND: Record<string, string> = {
   activities: 'activities',
@@ -112,6 +119,9 @@ const RESOURCE_TO_COMMAND: Record<string, string> = {
   tasks: 'tasks',
   user: 'user',
   users: 'user',
+  'account users': 'users',
+  'authenticated user': 'users current',
+  vaults: 'vaults',
   'activity types': 'activity-types',
   'activity type categories': 'activity-type-categories',
   'contact field types': 'contact-field-types',
@@ -137,8 +147,13 @@ function loadMonicaReference(): MonicaReferenceDocument {
 }
 
 /** Loads authoritative provenance from the bundled Monica API reference. */
-export function loadBundledMonicaProvenance(): MonicaReferenceProvenance | null {
-  const source = loadMonicaReference().source;
+export function loadBundledMonicaProvenance(
+  edition: 'stable' | 'next' = 'stable',
+): MonicaReferenceProvenance | null {
+  const document = edition === 'next'
+    ? JSON.parse(fs.readFileSync(MONICA_NEXT_REFERENCE_PATH, 'utf-8')) as MonicaReferenceDocument
+    : loadMonicaReference();
+  const source = document.source;
   if (
     !source
     || !source.repository
@@ -168,6 +183,9 @@ export function parseSourceOption(value: string): ReferenceSelection {
 
   if (normalized === 'api') return { path: API_REFERENCE_PATH, format: 'api-reference' };
   if (normalized === 'monica') return { path: MONICA_REFERENCE_PATH, format: 'monica-api-reference' };
+  if (normalized === 'next') {
+    return { path: MONICA_NEXT_REFERENCE_PATH, format: 'monica-api-reference' };
+  }
 
   const candidate = path.resolve(normalized);
   const raw = fs.readFileSync(candidate, 'utf-8');

@@ -192,7 +192,10 @@ See [Output Schemas](./OUTPUT-SCHEMAS.md) for canonical JSON contracts.
 monica config test
 ```
 
-Tests the connection to the Monica API and returns a structured payload (`ok`, `apiUrl`, `user`).
+Tests the connection to the Monica API and returns a structured payload (`ok`,
+`apiUrl`, `user`). The check supports both editions: it calls stable `/me`
+first, then tries current `/user` only after HTTP 404/405. It does not mask
+authentication, timeout, or infrastructure failures with a fallback.
 
 ### Run Config Diagnostics
 

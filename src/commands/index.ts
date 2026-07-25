@@ -41,3 +41,5 @@ export { createApiResearchCommand } from './api-research';
 export { createPlacesCommand } from './places';
 export { createLifeEventsCommand } from './life-events';
 export { createStatisticsCommand } from './statistics';
+export { createUsersCommand } from './users';
+export { createVaultsCommand } from './vaults';

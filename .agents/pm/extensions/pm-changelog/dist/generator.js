@@ -537,8 +537,32 @@ function assignItemsToReleaseWindows(items, windows) {
         items: buckets.get(window.heading) ?? [],
     }));
 }
+/**
+ * Canonical key for release *identity* comparisons (window tag vs item
+ * `release` field vs `--release-version`).
+ *
+ * Strips a leading `v`, lowercases, then removes leading zeros from each
+ * dot-separated segment's numeric prefix. Calendar release tags are commonly
+ * zero-padded (`v2026.06.07`) while the same release is spelled unpadded in
+ * `package.json`, in `--release-version`, and in the rendered
+ * `## 2026.6.7 - 2026-06-07` heading. Without this canonicalization an item that
+ * declares the version as it appears everywhere a human or agent can read it
+ * (`release: 2026.6.7`) fails to match the window built from the padded tag, and
+ * silently falls through to `Unreleased` instead of being attributed to the
+ * release that shipped it.
+ *
+ * Non-numeric segments and suffixes are preserved verbatim, so calendar
+ * `-N` disambiguators and semver prereleases still compare exactly:
+ * `2026.06.02-1` -> `2026.6.2-1`, `1.0.0-rc.1` -> `1.0.0-rc.1`.
+ */
 function normalizeReleaseKey(value) {
-    return value.trim().replace(/^v/i, "").toLowerCase();
+    const base = value.trim().replace(/^v/i, "").toLowerCase();
+    if (!base)
+        return "";
+    return base
+        .split(".")
+        .map((segment) => segment.replace(/^0+(\d)/, "$1"))
+        .join(".");
 }
 // Truncate an epoch-millisecond value to whole-second granularity. Release-tag
 // boundaries come from git committer dates at second precision, while pm item
