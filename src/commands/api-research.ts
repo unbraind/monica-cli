@@ -7,6 +7,8 @@ import { buildProbePayload } from './api-research-probe';
 import type { ApiResearchSummaryOptions } from './api-research-types';
 import { attachApiResearchProbeSubcommand } from './api-research-probe';
 import { attachApiResearchSourceStatusSubcommand } from './api-research-source-status';
+import { attachApiResearchOpenApiSubcommand } from './api-research-openapi';
+import { attachApiResearchContractSubcommands } from './api-research-contracts';
 import { buildBacklogPayload } from './api-research-backlog';
 import { buildActionsPayload } from './api-research-actions';
 import { buildCoveragePayload, buildSummaryPayload } from './api-research-summary';
@@ -46,7 +48,7 @@ function evaluateCoverageGate(
 /** Creates api research command. */
 export function createApiResearchCommand(): Command {
   const cmd = new Command('api-research')
-    .description('Summarize Monica API resource/endpoint coverage for agent planning')
+    .description('Research, validate, compare, and export Monica API edition contracts')
     .option('-f, --format <format>', 'Output format (toon|json|yaml|table|md)', 'toon');
 
   cmd
@@ -200,5 +202,7 @@ export function createApiResearchCommand(): Command {
 
   attachApiResearchProbeSubcommand(cmd);
   attachApiResearchSourceStatusSubcommand(cmd);
+  attachApiResearchOpenApiSubcommand(cmd);
+  attachApiResearchContractSubcommands(cmd);
   return cmd;
 }

@@ -1,7 +1,7 @@
 {
   "version": "main",
   "baseUrl": "/api",
-  "generated": "2026-07-26",
+  "generated": "2026-07-27",
   "source": {
     "repository": "monicahq/monica",
     "branch": "main",
@@ -27,7 +27,9 @@
           "method": "GET",
           "path": "/user",
           "description": "Get the authenticated user",
-          "cli": "monica users current"
+          "cli": "monica users current",
+          "response": "User",
+          "ability": "read"
         }
       ]
     },
@@ -38,13 +40,25 @@
           "method": "GET",
           "path": "/users",
           "description": "List account users",
-          "cli": "monica users list"
+          "cli": "monica users list",
+          "parameters": [
+            {
+              "name": "limit",
+              "type": "integer",
+              "required": false,
+              "description": "Maximum users per page, from 1 through 100."
+            }
+          ],
+          "response": "PaginatedResponse<User>",
+          "ability": "read"
         },
         {
           "method": "GET",
           "path": "/users/{user}",
           "description": "Get an account user",
-          "cli": "monica users get <id>"
+          "cli": "monica users get <id>",
+          "response": "User",
+          "ability": "read"
         }
       ]
     },
@@ -55,37 +69,97 @@
           "method": "GET",
           "path": "/vaults",
           "description": "List vaults",
-          "cli": "monica vaults list"
+          "cli": "monica vaults list",
+          "parameters": [
+            {
+              "name": "limit",
+              "type": "integer",
+              "required": false,
+              "description": "Maximum vaults per page, from 1 through 100."
+            }
+          ],
+          "response": "PaginatedResponse<Vault>",
+          "ability": "read"
         },
         {
           "method": "POST",
           "path": "/vaults",
           "description": "Create a vault",
-          "cli": "monica vaults create"
+          "cli": "monica vaults create",
+          "input": {
+            "name": {
+              "type": "string",
+              "required": true,
+              "maxLength": 255
+            },
+            "description": {
+              "type": "string",
+              "required": false,
+              "maxLength": 65535
+            }
+          },
+          "response": "Vault",
+          "statusCode": 201,
+          "ability": "write"
         },
         {
           "method": "GET",
           "path": "/vaults/{vault}",
           "description": "Get a vault",
-          "cli": "monica vaults get <id>"
+          "cli": "monica vaults get <id>",
+          "response": "Vault",
+          "ability": "read"
         },
         {
           "method": "PUT",
           "path": "/vaults/{vault}",
           "description": "Replace a vault",
-          "cli": "monica vaults update <id>"
+          "cli": "monica vaults update <id>",
+          "input": {
+            "name": {
+              "type": "string",
+              "required": true,
+              "maxLength": 255
+            },
+            "description": {
+              "type": "string",
+              "required": false,
+              "maxLength": 65535
+            }
+          },
+          "response": "Vault",
+          "ability": "write"
         },
         {
           "method": "PATCH",
           "path": "/vaults/{vault}",
           "description": "Partially update a vault",
-          "cli": "monica vaults patch <id>"
+          "cli": "monica vaults patch <id>",
+          "input": {
+            "name": {
+              "type": "string",
+              "required": false,
+              "maxLength": 255
+            },
+            "description": {
+              "type": "string",
+              "required": false,
+              "maxLength": 65535
+            }
+          },
+          "response": "Vault",
+          "ability": "write"
         },
         {
           "method": "DELETE",
           "path": "/vaults/{vault}",
           "description": "Delete a vault and its contents",
-          "cli": "monica vaults delete <id>"
+          "cli": "monica vaults delete <id>",
+          "response": {
+            "deleted": "boolean",
+            "id": "string"
+          },
+          "ability": "write"
         }
       ]
     }

@@ -24,6 +24,39 @@ means freshness could not be proven, not that the API is stale. The command
 only reads public GitHub branch metadata and never calls the configured Monica
 instance. The inherited `--request-timeout-ms` option bounds this public lookup.
 
+## Portable OpenAPI contracts
+
+The bundled stable and next inventories can be exported as deterministic
+OpenAPI documents without contacting the configured Monica instance:
+
+```bash
+monica --json api-research openapi --edition stable
+monica --yaml api-research openapi --edition next --oas-version 3.1.2
+monica --json api-research validate-contract --edition stable --fail-on-warnings
+monica --json api-research diff --from stable --to next
+```
+
+OpenAPI 3.2.0 is the default; `--oas-version 3.1.2` supports tooling that has
+not adopted 3.2. The stable contract contains 172 operations across 35
+resources, while the current-main contract contains all 9 declared operations
+across 3 resources. Each operation carries `x-monica` provenance, edition,
+resource, token-ability, response-shape, and CLI mapping metadata. Bearer
+authentication and reusable pagination/error components use standard OpenAPI
+structures. Every operation declares an authentication failure response, and
+the document identifies Monica's AGPL-3.0-only source license.
+
+`validate-contract` checks source provenance, operation uniqueness, path
+parameters, security, response metadata, and CLI mappings. Add
+`--verify-source` to compare the bundled source commit with the public upstream
+branch; this public check never calls the configured instance. `diff` reports
+added, removed, changed, unchanged, and breaking operations. Stable and next
+are distinct API editions, so comparing stable to next intentionally reports
+stable-only routes as removals.
+
+JSON and YAML are the interoperable OpenAPI serializations. TOON remains the
+CLI default for compact agent consumption, and Markdown/table remain
+presentation formats; select JSON or YAML when writing an OpenAPI artifact.
+
 ## Current Monica API
 
 The current `main` branch uses `auth:sanctum`, UUID resource identifiers, a

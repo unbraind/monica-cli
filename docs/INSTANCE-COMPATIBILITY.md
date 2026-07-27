@@ -26,25 +26,32 @@ public source freshness, and `--source monica|next` on the other
 `api-research` commands to select the inventory. `users current`, `users list`,
 and `vaults list` are included in GET-only capability probing.
 
+Export edition-specific automation contracts with
+`monica --json api-research openapi --edition stable|next`. Run
+`api-research validate-contract --verify-source` to combine structural
+validation with public-source freshness, or `api-research diff` to inspect
+operation-level compatibility without touching the configured instance.
+
 `config test`, `config doctor`, and the setup wizard support both editions.
 They fall back from stable `/me` to current `/user` only for HTTP 404/405, so a
 real authentication, timeout, or infrastructure failure remains visible.
 
 ## Latest Verified Results
 
-Probe run date: **July 26, 2026**
+Probe run date: **July 27, 2026**
 Instance type: self-hosted Monica API
 
-- Read-only CLI checks: `108`
-- Passed locally or against public sources: `52`
+- Read-only CLI checks: `117`
+- Passed locally or against public sources: `61`
 - Authenticated checks classified unavailable: `56`
 - Unexpected failures: `0`
 
-The live instance currently fails authenticated API bootstrap while loading
-Cloudflare trust-proxy ranges. That infrastructure failure affects both stable
-and next-edition GET routes, so it cannot establish endpoint support or API
-incompatibility. Public source checks, schemas, command catalogs, local
-diagnostics, and client-side write guards remain verifiable.
+The live instance currently fails authenticated API bootstrap because its
+Laravel process cannot append to the application log. That server-side
+permission failure affects both stable and next-edition GET routes, so it
+cannot establish endpoint support or API incompatibility. Public source checks,
+schemas, command catalogs, local diagnostics, and client-side write guards
+remain verifiable.
 
 The result is intentionally reported as `unavailable`, not `unsupported`.
 Re-run `monica --json info capabilities --refresh` after restoring the
@@ -52,9 +59,9 @@ instance's outbound Cloudflare access to obtain endpoint-specific evidence.
 
 ## End-to-End CLI Validation (Read-Only)
 
-Validated on **July 26, 2026** with global settings + `readOnlyMode: true` using the actual `monica` binary.
+Validated on **July 27, 2026** with global settings + `readOnlyMode: true` using the actual `monica` binary.
 
-- The harness completed all `108` checks with `0` unexpected failures and
+- The harness completed all `117` checks with `0` unexpected failures and
   restored `~/.monica-cli/settings.json`.
 - Output validation covered TOON plus JSON, YAML, table, Markdown, and raw
   programmatic paths where applicable.

@@ -216,7 +216,7 @@ describe('CLI Commands - Part 1: Core Commands', () => {
       const cmd = commands.createApiResearchCommand();
       expect(cmd).toBeInstanceOf(Command);
       expect(cmd.name()).toBe('api-research');
-      expect(cmd.description()).toBe('Summarize Monica API resource/endpoint coverage for agent planning');
+      expect(cmd.description()).toBe('Research, validate, compare, and export Monica API edition contracts');
     });
 
     it('creates agent-runbook command', () => {

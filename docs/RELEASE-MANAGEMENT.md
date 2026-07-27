@@ -11,7 +11,7 @@ not require a second registry publication: its default package registry is
 
 - `CI`: commit message lint (PR), Bun validation, Node/npm validation,
   `pm-changelog` drift detection, packed-artifact `bunx` + `npx` smoke checks,
-  and git-history secret scan
+  built-in plus Redocly OpenAPI contract validation, and git-history secret scan
 - `Security`: gitleaks secret scan, local history secret scan, dependency review on PRs, CodeQL on push/schedule, npm audit on push/schedule
 - `Release Draft`: continuously updates draft release notes
 - `Prepare Release`: validates and packages without publishing; fails if target release tag already exists

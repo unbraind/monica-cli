@@ -4,6 +4,7 @@ import { API_RESEARCH_OUTPUT_SCHEMAS } from './schema-registry-api-research';
 import { API_RESEARCH_COVERAGE_OUTPUT_SCHEMAS } from './schema-registry-api-research-coverage';
 import { API_SOURCE_STATUS_OUTPUT_SCHEMAS } from './schema-registry-api-source-status';
 import { NEXT_API_OUTPUT_SCHEMAS } from './schema-registry-next-api';
+import { OPENAPI_OUTPUT_SCHEMAS } from './schema-registry-openapi';
 
 /** Provides the additional output schemas value. */
 export const ADDITIONAL_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
@@ -12,6 +13,7 @@ export const ADDITIONAL_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
   ...API_RESEARCH_COVERAGE_OUTPUT_SCHEMAS,
   ...API_SOURCE_STATUS_OUTPUT_SCHEMAS,
   ...NEXT_API_OUTPUT_SCHEMAS,
+  ...OPENAPI_OUTPUT_SCHEMAS,
   {
     id: 'schemas-sample',
     title: 'schemas sample',

@@ -36,8 +36,28 @@
       "endpoints": [
         {"method": "GET", "path": "/places", "description": "List account places", "response": "PaginatedResponse<Place>"},
         {"method": "GET", "path": "/places/:id", "description": "Get a place", "response": "Place"},
-        {"method": "POST", "path": "/places", "description": "Create a place", "response": "Place"},
-        {"method": "PUT", "path": "/places/:id", "description": "Update a place", "response": "Place"},
+        {
+          "method": "POST",
+          "path": "/places",
+          "description": "Create a place",
+          "input": {
+            "street": {"type": "string", "required": false},
+            "city": {"type": "string", "required": false},
+            "province": {"type": "string", "required": false},
+            "postal_code": {"type": "string", "required": false},
+            "country": {"type": "string", "required": false},
+            "latitude": {"type": "number", "required": false},
+            "longitude": {"type": "number", "required": false}
+          },
+          "response": "Place"
+        },
+        {
+          "method": "PUT",
+          "path": "/places/:id",
+          "description": "Update a place",
+          "input": "same as POST",
+          "response": "Place"
+        },
         {"method": "DELETE", "path": "/places/:id", "description": "Delete a place", "response": {"deleted": "boolean", "id": "integer"}}
       ]
     },
@@ -45,8 +65,34 @@
       "endpoints": [
         {"method": "GET", "path": "/lifeevents", "description": "List account life events", "response": "PaginatedResponse<LifeEvent>"},
         {"method": "GET", "path": "/lifeevents/:id", "description": "Get a life event", "response": "LifeEvent"},
-        {"method": "POST", "path": "/lifeevents", "description": "Create a life event", "response": "LifeEvent"},
-        {"method": "PUT", "path": "/lifeevents/:id", "description": "Update a life event", "response": "LifeEvent"},
+        {
+          "method": "POST",
+          "path": "/lifeevents",
+          "description": "Create a life event",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "life_event_type_id": {"type": "integer", "required": true},
+            "happened_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "name": {"type": "string", "required": false},
+            "note": {"type": "string", "required": false},
+            "has_reminder": {"type": "boolean", "required": true},
+            "happened_at_month_unknown": {"type": "boolean", "required": true},
+            "happened_at_day_unknown": {"type": "boolean", "required": true}
+          },
+          "response": "LifeEvent"
+        },
+        {
+          "method": "PUT",
+          "path": "/lifeevents/:id",
+          "description": "Update a life event",
+          "input": {
+            "life_event_type_id": {"type": "integer", "required": true},
+            "happened_at": {"type": "string", "required": true, "format": "YYYY-MM-DD"},
+            "name": {"type": "string", "required": false},
+            "note": {"type": "string", "required": false}
+          },
+          "response": "LifeEvent"
+        },
         {"method": "DELETE", "path": "/lifeevents/:id", "description": "Delete a life event", "response": {"deleted": "boolean", "id": "integer"}}
       ]
     },
@@ -61,8 +107,27 @@
         {"method": "GET", "path": "/pets", "description": "List account pets", "response": "PaginatedResponse<Pet>"},
         {"method": "GET", "path": "/contacts/:id/pets", "description": "List pets for a contact", "response": "PaginatedResponse<Pet>"},
         {"method": "GET", "path": "/pets/:id", "description": "Get a pet", "response": "Pet"},
-        {"method": "POST", "path": "/pets", "description": "Create a pet", "response": "Pet"},
-        {"method": "PUT", "path": "/pets/:id", "description": "Update a pet", "response": "Pet"},
+        {
+          "method": "POST",
+          "path": "/pets",
+          "description": "Create a pet",
+          "input": {
+            "contact_id": {"type": "integer", "required": true},
+            "name": {"type": "string", "required": true},
+            "pet_category_id": {"type": "integer", "required": true}
+          },
+          "response": "Pet"
+        },
+        {
+          "method": "PUT",
+          "path": "/pets/:id",
+          "description": "Update a pet",
+          "input": {
+            "name": {"type": "string", "required": false},
+            "pet_category_id": {"type": "integer", "required": false}
+          },
+          "response": "Pet"
+        },
         {"method": "DELETE", "path": "/pets/:id", "description": "Delete a pet", "response": {"deleted": "boolean", "id": "integer"}}
       ]
     },
@@ -451,9 +516,47 @@
           },
           "response": "Contact"
         },
-        {"method": "PUT", "path": "/contacts/:id/food", "description": "Update contact food preferences", "response": "Contact"},
-        {"method": "PUT", "path": "/contacts/:id/introduction", "description": "Update how the contact was introduced", "response": "Contact"},
-        {"method": "PUT", "path": "/contacts/:id/avatar", "description": "Update avatar source", "response": "Contact"},
+        {
+          "method": "PUT",
+          "path": "/contacts/:id/food",
+          "description": "Update contact food preferences",
+          "input": {
+            "food_preferences": {"type": "string", "required": true}
+          },
+          "response": "Contact"
+        },
+        {
+          "method": "PUT",
+          "path": "/contacts/:id/introduction",
+          "description": "Update how the contact was introduced",
+          "input": {
+            "met_through_contact_id": {"type": "integer", "required": false},
+            "general_information": {"type": "string", "required": false},
+            "where": {"type": "string", "required": false},
+            "is_date_known": {"type": "boolean", "required": true},
+            "is_age_based": {"type": "boolean", "required": false},
+            "day": {"type": "integer", "required": false},
+            "month": {"type": "integer", "required": false},
+            "year": {"type": "integer", "required": false},
+            "age": {"type": "integer", "required": false},
+            "add_reminder": {"type": "boolean", "required": false}
+          },
+          "response": "Contact"
+        },
+        {
+          "method": "PUT",
+          "path": "/contacts/:id/avatar",
+          "description": "Update avatar source",
+          "input": {
+            "source": {
+              "type": "string",
+              "required": true,
+              "enum": ["default", "adorable", "gravatar", "photo"]
+            },
+            "photo_id": {"type": "integer", "required": false}
+          },
+          "response": "Contact"
+        },
         {
           "method": "DELETE",
           "path": "/contacts/:id",
@@ -828,6 +931,7 @@
           "method": "PUT",
           "path": "/gifts/:id/photo/:photoId",
           "description": "Associate a photo with a gift",
+          "requestBody": false,
           "response": "Gift"
         }
       ]
@@ -1249,6 +1353,7 @@
           "method": "POST",
           "path": "/contacts/:id/unsetTags",
           "description": "Remove all tags from a contact",
+          "requestBody": false,
           "response": "Contact"
         }
       ]
@@ -1314,7 +1419,15 @@
           "description": "Get current authenticated user",
           "response": "User"
         },
-        {"method": "POST", "path": "/me/contact", "description": "Associate a contact with the authenticated user"},
+        {
+          "method": "POST",
+          "path": "/me/contact",
+          "description": "Associate a contact with the authenticated user",
+          "input": {
+            "contact_id": {"type": "integer", "required": true}
+          },
+          "response": "string[]"
+        },
         {"method": "DELETE", "path": "/me/contact", "description": "Remove the authenticated user contact association"}
       ]
     }

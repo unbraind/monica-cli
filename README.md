@@ -169,6 +169,10 @@ monica info capabilities
 monica --json api-research source-status --edition stable
 monica --json api-research source-status --edition next
 monica --json api-research coverage --source next --fail-on-unmapped
+monica --json api-research openapi --edition stable
+monica --yaml api-research openapi --edition next --oas-version 3.1.2
+monica --json api-research validate-contract --edition stable --verify-source --fail-on-warnings
+monica --json api-research diff --from stable --to next
 
 # Force a fresh capability probe (skip cache)
 monica info capabilities --refresh
@@ -195,6 +199,10 @@ monica --json info command-catalog
 # Summarize Monica API resource/endpoint coverage from local reference docs
 monica --json api-research source-status --edition stable --fail-on-stale
 monica --json api-research source-status --edition next --fail-on-stale
+monica --json api-research openapi --edition stable
+monica --yaml api-research openapi --edition next --oas-version 3.1.2
+monica --json api-research validate-contract --edition stable --verify-source --fail-on-warnings --fail-on-unavailable
+monica --json api-research diff --from stable --to next
 monica --json api-research summary --instance-aware
 monica --json api-research coverage --instance-aware
 monica --json api-research coverage --instance-aware --fail-on-unsupported
@@ -233,6 +241,9 @@ monica --json schemas get search-results
 monica --json schemas get audit-report
 monica --json schemas get api-research-summary
 monica --json schemas get api-research-source-status
+monica --json schemas get api-research-openapi
+monica --json schemas get api-research-diff
+monica --json schemas get api-research-contract-validation
 monica --json schemas get next-account-user
 monica --json schemas get next-vault
 monica --json schemas get api-research-backlog
