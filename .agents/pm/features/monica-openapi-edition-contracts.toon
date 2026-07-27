@@ -1,12 +1,12 @@
 id: monica-openapi-edition-contracts
 title: Publish edition-aware OpenAPI and compatibility contracts
 description: "Generate validated OpenAPI 3.2.0 and 3.1.2 documents plus deterministic stable-to-next compatibility diffs from authoritative Monica route references, with executable CLI links, source provenance, CI gates, agent-safe output, and current toolchain support."
-type: Issue
+type: Feature
 status: closed
 priority: 0
 tags[11]: agent-ux,api-contracts,api-research,ci,compatibility,documentation,openapi,provenance,read-only-safety,sdk-generation,typescript
 created_at: "2026-07-27T21:16:50.448Z"
-updated_at: "2026-07-27T22:04:53.675Z"
+updated_at: "2026-07-27T22:28:17.716Z"
 deadline: "2026-08-03T21:16:50.448Z"
 closed_at: "2026-07-27T22:04:52.946Z"
 author: codex-root
@@ -33,7 +33,7 @@ resolution: "Implemented deterministic edition-aware OpenAPI export, structural 
 expected_result: "Agents, CI, and SDK generators can consume and validate a provenance-rich OpenAPI 3.2.0 or 3.1.2 document for either Monica edition and detect compatibility changes deterministically."
 actual_result: "The CLI exports all 172 stable and 9 current operations as OAS 3.2.0 or 3.1.2, validates and diffs them deterministically, exposes registered schemas and complete help, and passes every production/read-only gate."
 affected_version: 2026.7.26
-fixed_version: next
+fixed_version: 2026.7.27
 component: api-contracts
 regression: false
 customer_impact: Automated consumers must duplicate contract interpretation and cannot reliably detect breaking edition changes before deployment.
@@ -47,23 +47,26 @@ dependencies[9]{id,kind,created_at,author,source_kind}:
   monica-next-api-editions,discovered_from,"2026-07-27T21:16:50.448Z",codex-root,"cli:create:dep"
   monica-official-toon-contracts,verifies,"2026-07-27T21:16:50.448Z",codex-root,"cli:create:dep"
   monica-server-diagnostics,related,"2026-07-27T21:16:50.448Z",codex-root,"cli:create:dep"
-comments[5]{created_at,author,text}:
+comments[7]{created_at,author,text}:
   "2026-07-27T21:16:50.448Z",codex-root,Duplicate research covered all 62 PM items and exact OpenAPI specification edition-diff SDK-generation queries; no canonical item exists.
   "2026-07-27T21:16:53.880Z",codex-root,"The duplicate review additionally verified all 382 history entries and a 985-pair similarity scan with zero clusters at threshold 0.72. Existing parity, provenance, TOON, and agent-contract items are closed predecessors rather than duplicates."
   "2026-07-27T21:18:23.244Z",codex-root,OpenAPI Initiative sources verified that 3.2.0 is the latest published specification and 3.1.2 is the latest 3.1 patch. Default export will be 3.2.0; --oas-version 3.1.2 provides compatibility for generators that have not adopted 3.2.
   "2026-07-27T21:37:02.899Z",codex-root,Implementation covers 172 stable operations and 9 current-main operations. Offline strict validation currently reports zero errors and zero warnings for both editions; JSON/YAML exports parse and source files remain private-data-free.
   "2026-07-27T22:04:52.237Z",codex-root,"Final local evidence: PM ran all 6 linked gates successfully. Coverage is 3648/3648 statements, 2271/2271 branches, 1133/1133 functions, and 3352/3352 lines; 877 tests and 288 help nodes passed; Redocly reports zero findings for stable OAS 3.2 and next OAS 3.1; live public source heads are current; read-only acceptance completed 117 checks with 61 pass, 56 expected server-unavailable classifications, and zero unexpected failures; every mutation probe was blocked before dispatch."
-notes[5]{created_at,author,text}:
+  "2026-07-27T22:22:14.913Z",codex-root,"CodeRabbit round one produced 16 threads. Accepted hardening covers feature changelog classification, current instance recovery guidance, primitive and paginated response typing, optional response-map fields, fail-fast method/path/query metadata, standard error output, named and unambiguous diff contracts, indexed comparisons, locale-independent ordering, independent source-gate cases, bundled provenance stubs, and complete sortedness assertions. The bot docstring warning is contradicted by the mandatory 644/644 source-export gate and requires explanation rather than artificial comments."
+  "2026-07-27T22:28:17.716Z",codex-root,"Post-review verification passed on package 2026.7.27: 119 files and 884 tests at 3659/3659 statements, 2277/2277 branches, 1127/1127 functions, and 3373/3373 lines; 644/644 source exports documented; 288/288 help nodes; both Redocly contracts zero findings; packed npx and bunx report 2026.7.27; dependency and secret/history gates green."
+notes[6]{created_at,author,text}:
   "2026-07-27T21:16:50.448Z",codex-root,Official stable and current route/controller/resource research is public-only; private settings and payloads remain outside Git and PM.
   "2026-07-27T21:16:54.876Z",codex-root,"Official research refreshed 2026-07-27: stable release v4.1.2 and branch 4.x remain at 32028ce; current main remains at e08e917 with three user and six vault routes. Current controllers use Scribe attributes for query, body, and response contracts."
   "2026-07-27T21:18:24.068Z",codex-root,"OAS documents are valid JSON objects representable as JSON or YAML. TOON, Markdown, and table remain CLI presentation formats; JSON/YAML are the standards-interchange modes documented for OpenAPI tooling."
   "2026-07-27T21:37:03.865Z",codex-root,"Dependency refresh uses current @toon-format/toon 4.1.0, @unbrained/pm-cli and pm-changelog 2026.7.27, ESLint 10.8.0, eslint-plugin-jsdoc 63.3.1, globals 17.8.0, and jscpd 5.0.14. TypeScript 7 remains isolated in the canonical compatibility spike because this repository still intentionally targets the proven TypeScript 6 and Node 22 baseline."
   "2026-07-27T21:52:27.882Z",codex-root,Independent validation is now a mandatory release gate using pinned @redocly/cli 2.41.0. Explicit AGPL-3.0-only metadata and 401 error responses reduced both OAS 3.2 stable and OAS 3.1.2 next lint results to zero findings.
+  "2026-07-27T22:24:06.201Z",codex-root,The post-review release gate crossed the UTC release boundary and correctly required package version 2026.7.27. The repository-owned version setter updated package metadata without publishing.
 learnings[3]{created_at,author,text}:
   "2026-07-27T21:16:50.448Z",codex-root,Endpoint parity still needs portable operation identity security request response validation and compatibility semantics.
   "2026-07-27T21:16:55.960Z",codex-root,A complete portable contract must preserve edition boundaries rather than merging stable OAuth and current Sanctum operations into a misleading single compatibility target.
   "2026-07-27T21:37:05.002Z",codex-root,"A useful Monica contract validator must enforce semantic invariants beyond JSON shape: unique method-path keys and operation IDs, declared path parameters, bearer security, response metadata, edition provenance, and truthful CLI mappings."
-files[16]{path,scope,note}:
+files[17]{path,scope,note}:
   bun.lock,project,reproducible current dependency graph
   package.json,project,contract release gate and current dependencies
   scripts/e2e-readonly-commands.ts,project,actual CLI read-only contract acceptance
@@ -77,6 +80,7 @@ files[16]{path,scope,note}:
   src/commands/schema-registry-extra.ts,project,contract schema registration
   src/commands/schema-registry-openapi.ts,project,machine-readable contract descriptors
   tests/api-research-openapi-command.test.ts,project,actual command behavior and gate coverage
+  tests/api-research-openapi-schema.test.ts,project,focused request response and parameter schema coverage
   tests/api-research-openapi.test.ts,project,pure contract and diff coverage
   tests/commands-1.test.ts,project,command metadata contract
   tests/e2e-readonly-commands.test.ts,project,acceptance matrix coverage
@@ -87,7 +91,7 @@ tests[6]:
   - command: "bun run lint:source-quality"
     scope: project
     timeout_seconds: 300
-  - command: bun run test -- tests/api-research-openapi.test.ts tests/api-research-openapi-command.test.ts
+  - command: bun run test -- tests/api-research-openapi-schema.test.ts tests/api-research-openapi.test.ts tests/api-research-openapi-command.test.ts
     scope: project
     timeout_seconds: 300
   - command: "bun run test:coverage"

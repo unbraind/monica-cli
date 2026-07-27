@@ -22,6 +22,7 @@ import {
 
 const SUPPORTED_OAS_VERSIONS: readonly OpenApiVersion[] = ['3.2.0', '3.1.2'];
 const MUTATION_METHODS = new Set(['post', 'put', 'patch']);
+const SUPPORTED_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete']);
 
 /** Parses and validates an OpenAPI version option. */
 export function parseOpenApiVersion(value: string): OpenApiVersion {
@@ -87,8 +88,14 @@ function buildOperation(
   resource: ContractResource,
   endpoint: ContractEndpoint,
 ): { method: string; path: string; operation: OpenApiOperation } {
-  const method = (endpoint.method ?? '').toLowerCase();
-  const path = normalizeOpenApiPath(endpoint.path ?? '');
+  if (!endpoint.method?.trim() || !endpoint.path?.trim()) {
+    throw new Error(`Route reference entry for resource "${resourceName}" has no method or path`);
+  }
+  const method = endpoint.method.toLowerCase();
+  if (!SUPPORTED_METHODS.has(method)) {
+    throw new Error(`Route reference entry for resource "${resourceName}" has invalid method`);
+  }
+  const path = normalizeOpenApiPath(endpoint.path);
   const cli = resolveCliCommand(resourceName);
   if (!cli.mapped) throw new Error(`No CLI command mapping exists for resource "${resourceName}"`);
   const commandRoot = `monica ${cli.command}`;
@@ -159,14 +166,18 @@ export function buildOpenApiDocument(
 ): OpenApiDocument {
   const source = sourceFrom(reference);
   const resources = Object.entries(reference.resources ?? {})
-    .sort(([left], [right]) => left.localeCompare(right));
+    .sort(([left], [right]) => left.localeCompare(right, 'en'));
   const paths: OpenApiDocument['paths'] = {};
   let operations = 0;
 
   resources.forEach(([resourceName, resource]) => {
     (resource.endpoints ?? [])
       .map((endpoint) => buildOperation(edition, source.commit, resourceName, resource, endpoint))
-      .sort((left, right) => `${left.path}:${left.method}`.localeCompare(`${right.path}:${right.method}`))
+      .sort((left, right) => {
+        const leftKey = `${left.path}:${left.method}`;
+        const rightKey = `${right.path}:${right.method}`;
+        return leftKey.localeCompare(rightKey, 'en');
+      })
       .forEach(({ method, path, operation }) => {
         paths[path] ??= {};
         if (paths[path]![method]) {

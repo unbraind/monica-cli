@@ -87,7 +87,7 @@ function schemaForResponseMap(value: Record<string, unknown>): OpenApiSchema {
       schemaForType(typeof type === 'string' ? type : undefined),
     ]),
   );
-  return { type: 'object', properties, required: Object.keys(properties).sort() };
+  return { type: 'object', properties };
 }
 
 /** Converts Monica's concise response notation into an OpenAPI response schema. */
@@ -97,10 +97,23 @@ export function buildResponseSchema(response: unknown): OpenApiSchema {
   }
   if (typeof response !== 'string') return { type: 'object' };
   if (response.startsWith('PaginatedResponse<')) {
-    return { $ref: '#/components/schemas/PaginatedResponse' };
+    return {
+      $ref: '#/components/schemas/PaginatedResponse',
+      'x-monica-type': response,
+    };
   }
   if (response.endsWith('[]') || response.toLowerCase().startsWith('array of ')) {
-    return { type: 'array', items: { type: 'object' }, 'x-monica-type': response };
+    const itemType = response.endsWith('[]') ? response.slice(0, -2) : response.slice(9);
+    const primitiveTypes = new Set([
+      'bool', 'boolean', 'decimal', 'float', 'int', 'integer', 'number', 'string',
+    ]);
+    return {
+      type: 'array',
+      items: primitiveTypes.has(itemType.toLowerCase())
+        ? schemaForType(itemType)
+        : { type: 'object', 'x-monica-type': itemType },
+      'x-monica-type': response,
+    };
   }
   if (response.toLowerCase().startsWith('object with ')) {
     return { type: 'object', additionalProperties: true, 'x-monica-type': response };
@@ -124,16 +137,20 @@ export function buildOpenApiParameters(
     required: true,
     schema: stringPathIds ? { type: 'string' } : { type: 'integer' },
   }));
-  const queryParameters = (endpoint.parameters ?? []).map((parameter) => ({
-    name: parameter.name ?? 'unknown',
-    in: 'query',
-    required: parameter.required === true,
-    ...(parameter.description ? { description: parameter.description } : {}),
-    schema: {
-      ...schemaForType(parameter.type),
-      ...(parameter.enum ? { enum: parameter.enum } : {}),
-    },
-  }));
+  const queryParameters = (endpoint.parameters ?? []).map((parameter) => {
+    const name = parameter.name?.trim();
+    if (!name) throw new Error('Contract query parameter has no name');
+    return {
+      name,
+      in: 'query',
+      required: parameter.required === true,
+      ...(parameter.description ? { description: parameter.description } : {}),
+      schema: {
+        ...schemaForType(parameter.type),
+        ...(parameter.enum ? { enum: parameter.enum } : {}),
+      },
+    };
+  });
   return [...pathParameters, ...queryParameters];
 }
 

@@ -54,8 +54,8 @@ schemas, command catalogs, local diagnostics, and client-side write guards
 remain verifiable.
 
 The result is intentionally reported as `unavailable`, not `unsupported`.
-Re-run `monica --json info capabilities --refresh` after restoring the
-instance's outbound Cloudflare access to obtain endpoint-specific evidence.
+Re-run `monica --json info capabilities --refresh` after restoring write access
+to the Laravel application log to obtain endpoint-specific evidence.
 
 ## End-to-End CLI Validation (Read-Only)
 

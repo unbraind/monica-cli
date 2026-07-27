@@ -435,7 +435,7 @@ mapping. Use JSON or YAML when passing the document to OpenAPI tooling.
   "generatedAt": "2026-07-27T00:00:00.000Z",
   "from": { "edition": "stable", "commit": "source-commit", "operations": 172 },
   "to": { "edition": "next", "commit": "source-commit", "operations": 9 },
-  "summary": { "added": 9, "removed": 172, "changed": 0, "unchanged": 0, "breaking": 172 },
+  "summary": { "added": 9, "removed": 172, "changed": 0, "unchanged": 0, "breakingChanges": 172 },
   "added": [],
   "removed": [],
   "changed": [],

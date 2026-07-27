@@ -128,6 +128,24 @@ export interface ComparableOperation {
   summary: string;
 }
 
+/** Describes a deterministic compatibility diff between two API editions. */
+export interface ContractDiffResult {
+  generatedAt: string;
+  from: { edition: ApiEdition; commit: string; operations: number };
+  to: { edition: ApiEdition; commit: string; operations: number };
+  summary: {
+    added: number;
+    removed: number;
+    changed: number;
+    unchanged: number;
+    breakingChanges: number;
+  };
+  added: ComparableOperation[];
+  removed: ComparableOperation[];
+  changed: Array<{ key: string; from: ComparableOperation; to: ComparableOperation }>;
+  breaking: boolean;
+}
+
 /** Describes one contract validation result. */
 export interface ContractValidationResult {
   edition: ApiEdition;

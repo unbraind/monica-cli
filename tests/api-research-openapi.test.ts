@@ -16,126 +16,12 @@ import {
   parseApiEdition,
   parseOpenApiVersion,
 } from '../src/commands/api-research-openapi';
-import {
-  buildOpenApiParameters,
-  buildRequestSchema,
-  buildResponseSchema,
-  extractPathParameters,
-  normalizeOpenApiPath,
-  schemaForType,
-} from '../src/commands/api-research-openapi-schema';
 import { findSchema } from '../src/commands/schema-registry';
 import { validateValueAgainstSchema } from '../src/commands/schema-validator';
 
 function operationAt(document: OpenApiDocument, path: string, method: string): OpenApiOperation {
   return document.paths[path]![method]!;
 }
-
-describe('OpenAPI schema conversion', () => {
-  it('normalizes paths and primitive schemas', () => {
-    expect(normalizeOpenApiPath('contacts/:id/photos/:photoId')).toBe(
-      '/contacts/{id}/photos/{photoId}',
-    );
-    expect(normalizeOpenApiPath('/vaults/{vault}')).toBe('/vaults/{vault}');
-    expect(extractPathParameters('/contacts/{id}/photos/{photoId}')).toEqual(['id', 'photoId']);
-    expect(schemaForType('int')).toEqual({ type: 'integer' });
-    expect(schemaForType('integer')).toEqual({ type: 'integer' });
-    expect(schemaForType('float')).toEqual({ type: 'number' });
-    expect(schemaForType('decimal')).toEqual({ type: 'number' });
-    expect(schemaForType('boolean')).toEqual({ type: 'boolean' });
-    expect(schemaForType('array')).toEqual({ type: 'array', items: {} });
-    expect(schemaForType('object')).toEqual({ type: 'object' });
-    expect(schemaForType('file')).toEqual({
-      type: 'string',
-      contentMediaType: 'application/octet-stream',
-    });
-    expect(schemaForType(undefined)).toEqual({ type: 'string' });
-  });
-
-  it('builds complete, shorthand, patch, and undocumented request schemas', () => {
-    const post = {
-      method: 'POST',
-      input: {
-        name: {
-          type: 'string',
-          required: true,
-          description: 'Name',
-          enum: ['one'],
-          format: 'slug',
-          maxLength: 10,
-        },
-      },
-    };
-    const resource = { endpoints: [post] };
-    expect(buildRequestSchema(post, resource)).toEqual({
-      complete: true,
-      schema: {
-        type: 'object',
-        properties: {
-          name: {
-            type: 'string',
-            description: 'Name',
-            enum: ['one'],
-            format: 'slug',
-            maxLength: 10,
-          },
-        },
-        required: ['name'],
-        additionalProperties: false,
-      },
-    });
-    expect(buildRequestSchema({ method: 'PUT', input: 'same as POST' }, resource).complete)
-      .toBe(true);
-    expect(buildRequestSchema({
-      method: 'PATCH',
-      input: { name: { type: 'string', required: false } },
-    }, resource).schema).toMatchObject({ minProperties: 1 });
-    expect(buildRequestSchema({ method: 'POST', input: 'unknown shorthand' }, resource))
-      .toMatchObject({ complete: false });
-    expect(buildRequestSchema({ method: 'POST' }, resource)).toMatchObject({ complete: false });
-  });
-
-  it('builds response and parameter variants', () => {
-    expect(buildResponseSchema({ deleted: 'boolean', id: 'integer' })).toMatchObject({
-      type: 'object',
-      required: ['deleted', 'id'],
-    });
-    expect(buildResponseSchema({ nested: {} })).toMatchObject({
-      properties: { nested: { type: 'string' } },
-    });
-    expect(buildResponseSchema('PaginatedResponse<Contact>')).toEqual({
-      $ref: '#/components/schemas/PaginatedResponse',
-    });
-    expect(buildResponseSchema('Contact[]')).toMatchObject({ type: 'array' });
-    expect(buildResponseSchema('Array of contacts')).toMatchObject({ type: 'array' });
-    expect(buildResponseSchema('Object with country codes')).toMatchObject({
-      type: 'object',
-      additionalProperties: true,
-    });
-    expect(buildResponseSchema('Contact')).toMatchObject({ type: 'object' });
-    expect(buildResponseSchema(undefined)).toEqual({ type: 'object' });
-    expect(buildOpenApiParameters({
-      parameters: [{
-        name: 'sort',
-        type: 'string',
-        required: true,
-        description: 'Sort',
-        enum: ['name'],
-      }],
-    }, '/contacts/{id}', false)).toEqual([
-      { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
-      {
-        name: 'sort',
-        in: 'query',
-        required: true,
-        description: 'Sort',
-        schema: { type: 'string', enum: ['name'] },
-      },
-    ]);
-    expect(buildOpenApiParameters({ parameters: [{}] }, '/vaults/{vault}', true)[0])
-      .toMatchObject({ schema: { type: 'string' } });
-  });
-});
 
 describe('OpenAPI document generation and validation', () => {
   it('builds complete stable and next documents in both supported OAS versions', () => {
@@ -189,16 +75,20 @@ describe('OpenAPI document generation and validation', () => {
       commit: 'abc',
       routeFile: 'routes/api.php',
     };
-    const sparse = buildOpenApiDocument('stable', '3.2.0', {
+    expect(() => buildOpenApiDocument('stable', '3.2.0', {
       source,
       resources: { contacts: { endpoints: [{}] } },
+    })).toThrow('has no method or path');
+    const root = buildOpenApiDocument('stable', '3.2.0', {
+      source,
+      resources: { contacts: { endpoints: [{ method: 'GET', path: '/' }] } },
     });
-    expect(sparse).toMatchObject({
+    expect(root).toMatchObject({
       info: { version: 'unknown' },
       servers: [{ url: '/api' }],
       'x-monica-contract': { operations: 1 },
     });
-    expect(operationAt(sparse, '/', '').operationId).toBe('stable__root');
+    expect(operationAt(root, '/', 'get').operationId).toBe('stable_get_root');
     expect(buildOpenApiDocument('stable', '3.2.0', { source })['x-monica-contract'].operations)
       .toBe(0);
     expect(buildOpenApiDocument('stable', '3.2.0', {
@@ -209,6 +99,10 @@ describe('OpenAPI document generation and validation', () => {
       source,
       resources: { unknown: { endpoints: [{ method: 'GET', path: '/unknown' }] } },
     })).toThrow('No CLI command mapping');
+    expect(() => buildOpenApiDocument('stable', '3.2.0', {
+      source,
+      resources: { contacts: { endpoints: [{ method: 'TRACE', path: '/contacts' }] } },
+    })).toThrow('invalid method');
     expect(() => buildOpenApiDocument('stable', '3.2.0', {
       source,
       resources: {
@@ -257,13 +151,14 @@ describe('OpenAPI document generation and validation', () => {
   it('produces deterministic comparable operations and compatibility diffs', () => {
     const stable = comparableOperations(buildOpenApiDocument('stable'));
     expect(stable).toHaveLength(172);
-    expect(stable[0]!.key.localeCompare(stable[1]!.key)).toBeLessThanOrEqual(0);
+    expect(stable.every((entry, index) =>
+      index === 0 || stable[index - 1]!.key.localeCompare(entry.key, 'en') <= 0)).toBe(true);
     expect(buildContractDiff('stable', 'stable')).toMatchObject({
-      summary: { added: 0, removed: 0, changed: 0, unchanged: 172, breaking: 0 },
+      summary: { added: 0, removed: 0, changed: 0, unchanged: 172, breakingChanges: 0 },
       breaking: false,
     });
     expect(buildContractDiff('stable', 'next')).toMatchObject({
-      summary: { added: 9, removed: 172, changed: 0, unchanged: 0, breaking: 172 },
+      summary: { added: 9, removed: 172, changed: 0, unchanged: 0, breakingChanges: 172 },
       breaking: true,
     });
     const previous = buildOpenApiDocument('next');

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApiResearchCommand } from '../src/commands/api-research';
 import { writeOpenApiDocument } from '../src/commands/api-research-openapi';
+import { loadBundledContractReference } from '../src/commands/api-research-shared';
 
 describe('OpenAPI command integration', () => {
   let log: ReturnType<typeof vi.spyOn>;
@@ -17,6 +18,13 @@ describe('OpenAPI command integration', () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
+
+  async function validationOutput(...args: string[]): Promise<Record<string, unknown>> {
+    await createApiResearchCommand().parseAsync([
+      '--format', 'json', 'validate-contract', '--edition', 'next', ...args,
+    ], { from: 'user' });
+    return JSON.parse(log.mock.calls[0]![0] as string) as Record<string, unknown>;
+  }
 
   it('exports OpenAPI and edition diffs through command output', async () => {
     await createApiResearchCommand().parseAsync([
@@ -51,48 +59,59 @@ describe('OpenAPI command integration', () => {
     expect(exit).toHaveBeenCalledWith(1);
   });
 
-  it('validates contracts with current, stale, and unavailable source gates', async () => {
+  it('uses the standard error sink when a diff command fails', async () => {
+    log.mockImplementationOnce(() => {
+      throw new Error('diff output failed');
+    });
     await createApiResearchCommand().parseAsync([
-      '--format', 'json', 'validate-contract', '--edition', 'next',
+      '--format', 'json', 'diff', '--from', 'stable', '--to', 'next',
     ], { from: 'user' });
-    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    expect(console.error).toHaveBeenCalledWith('Error: diff output failed');
+    expect(exit).toHaveBeenCalledWith(1);
+  });
+
+  it('uses the standard error sink when validation output fails', async () => {
+    log.mockImplementationOnce(() => {
+      throw new Error('validation output failed');
+    });
+    await validationOutput();
+    expect(console.error).toHaveBeenCalledWith('Error: validation output failed');
+    expect(exit).toHaveBeenCalledWith(1);
+  });
+
+  it('validates a contract offline without source status', async () => {
+    expect(await validationOutput()).toMatchObject({
       validation: { valid: true },
       sourceStatus: null,
     });
-    log.mockClear();
+  });
+
+  it('validates a current bundled source independently', async () => {
+    const bundledCommit = loadBundledContractReference('next').source!.commit;
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      commit: { sha: 'e08e91734170b6bbd582cb578532c3948196124e' },
+      commit: { sha: bundledCommit },
     }), { status: 200 })));
-    await createApiResearchCommand().parseAsync([
-      '--format', 'json', 'validate-contract', '--edition', 'next',
-      '--verify-source', '--fail-on-warnings',
-    ], { from: 'user' });
-    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    expect(await validationOutput('--verify-source', '--fail-on-warnings')).toMatchObject({
       validation: { valid: true },
       sourceStatus: { state: 'current' },
       gate: { failed: false },
     });
+  });
 
-    log.mockClear();
+  it('fails validation for a stale bundled source', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
       commit: { sha: 'different' },
     }), { status: 200 })));
-    await createApiResearchCommand().parseAsync([
-      '--format', 'json', 'validate-contract', '--edition', 'next', '--verify-source',
-    ], { from: 'user' });
-    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    expect(await validationOutput('--verify-source')).toMatchObject({
       validation: { valid: false, errors: ['Bundled source is stale'] },
       gate: { failed: true },
     });
+    expect(exit).toHaveBeenCalledWith(2);
+  });
 
-    log.mockClear();
-    exit.mockClear();
+  it('fails unavailable source verification when required', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
-    await createApiResearchCommand().parseAsync([
-      '--format', 'json', 'validate-contract', '--edition', 'next',
-      '--verify-source', '--fail-on-unavailable',
-    ], { from: 'user' });
-    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+    expect(await validationOutput('--verify-source', '--fail-on-unavailable')).toMatchObject({
       validation: {
         valid: false,
         errors: ['Upstream source freshness is unavailable'],
@@ -100,27 +119,23 @@ describe('OpenAPI command integration', () => {
       gate: { failed: true, failOnUnavailable: true },
     });
     expect(exit).toHaveBeenCalledWith(2);
+  });
 
-    log.mockClear();
-    exit.mockClear();
-    await createApiResearchCommand().parseAsync([
-      '--format', 'json', 'validate-contract', '--edition', 'next',
-      '--verify-source',
-    ], { from: 'user' });
-    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+  it('warns without failing when source verification is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect(await validationOutput('--verify-source')).toMatchObject({
       validation: {
         valid: true,
         warnings: ['Upstream source freshness is unavailable'],
       },
       gate: { failed: false },
     });
+    expect(exit).not.toHaveBeenCalled();
+  });
 
-    log.mockClear();
-    await createApiResearchCommand().parseAsync([
-      '--format', 'json', 'validate-contract', '--edition', 'next',
-      '--verify-source', '--fail-on-warnings',
-    ], { from: 'user' });
-    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+  it('fails warnings when the warning gate is enabled', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect(await validationOutput('--verify-source', '--fail-on-warnings')).toMatchObject({
       validation: {
         valid: true,
         warnings: ['Upstream source freshness is unavailable'],

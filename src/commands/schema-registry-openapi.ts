@@ -67,7 +67,14 @@ export const OPENAPI_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
         },
         summary: {
           type: 'object',
-          required: ['added', 'removed', 'changed', 'unchanged', 'breaking'],
+          required: ['added', 'removed', 'changed', 'unchanged', 'breakingChanges'],
+          properties: {
+            added: { type: 'number' },
+            removed: { type: 'number' },
+            changed: { type: 'number' },
+            unchanged: { type: 'number' },
+            breakingChanges: { type: 'number' },
+          },
         },
         added: { type: 'array', items: { type: 'object', required: ['key', 'method', 'path'] } },
         removed: { type: 'array', items: { type: 'object', required: ['key', 'method', 'path'] } },

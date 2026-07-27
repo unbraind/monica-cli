@@ -5,6 +5,7 @@ import { resolveCommandOutputFormat } from './output-format';
 import type {
   ApiEdition,
   ComparableOperation,
+  ContractDiffResult,
   ContractValidationResult,
   OpenApiDocument,
   OpenApiOperation,
@@ -18,12 +19,35 @@ import {
 import { buildSourceStatusPayload } from './api-research-source-status';
 
 const HTTP_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete']);
+type OperationEntry = { method: string; path: string; operation: OpenApiOperation };
+
+interface OperationIndex {
+  entries: Map<string, OperationEntry>;
+  comparable: Map<string, ComparableOperation>;
+}
 
 function documentOperations(
   document: OpenApiDocument,
-): Array<{ method: string; path: string; operation: OpenApiOperation }> {
+): OperationEntry[] {
   return Object.entries(document.paths).flatMap(([path, pathItem]) =>
     Object.entries(pathItem).map(([method, operation]) => ({ method, path, operation })));
+}
+
+function indexOperations(document: OpenApiDocument): OperationIndex {
+  const entries = new Map<string, OperationEntry>();
+  const comparable = new Map<string, ComparableOperation>();
+  documentOperations(document).forEach((entry) => {
+    const key = `${entry.method.toUpperCase()} ${entry.path}`;
+    entries.set(key, entry);
+    comparable.set(key, {
+      key,
+      method: entry.method.toUpperCase(),
+      path: entry.path,
+      operationId: entry.operation.operationId,
+      summary: entry.operation.summary,
+    });
+  });
+  return { entries, comparable };
 }
 
 /** Validates the structural and Monica-specific invariants of a generated contract. */
@@ -88,15 +112,8 @@ export function validateOpenApiDocument(document: OpenApiDocument): ContractVali
 
 /** Flattens an OpenAPI document into stable operation identities. */
 export function comparableOperations(document: OpenApiDocument): ComparableOperation[] {
-  return documentOperations(document)
-    .map(({ method, path, operation }) => ({
-      key: `${method.toUpperCase()} ${path}`,
-      method: method.toUpperCase(),
-      path,
-      operationId: operation.operationId,
-      summary: operation.summary,
-    }))
-    .sort((left, right) => left.key.localeCompare(right.key));
+  return Array.from(indexOperations(document).comparable.values())
+    .sort((left, right) => left.key.localeCompare(right.key, 'en'));
 }
 
 function operationSignature(operation: OpenApiOperation): string {
@@ -110,84 +127,67 @@ function operationSignature(operation: OpenApiOperation): string {
 }
 
 /** Finds operations whose method/path identity is stable but contract changed. */
-export function changedContractOperations(
-  fromDocument: OpenApiDocument,
-  toDocument: OpenApiDocument,
+function changedIndexedOperations(
+  fromIndex: OperationIndex,
+  toIndex: OperationIndex,
 ): Array<{ key: string; from: ComparableOperation; to: ComparableOperation }> {
-  const fromEntries = new Map(documentOperations(fromDocument).map((entry) => [
-    `${entry.method.toUpperCase()} ${entry.path}`,
-    entry,
-  ]));
-  const toEntries = new Map(documentOperations(toDocument).map((entry) => [
-    `${entry.method.toUpperCase()} ${entry.path}`,
-    entry,
-  ]));
-  const fromComparable = new Map(comparableOperations(fromDocument).map((entry) => [entry.key, entry]));
-  const toComparable = new Map(comparableOperations(toDocument).map((entry) => [entry.key, entry]));
-  return Array.from(fromEntries.entries())
+  return Array.from(fromIndex.entries.entries())
     .filter(([key, entry]) => {
-      const counterpart = toEntries.get(key);
+      const counterpart = toIndex.entries.get(key);
       return counterpart && operationSignature(entry.operation) !== operationSignature(counterpart.operation);
     })
     .map(([key]) => ({
       key,
-      from: fromComparable.get(key)!,
-      to: toComparable.get(key)!,
+      from: fromIndex.comparable.get(key)!,
+      to: toIndex.comparable.get(key)!,
     }))
-    .sort((left, right) => left.key.localeCompare(right.key));
+    .sort((left, right) => left.key.localeCompare(right.key, 'en'));
+}
+
+/** Finds operations whose method/path identity is stable but contract changed. */
+export function changedContractOperations(
+  fromDocument: OpenApiDocument,
+  toDocument: OpenApiDocument,
+): Array<{ key: string; from: ComparableOperation; to: ComparableOperation }> {
+  return changedIndexedOperations(indexOperations(fromDocument), indexOperations(toDocument));
 }
 
 /** Builds a deterministic compatibility diff between two Monica editions. */
-export function buildContractDiff(from: ApiEdition, to: ApiEdition): {
-  generatedAt: string;
-  from: { edition: ApiEdition; commit: string; operations: number };
-  to: { edition: ApiEdition; commit: string; operations: number };
-  summary: { added: number; removed: number; changed: number; unchanged: number; breaking: number };
-  added: ComparableOperation[];
-  removed: ComparableOperation[];
-  changed: Array<{ key: string; from: ComparableOperation; to: ComparableOperation }>;
-  breaking: boolean;
-} {
+export function buildContractDiff(from: ApiEdition, to: ApiEdition): ContractDiffResult {
   const fromDocument = buildOpenApiDocument(from);
   const toDocument = buildOpenApiDocument(to);
-  const fromEntries = new Map(documentOperations(fromDocument).map((entry) => [
-    `${entry.method.toUpperCase()} ${entry.path}`,
-    entry,
-  ]));
-  const toEntries = new Map(documentOperations(toDocument).map((entry) => [
-    `${entry.method.toUpperCase()} ${entry.path}`,
-    entry,
-  ]));
-  const fromComparable = new Map(comparableOperations(fromDocument).map((entry) => [entry.key, entry]));
-  const toComparable = new Map(comparableOperations(toDocument).map((entry) => [entry.key, entry]));
-  const added = Array.from(toComparable.values()).filter((entry) => !fromComparable.has(entry.key));
-  const removed = Array.from(fromComparable.values()).filter((entry) => !toComparable.has(entry.key));
-  const changed = changedContractOperations(fromDocument, toDocument);
-  const unchanged = fromEntries.size - removed.length - changed.length;
-  const breaking = removed.length + changed.length;
+  const fromIndex = indexOperations(fromDocument);
+  const toIndex = indexOperations(toDocument);
+  const added = Array.from(toIndex.comparable.values())
+    .filter((entry) => !fromIndex.comparable.has(entry.key));
+  const removed = Array.from(fromIndex.comparable.values())
+    .filter((entry) => !toIndex.comparable.has(entry.key));
+  const changed = changedIndexedOperations(fromIndex, toIndex);
+  const unchanged = fromIndex.entries.size - removed.length - changed.length;
+  const breakingChanges = removed.length + changed.length;
   return {
     generatedAt: new Date().toISOString(),
     from: {
       edition: from,
       commit: fromDocument['x-monica-source'].commit,
-      operations: fromEntries.size,
+      operations: fromIndex.entries.size,
     },
     to: {
       edition: to,
       commit: toDocument['x-monica-source'].commit,
-      operations: toEntries.size,
+      operations: toIndex.entries.size,
     },
     summary: {
       added: added.length,
       removed: removed.length,
       changed: changed.length,
       unchanged,
-      breaking,
+      breakingChanges,
     },
     added,
     removed,
     changed,
-    breaking: breaking > 0,
+    breaking: breakingChanges > 0,
   };
 }
 
@@ -200,14 +200,19 @@ export function attachApiResearchContractSubcommands(command: Command): void {
     .option('--to <edition>', 'Target API edition: stable|next', parseApiEdition, 'next')
     .option('--fail-on-breaking', 'Exit with code 2 when removed or changed operations exist')
     .action(function (this: Command): void {
-      const options = this.opts() as {
-        from: ApiEdition;
-        to: ApiEdition;
-        failOnBreaking?: boolean;
-      };
-      const payload = buildContractDiff(options.from, options.to);
-      console.log(fmt.formatOutput(payload, resolveCommandOutputFormat(this)));
-      if (options.failOnBreaking && payload.breaking) process.exit(2);
+      try {
+        const options = this.opts() as {
+          from: ApiEdition;
+          to: ApiEdition;
+          failOnBreaking?: boolean;
+        };
+        const payload = buildContractDiff(options.from, options.to);
+        console.log(fmt.formatOutput(payload, resolveCommandOutputFormat(this)));
+        if (options.failOnBreaking && payload.breaking) process.exit(2);
+      } catch (caught) {
+        console.error(fmt.formatError(caught as Error));
+        process.exit(1);
+      }
     });
 
   command
@@ -219,43 +224,48 @@ export function attachApiResearchContractSubcommands(command: Command): void {
     .option('--fail-on-warnings', 'Exit with code 2 when validation warnings exist')
     .option('--fail-on-unavailable', 'With --verify-source, fail when upstream cannot be checked')
     .action(async function (this: Command): Promise<void> {
-      const format: OutputFormat = resolveCommandOutputFormat(this);
-      const options = this.opts() as {
-        edition: ApiEdition;
-        oasVersion: '3.2.0' | '3.1.2';
-        verifySource?: boolean;
-        failOnWarnings?: boolean;
-        failOnUnavailable?: boolean;
-      };
-      const validation = validateOpenApiDocument(
-        buildOpenApiDocument(options.edition, options.oasVersion),
-      );
-      const sourceStatus = options.verifySource
-        ? await buildSourceStatusPayload({
-          edition: options.edition,
-          failOnStale: true,
-          failOnUnavailable: options.failOnUnavailable,
-        })
-        : null;
-      if (sourceStatus?.state === 'stale') validation.errors.push('Bundled source is stale');
-      if (sourceStatus?.state === 'unavailable') {
-        const message = 'Upstream source freshness is unavailable';
-        if (options.failOnUnavailable) validation.errors.push(message);
-        else validation.warnings.push(message);
+      try {
+        const format: OutputFormat = resolveCommandOutputFormat(this);
+        const options = this.opts() as {
+          edition: ApiEdition;
+          oasVersion: '3.2.0' | '3.1.2';
+          verifySource?: boolean;
+          failOnWarnings?: boolean;
+          failOnUnavailable?: boolean;
+        };
+        const validation = validateOpenApiDocument(
+          buildOpenApiDocument(options.edition, options.oasVersion),
+        );
+        const sourceStatus = options.verifySource
+          ? await buildSourceStatusPayload({
+            edition: options.edition,
+            failOnStale: true,
+            failOnUnavailable: options.failOnUnavailable,
+          })
+          : null;
+        if (sourceStatus?.state === 'stale') validation.errors.push('Bundled source is stale');
+        if (sourceStatus?.state === 'unavailable') {
+          const message = 'Upstream source freshness is unavailable';
+          if (options.failOnUnavailable) validation.errors.push(message);
+          else validation.warnings.push(message);
+        }
+        validation.valid = validation.errors.length === 0;
+        const failed = !validation.valid
+          || (options.failOnWarnings === true && validation.warnings.length > 0);
+        console.log(fmt.formatOutput({
+          generatedAt: new Date().toISOString(),
+          validation,
+          sourceStatus,
+          gate: {
+            failed,
+            failOnWarnings: options.failOnWarnings === true,
+            failOnUnavailable: options.failOnUnavailable === true,
+          },
+        }, format));
+        if (failed) process.exit(2);
+      } catch (caught) {
+        console.error(fmt.formatError(caught as Error));
+        process.exit(1);
       }
-      validation.valid = validation.errors.length === 0;
-      const failed = !validation.valid
-        || (options.failOnWarnings === true && validation.warnings.length > 0);
-      console.log(fmt.formatOutput({
-        generatedAt: new Date().toISOString(),
-        validation,
-        sourceStatus,
-        gate: {
-          failed,
-          failOnWarnings: options.failOnWarnings === true,
-          failOnUnavailable: options.failOnUnavailable === true,
-        },
-      }, format));
-      if (failed) process.exit(2);
     });
 }
