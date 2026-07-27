@@ -207,6 +207,59 @@ The structured state is `current`, `stale`, or `unavailable`. Network and
 GitHub API failures are never classified as stale. The inherited
 `--request-timeout-ms` option bounds the public branch lookup.
 
+### api-research openapi
+
+Export a deterministic OpenAPI contract from a bundled authoritative edition.
+The command is offline and never calls the configured Monica instance.
+
+```bash
+monica api-research openapi [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--edition <edition>` | API edition: `stable` (default) or `next` |
+| `--oas-version <version>` | OpenAPI version: `3.2.0` (default) or `3.1.2` |
+
+Use global `--json` or `--yaml` for standards-compliant OpenAPI artifacts.
+Other global formats remain available for human or agent inspection.
+
+### api-research validate-contract
+
+Validate the generated contract and optionally prove bundled-source freshness.
+
+```bash
+monica api-research validate-contract [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--edition <edition>` | API edition: `stable` (default) or `next` |
+| `--oas-version <version>` | OpenAPI version: `3.2.0` (default) or `3.1.2` |
+| `--verify-source` | Compare bundled provenance with the public upstream branch head |
+| `--fail-on-warnings` | Exit with status `2` when validation emits warnings |
+| `--fail-on-unavailable` | Exit with status `2` when requested source verification is unavailable |
+
+Errors always exit with status `2`. Without `--verify-source`, validation is
+fully deterministic and offline.
+
+### api-research diff
+
+Compare two generated edition contracts operation by operation.
+
+```bash
+monica api-research diff [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--from <edition>` | Baseline edition: `stable` (default) or `next` |
+| `--to <edition>` | Target edition: `next` (default) or `stable` |
+| `--fail-on-breaking` | Exit with status `2` when operations were removed or incompatibly changed |
+
+The structured result includes counts and complete `added`, `removed`,
+`changed`, `unchanged`, and `breaking` operation arrays.
+
 ### api-research summary
 
 Emit machine-readable API coverage data for agent planning.

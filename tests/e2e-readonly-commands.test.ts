@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildWriteGuardCommands } from '../scripts/e2e-readonly-commands';
+import { buildBaseCommandChecks, buildWriteGuardCommands } from '../scripts/e2e-readonly-commands';
 
 describe('e2e readonly write guards', () => {
   it('includes baseline mutating commands', () => {
@@ -13,5 +13,22 @@ describe('e2e readonly write guards', () => {
     const commands = buildWriteGuardCommands(42);
     expect(commands).toContain("monica tasks create --title 'read-only-guard' --contact 42");
     expect(commands).toContain("monica notes create --body 'read-only-guard' --contact 42");
+  });
+
+  it('validates both OpenAPI editions, compatibility output, and registered schemas offline', () => {
+    const commands = buildBaseCommandChecks({
+      baseFlags: '--json --request-timeout-ms 1000',
+      requestTimeoutMs: 1000,
+      searchQuery: 'safe',
+    }).map((check) => check.command);
+    expect(commands).toContain(
+      'monica --json --request-timeout-ms 1000 api-research openapi --edition stable',
+    );
+    expect(commands).toContain(
+      'monica --json --request-timeout-ms 1000 api-research validate-contract --edition next --fail-on-warnings',
+    );
+    expect(commands).toContain(
+      'monica --json --request-timeout-ms 1000 schemas get api-research-openapi',
+    );
   });
 });

@@ -16,6 +16,9 @@ monica --json schemas get search-results
 monica --json schemas get audit-report
 monica --json schemas get api-research-summary
 monica --json schemas get api-research-source-status
+monica --json schemas get api-research-openapi
+monica --json schemas get api-research-diff
+monica --json schemas get api-research-contract-validation
 monica --json schemas get next-account-user
 monica --json schemas get next-vault
 monica --json schemas get api-research-backlog
@@ -415,6 +418,61 @@ The `state` values are intentionally separate:
 
 Use `--fail-on-stale` and optionally `--fail-on-unavailable` for CI. A failed
 gate exits with status `2` after writing the complete schema-valid payload.
+
+### `api-research openapi`
+
+The schema describes a complete OpenAPI 3.2.0 or 3.1.2 document. Standard
+`info`, `servers`, `security`, `tags`, `paths`, and `components` fields are
+joined by deterministic `x-monica-edition`, `x-monica-source`, and
+`x-monica-contract` provenance. Each operation includes an `x-monica` object
+with its resource, edition, token ability, response shape, and known CLI
+mapping. Use JSON or YAML when passing the document to OpenAPI tooling.
+
+### `api-research diff`
+
+```json
+{
+  "generatedAt": "2026-07-27T00:00:00.000Z",
+  "from": { "edition": "stable", "commit": "source-commit", "operations": 172 },
+  "to": { "edition": "next", "commit": "source-commit", "operations": 9 },
+  "summary": { "added": 9, "removed": 172, "changed": 0, "unchanged": 0, "breakingChanges": 172 },
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "unchanged": [],
+  "breaking": true
+}
+```
+
+The operation arrays contain the complete result; the abbreviated example
+shows only their shape. `--fail-on-breaking` exits with status `2` after
+emitting the payload when any operation is removed or incompatibly changed.
+
+### `api-research contract-validation`
+
+```json
+{
+  "generatedAt": "2026-07-27T00:00:00.000Z",
+  "validation": {
+    "edition": "stable",
+    "valid": true,
+    "operations": 172,
+    "paths": 96,
+    "errors": [],
+    "warnings": []
+  },
+  "sourceStatus": null,
+  "gate": {
+    "failed": false,
+    "failOnWarnings": true,
+    "failOnUnavailable": false,
+    "reasons": []
+  }
+}
+```
+
+`sourceStatus` is `null` for offline validation and contains the same
+source-status contract when `--verify-source` is enabled.
 
 ### Current API resources
 

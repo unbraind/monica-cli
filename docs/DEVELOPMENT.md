@@ -59,12 +59,21 @@ MONICA_API_KEY=your-jwt-token
 | `bun run lint:duplication` | Enforce the repository duplication ceiling with jscpd |
 | `bun run lint:strict` | Run stricter ESLint checks on the hardened module set |
 | `bun run lint:commits` | Validate branch commits using the same Conventional Commit policy as CI |
+| `bun run api:contracts:check` | Validate both generated editions internally and with Redocly after building |
 | `bun run smoke:npx` | Verify packed artifact runs with npx |
 | `bun run smoke:bunx` | Verify packed artifact runs with bunx |
 | `bun run audit:history` | Scan all git commits for likely leaked secrets |
 | `bun run verify:release` | Run the full release quality gate |
 
 `test:coverage` is a mandatory 100% statements / 100% branches / 100% functions / 100% lines gate across all `src/**/*.ts`. No source exclusions or reduced per-file thresholds are used.
+
+OpenAPI contract generation is deterministic and offline. After changing an
+API reference, run `bun run build && bun run api:contracts:check`, export both
+editions in JSON and YAML, and review `api-research diff`. Refresh provenance
+and request/response metadata only from Monica's authoritative public source;
+use `validate-contract --verify-source` separately when network-backed
+freshness proof is required. The gate lints OAS 3.2.0 stable and OAS 3.1.2 next
+artifacts with the pinned Redocly CLI in temporary private files.
 
 ## Incremental Lint Strictness
 

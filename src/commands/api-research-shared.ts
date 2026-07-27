@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import type { ApiEdition, ContractReference } from './api-research-contract-types';
 
 /** Describes the api reference method data contract. */
 export interface ApiReferenceMethod {
@@ -132,13 +133,20 @@ function normalizeResourceName(resourceName: string): string {
   return resourceName.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
 }
 
-function resolveCliCommand(resourceName: string): { command: string; mapped: boolean } {
+/** Resolves a reference resource to its public CLI command group. */
+export function resolveCliCommand(resourceName: string): { command: string; mapped: boolean } {
   const normalized = normalizeResourceName(resourceName);
   const mappedCommand = RESOURCE_TO_COMMAND[normalized];
   if (!mappedCommand) {
     return { command: resourceName, mapped: false };
   }
   return { command: mappedCommand, mapped: true };
+}
+
+/** Loads a complete bundled Monica reference without discarding contract metadata. */
+export function loadBundledContractReference(edition: ApiEdition): ContractReference {
+  const referencePath = edition === 'next' ? MONICA_NEXT_REFERENCE_PATH : MONICA_REFERENCE_PATH;
+  return JSON.parse(fs.readFileSync(referencePath, 'utf-8')) as ContractReference;
 }
 
 function loadMonicaReference(): MonicaReferenceDocument {
