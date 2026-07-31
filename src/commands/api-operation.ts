@@ -157,7 +157,12 @@ export function validateApiMultipartInputs(
     if (!supplied.has(name)) throw new Error(`Missing required multipart field: ${name}`);
   }
   for (const [name, value] of Object.entries(fields)) {
-    const expected = properties[name]?.type;
+    const property = properties[name];
+    const expected = property?.type;
+    const allowed = Array.isArray(property?.enum) ? property.enum.map(String) : null;
+    if (allowed && !allowed.includes(value)) {
+      throw new Error(`Invalid multipart field ${name}; use: ${allowed.join(', ')}`);
+    }
     if (expected === 'integer' && !/^-?\d+$/u.test(value)) {
       throw new Error(`Multipart field ${name} must be an integer`);
     }

@@ -6,7 +6,7 @@ status: closed
 priority: 0
 tags[7]: agent-ux,api-contracts,api-execution,documentation,openapi,read-only-safety,typescript
 created_at: "2026-07-31T20:21:41.941Z"
-updated_at: "2026-07-31T21:05:34.564Z"
+updated_at: "2026-07-31T21:21:48.099Z"
 deadline: "2026-08-07T20:21:41.941Z"
 closed_at: "2026-07-31T21:02:15.616Z"
 completed_at: "2026-07-31T21:02:15.616Z"
@@ -48,10 +48,11 @@ dependencies[9]{id,kind,created_at,author,source_kind,author_source}:
   monica-official-toon-contracts,verifies,"2026-07-31T20:21:41.941Z",codex-root,"cli:create:dep",detected
   monica-openapi-edition-contracts,implements,"2026-07-31T20:21:41.941Z",codex-root,"cli:create:dep",detected
   monica-server-diagnostics,related,"2026-07-31T20:21:41.941Z",codex-root,"cli:create:dep",detected
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-07-31T20:21:41.941Z",codex-root,"Duplicate research covered all 63 items, full all-status metadata, exact-operation queries, and 1,025 similarity pairs at 0.72 with zero clusters; closed OpenAPI, parity, and agent-contract items are predecessors."
   "2026-07-31T20:49:01.144Z",codex-root,"Implemented uniform stable/next inspect, GET-only read, and explicitly confirmed mutation dispatch. Declared path, query, JSON, multipart, enum, primitive, required-field, and unknown-field validation now happens before transport; read-only mode blocks writes before file reads or network dispatch."
   "2026-07-31T21:02:14.880Z",codex-root,"Completion evidence: 121 test files and 905 tests pass with exact 3839/3839 statements, 2457/2457 branches, 1152/1152 functions, and 3532/3532 lines; all 292 help checks pass; both official editions validate; actual read-only acceptance completes 122 paths with 65 passes, 57 expected unavailability/write guards, and zero failures."
+  "2026-07-31T21:21:48.099Z",codex-root,"Exact-head CodeRabbit review identified two in-scope improvements: multipart scalar enum enforcement and shared inspect error handling. Both were implemented with direct coverage. Four findings against package-managed PM built-ins were verified upstream-owned; duplicate issue research was clear and pm-cli issue #847 records the SDK import-contract and author-guidance improvements without hand-editing generated output."
 notes[5]{created_at,author,text}:
   "2026-07-31T20:21:41.941Z",codex-root,"Official research refreshed 2026-07-31: stable 4.x remains 32028ce at v4.1.2 with 172 routes; main remains e08e917 with 9 routes; both source checks are current."
   "2026-07-31T20:49:02.110Z",codex-root,"Managed tooling is current: pm-cli 2026.7.31, pm-changelog 2026.7.29-1, and all twelve project extensions pass isolated deep package doctor with no warnings or updates. The managed extension bundle changes are intentional project-owned upgrade output."

@@ -166,6 +166,7 @@ describe('exact Monica API operations', () => {
             properties: {
               ratio: { type: 'number' },
               enabled: { type: 'boolean' },
+              mode: { type: 'string', enum: ['safe', 'fast'] },
             },
           },
         },
@@ -177,6 +178,8 @@ describe('exact Monica API operations', () => {
       .toThrow('must be a number');
     expect(() => validateApiMultipartInputs(operation, { enabled: 'yes' }, {}))
       .toThrow('true or false');
+    expect(() => validateApiMultipartInputs(operation, { mode: 'unsafe' }, {}))
+      .toThrow('Invalid multipart field mode; use: safe, fast');
 
     operation.operation.requestBody = {};
     expect(() => validateApiMultipartInputs(operation, {}, {})).toThrow('declares no multipart');

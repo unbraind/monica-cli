@@ -98,15 +98,12 @@ export function createApiCommand(): Command {
   command.command('inspect <operationId>')
     .description('Inspect one exact operation without contacting Monica')
     .option('--edition <edition>', 'API edition: stable|next', parseApiEdition, 'stable')
-    .action(function (this: Command, operationId: string): void {
+    .action(async function (this: Command, operationId: string): Promise<void> {
       const options = this.opts() as Pick<ApiCommandOptions, 'edition'>;
-      try {
+      await runCommandAction(async () => {
         const result = inspectApiOperation(resolveApiOperation(operationId, options.edition));
         console.log(fmt.formatOutput(result, resolveCommandOutputFormat(this)));
-      } catch (error) {
-        console.error(fmt.formatError(error as Error));
-        process.exit(1);
-      }
+      });
     });
 
   configureInputs(command.command('get <operationId>')
