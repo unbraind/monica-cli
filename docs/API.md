@@ -57,6 +57,40 @@ JSON and YAML are the interoperable OpenAPI serializations. TOON remains the
 CLI default for compact agent consumption, and Markdown/table remain
 presentation formats; select JSON or YAML when writing an OpenAPI artifact.
 
+## Exact operation execution
+
+The generated operation IDs are executable without manually translating paths
+back into resource-specific commands:
+
+```bash
+monica --json api inspect stable_get_contacts_id
+monica --json api get stable_get_contacts_id --param id=1 --query with=contactfields
+monica api mutate next_post_vaults --edition next \
+  --body '{"name":"Example"}' --confirm
+```
+
+`api inspect` is offline and returns source provenance, CLI mapping, parameters,
+request body, responses, and required token ability. `api get` accepts GET
+operations only. `api mutate` accepts non-GET operations only and requires
+`--confirm`; the client-wide `readOnlyMode` guard remains authoritative and
+blocks the request before dispatch. Path and query keys must be declared by the
+operation. Required values, primitive types, enum choices, JSON object fields,
+body types, lengths, dates, and PATCH non-empty constraints are checked locally.
+
+The two stable upload operations use multipart input:
+
+```bash
+monica api mutate stable_post_documents --form contact_id=1 \
+  --file document=./document.pdf --confirm
+monica api mutate stable_post_photos --form contact_id=1 \
+  --file photo=./photo.jpg --confirm
+```
+
+Multipart field/file roles are derived from the contract. In read-only mode,
+the command rejects the operation before reading the local file or constructing
+an upload. Execution output uses the selected operation's OpenAPI response
+schema; inspection output uses the registered `api-operation-inspect` schema.
+
 ## Current Monica API
 
 The current `main` branch uses `auth:sanctum`, UUID resource identifiers, a

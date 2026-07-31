@@ -174,6 +174,13 @@ monica --yaml api-research openapi --edition next --oas-version 3.1.2
 monica --json api-research validate-contract --edition stable --verify-source --fail-on-warnings
 monica --json api-research diff --from stable --to next
 
+# Inspect and execute exact bundled OpenAPI operations
+monica --json api inspect stable_get_contacts_id
+monica --json api get stable_get_contacts_id --param id=1 --query with=contactfields
+# Mutations require both --confirm and write-enabled configuration
+monica api mutate next_patch_vaults_vault --edition next --param vault=<uuid> \
+  --body '{"description":"Updated"}' --confirm
+
 # Force a fresh capability probe (skip cache)
 monica info capabilities --refresh
 

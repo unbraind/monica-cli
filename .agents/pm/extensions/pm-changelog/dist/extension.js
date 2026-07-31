@@ -1,11 +1,8 @@
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import * as pmSdk from "@unbrained/pm-cli/sdk";
-import { defineExtension, locateItem, readLocatedItem, readSettings, resolveItemTypeRegistry, EXIT_CODE, PmCliError, } from "@unbrained/pm-cli/sdk";
+import { defineExtension, listAllItemMetadata, locateItem, readLocatedItem, readSettings, resolveItemTypeRegistry, EXIT_CODE, PmCliError, } from "@unbrained/pm-cli/sdk";
 import { buildChangelogDocument, createChangelog, createChangelogSummary, explainChangelogSelection, formatSummaryLine, mergeChangelog, suggestSemver, writeChangelog } from "./generator.js";
 import { MissingTagHistoryError, resolveReleaseContext, resolveReleaseTagWindows } from "./release-context.js";
-const sdkExports = pmSdk;
-const listAllItemMetadata = (sdkExports.listAllItemMetadata ?? sdkExports[["listAll", "Front", "Matter"].join("")]);
 /** Determine whether an unknown command result carries valid pre-rendered changelog output. */
 function isRenderedCommandResult(value) {
     return (typeof value === "object" &&
@@ -33,7 +30,7 @@ function renderCommandResult(context) {
 }
 export default defineExtension({
     name: "pm-changelog",
-    version: "2026.7.25",
+    version: "2026.7.29-1",
     activate(api) {
         api.registerCommand({
             name: "changelog generate",
@@ -150,7 +147,7 @@ export default defineExtension({
                         })
                         : undefined,
                 }));
-                const items = (await listAllItemMetadata(ctx.pm_root));
+                const items = await listAllItemMetadata(ctx.pm_root);
                 const bodyPreview = parseBodyPreviewOption(ctx.options);
                 // listAllItemMetadata omits item bodies, so --body-preview would silently
                 // render nothing (GH #27). Load bodies on demand only when previewing.
@@ -305,8 +302,7 @@ export default defineExtension({
                 { long: "--respect-item-release", description: "Treat an item release field as the authority for its single version window: keep it when it matches the release version regardless of timestamps, drop it otherwise (--all-release-tags always honors the field)" },
             ],
         };
-        const registerExporterWithMetadata = api.registerExporter;
-        registerExporterWithMetadata("changelog", async (ctx) => {
+        api.registerExporter("changelog", async (ctx) => {
             const format = (stringOption(ctx.options, "format", "format") ?? "md").toLowerCase();
             if (format !== "md" && format !== "markdown" && format !== "json") {
                 throw new PmCliError("--format must be 'md' or 'json'", EXIT_CODE.USAGE);
@@ -368,9 +364,6 @@ export default defineExtension({
             }
             return { changelog: generated.markdown, format: "markdown", item_count: generated.itemCount };
         }, changelogExportMetadata);
-        if (api.registerExporter.length < 3 && typeof api.registerFlags === "function") {
-            api.registerFlags("changelog export", changelogExportMetadata.flags);
-        }
         // Register renderer overrides so json-mode results print verbatim JSON to
         // stdout under both the default (toon) and global --json renderers. The host
         // enforces command and result ownership before invoking either callback.

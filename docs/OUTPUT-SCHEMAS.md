@@ -17,6 +17,7 @@ monica --json schemas get audit-report
 monica --json schemas get api-research-summary
 monica --json schemas get api-research-source-status
 monica --json schemas get api-research-openapi
+monica --json schemas get api-operation-inspect
 monica --json schemas get api-research-diff
 monica --json schemas get api-research-contract-validation
 monica --json schemas get next-account-user
@@ -418,6 +419,21 @@ The `state` values are intentionally separate:
 
 Use `--fail-on-stale` and optionally `--fail-on-unavailable` for CI. A failed
 gate exits with status `2` after writing the complete schema-valid payload.
+
+### `api-operation-inspect`
+
+Validates the deterministic offline envelope emitted by:
+
+```bash
+monica --json api inspect stable_get_contacts_id
+monica --json api inspect next_post_vaults --edition next
+```
+
+Required fields identify the operation, edition, method, path, resource, token
+ability, parameters, request body, responses, matching dedicated CLI command,
+and exact authoritative source commit. Execution responses from `api get` and
+`api mutate` use the response schema declared by that selected operation in the
+edition's OpenAPI document.
 
 ### `api-research openapi`
 

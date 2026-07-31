@@ -22,6 +22,7 @@ export function buildWriteGuardCommands(contactId: number | null): string[] {
     "monica vaults update read-only-guard --name 'read-only-guard'",
     "monica vaults patch read-only-guard --description 'read-only-guard'",
     "monica vaults delete read-only-guard",
+    "monica api mutate next_post_vaults --edition next --body '{\"name\":\"read-only-guard\"}' --confirm",
   ];
 
   if (contactId !== null) {
@@ -95,6 +96,9 @@ export function buildBaseCommandChecks(input: BuildBaseCommandChecksInput): Comm
     { command: `monica ${baseFlags} users current`, outputValidation: 'json' },
     { command: `monica ${baseFlags} users list --limit 2`, outputValidation: 'json' },
     { command: `monica ${baseFlags} vaults list --limit 2`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} api inspect stable_get_me`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} api inspect next_get_user --edition next`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} api get stable_get_me`, outputValidation: 'json' },
     { command: `monica ${baseFlags} search "${searchQuery}" --type all --limit 2 --max-pages 1`, outputValidation: 'json' },
     { command: `monica ${baseFlags} api-research summary --instance-aware`, outputValidation: 'json' },
     { command: `monica ${baseFlags} api-research source-status`, outputValidation: 'json' },
@@ -124,6 +128,7 @@ export function buildBaseCommandChecks(input: BuildBaseCommandChecksInput): Comm
     { command: `monica ${baseFlags} schemas get api-research-actions`, outputValidation: 'json' },
     { command: `monica ${baseFlags} schemas get api-research-source-status`, outputValidation: 'json' },
     { command: `monica ${baseFlags} schemas get api-research-openapi`, outputValidation: 'json' },
+    { command: `monica ${baseFlags} schemas get api-operation-inspect`, outputValidation: 'json' },
     { command: `monica ${baseFlags} schemas get api-research-diff`, outputValidation: 'json' },
     { command: `monica ${baseFlags} schemas get api-research-contract-validation`, outputValidation: 'json' },
     { command: `monica ${baseFlags} schemas get next-account-user`, outputValidation: 'json' },

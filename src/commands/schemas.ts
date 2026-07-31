@@ -46,10 +46,21 @@ function parseValidationInput(raw: string, inputFormat: Exclude<InputFormat, 'au
   return parseYaml(raw) as unknown;
 }
 
-function readValidationInput(inputPath: string | undefined, inputFormat: InputFormat): unknown {
-  const raw = inputPath
-    ? fs.readFileSync(inputPath, 'utf-8')
-    : fs.readFileSync(0, 'utf-8');
+async function readValidationInput(
+  inputPath: string | undefined,
+  inputFormat: InputFormat,
+  stdin: AsyncIterable<string | Uint8Array> = process.stdin,
+): Promise<unknown> {
+  let raw: string;
+  if (inputPath) {
+    raw = fs.readFileSync(inputPath, 'utf-8');
+  } else {
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of stdin) {
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+    }
+    raw = Buffer.concat(chunks).toString('utf8');
+  }
 
   if (!raw.trim()) {
     throw new Error('Input payload is empty. Provide JSON via file path or stdin.');
@@ -143,7 +154,7 @@ export function createSchemasCommand(): Command {
     .command('validate <schema-id> [input-path]')
     .description('Validate input payload (JSON/TOON/YAML from file or stdin) against a registered schema')
     .option('--input-format <format>', 'Input payload format (auto|json|toon|yaml|yml)', parseSchemaInputFormat, 'auto')
-    .action(function (this: Command, schemaId: string, inputPath?: string): void {
+    .action(async function (this: Command, schemaId: string, inputPath?: string): Promise<void> {
       const actionCommand = this;
       const format = getOutputFormat(actionCommand);
       const schema = findSchema(schemaId);
@@ -160,7 +171,7 @@ export function createSchemasCommand(): Command {
       }
 
       try {
-        const payload = readValidationInput(inputPath, inputFormat);
+        const payload = await readValidationInput(inputPath, inputFormat);
         const errors = validateValueAgainstSchema(payload, schema.schema);
         const result = {
           ok: errors.length === 0,

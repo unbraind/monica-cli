@@ -4,6 +4,7 @@
 
 ### Added
 
+- Execute exact Monica OpenAPI operations safely ([monica-openapi-operation-execution](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-openapi-operation-execution.toon))
 - Publish edition-aware OpenAPI and compatibility contracts ([monica-openapi-edition-contracts](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-openapi-edition-contracts.toon))
 
 ## 2026.7.26 - 2026-07-26

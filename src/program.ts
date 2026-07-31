@@ -47,6 +47,7 @@ import {
   createStatisticsCommand,
   createUsersCommand,
   createVaultsCommand,
+  createApiCommand,
 } from './commands';
 import {
   applyRequestTimeoutOverride,
@@ -234,6 +235,7 @@ export function createProgram(argv: string[] = process.argv): Command {
   program.addCommand(createStatisticsCommand());
   program.addCommand(createUsersCommand());
   program.addCommand(createVaultsCommand());
+  program.addCommand(createApiCommand());
 
   applyGlobalArgParsers(program);
   addGlobalHelpFooters(program);

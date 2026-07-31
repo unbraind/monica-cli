@@ -1,4 +1,4 @@
-import type { ChangelogReleaseWindow } from "./types.js";
+import type { ChangelogReleaseWindow } from "./types.ts";
 export interface ReleaseContextOptions {
     cwd?: string;
     version?: string;

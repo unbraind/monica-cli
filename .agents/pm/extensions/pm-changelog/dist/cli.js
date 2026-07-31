@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { stdin } from "node:process";
-import { buildChangelogDocument, createChangelog, createChangelogSummary, explainChangelogSelection, formatSummaryLine, mergeChangelog, parsePmItemsJson, readPmItems, suggestSemver, writeChangelog, } from "./generator.js";
+import { createUnifiedDiff, DEFAULT_MAX_DIFF_LINES } from "./diff.js";
+import { buildChangelogDocument, createChangelog, createChangelogSummary, explainChangelogSelection, formatInferredSources, formatSummaryLine, mergeChangelog, parsePmItemsJson, readPmItems, suggestSemver, writeChangelog, } from "./generator.js";
 import { resolveReleaseContext, resolveReleaseTagWindows } from "./release-context.js";
 // Compatibility aliases for value-taking options. Kept intentionally small and
 // explicit so default behavior remains stable.
@@ -69,6 +70,7 @@ const KNOWN_OPTIONS = [
     "--json",
     "--limit",
     "--mode",
+    "--no-check-diff",
     "--no-links",
     "--output",
     "--pm-arg",
@@ -180,8 +182,16 @@ async function main() {
         if (!options.json && selectionReport) {
             writeSelectionReport(selectionReport);
         }
-        if (options.check && result.changed)
-            process.exit(1);
+        if (options.check && result.changed) {
+            if (options.checkDiff)
+                writeCheckDiff(options, outputPath, result.markdown);
+            // Set the status and return rather than `process.exit(1)`: Node may still
+            // have the diff queued when stderr is a pipe (exactly the CI case this
+            // diff exists for), and `process.exit` abandons pending stdio writes. The
+            // failure message would then be truncated precisely where it is needed.
+            process.exitCode = 1;
+            return;
+        }
         return;
     }
     const generated = createChangelog(generationOptions);
@@ -240,6 +250,7 @@ function parseArgs(args) {
         includeLinks: false,
         mode: "replace",
         check: false,
+        checkDiff: true,
         explain: false,
         githubOutput: false,
         githubStepSummary: false,
@@ -271,6 +282,9 @@ function parseArgs(args) {
                 break;
             case "--check":
                 options.check = true;
+                break;
+            case "--no-check-diff":
+                options.checkDiff = false;
                 break;
             case "--explain":
                 options.explain = true;
@@ -635,12 +649,45 @@ function buildSummary(options, result, output = result.output, selectionReport) 
         summary.selection_report = selectionReport;
     return summary;
 }
+// OPT-OUT (`--no-check-diff` suppresses): when `--check` fails, show WHAT
+// drifted, not just THAT it drifted. The failure line alone forces the reader
+// — usually a CI agent that cannot rerun the generator interactively — to
+// clone the repo and diff generator output by hand; the common cause (a PR
+// branch behind `main`, so the merge ref sees a release commit the branch
+// lacks) is obvious from the diff in seconds. Check mode never writes, so the
+// file on disk is still the committed changelog. Stderr only: stdout stays
+// byte-identical for callers that capture it.
+function writeCheckDiff(options, outputPath, generated) {
+    const committed = existsSync(outputPath) ? readFileSync(outputPath, "utf-8") : "";
+    // Label with the output's basename (e.g. `CHANGELOG.md`) rather than the
+    // resolved absolute path, so the side label stays short and recognizable
+    // regardless of how the caller invoked --output.
+    const oldLabel = `committed ${basename(options.output)}`;
+    const diff = createUnifiedDiff(committed, generated, {
+        oldLabel,
+        newLabel: "generated",
+    });
+    process.stderr.write(diff.text);
+    if (diff.truncated) {
+        process.stderr.write(`... diff truncated: ${diff.omittedLines} more lines not shown (${DEFAULT_MAX_DIFF_LINES}-line cap).`
+            + " Regenerate locally (rerun without --check, e.g. --mode replace) to see the full changelog.\n");
+    }
+}
 function writeSelectionReport(report) {
     const excluded = report.excluded_counts;
     console.error("Selection report:"
         + ` input=${report.stage_counts.input}`
         + ` visible=${report.stage_counts.visible_items}`
         + ` excluded(title=${excluded.missing_title},tag=${excluded.excluded_tag},status=${excluded.status},time=${excluded.time_window},item_release=${excluded.item_release},release_window=${excluded.release_window},visibility=${excluded.hidden_by_visibility})`);
+    const provenance = report.attribution_provenance;
+    if (provenance) {
+        const sources = formatInferredSources(provenance.inferred_sources);
+        console.error(`Attribution provenance: authoritative=${provenance.authoritative} inferred=${provenance.inferred}`
+            + ` release_pinned=${provenance.release_pinned} (inferred sources: ${sources})`);
+        if (provenance.inferred_sample.length > 0) {
+            console.error(`Inferred-attribution sample: ${provenance.inferred_sample.join(", ")}`);
+        }
+    }
     for (const hint of report.hints) {
         console.error(`Hint: ${hint}`);
     }
@@ -695,7 +742,10 @@ Options:
       --json                Print a JSON summary for CI/runners
       --format <md|json>    Output format: md (default) or json for machine-readable output
       --summary             Print a compact one-line-per-change summary (bracketed text or JSON with --format json)
-      --check               Do not write; exit 1 when output would change
+      --check               Do not write; exit 1 when output would change.
+                            On drift, also print a unified diff
+                            (--- committed vs +++ generated) to stderr
+      --no-check-diff       With --check, suppress the drift diff; exit code unchanged
       --github-output       Write summary fields to $GITHUB_OUTPUT
       --github-step-summary Append generated markdown to $GITHUB_STEP_SUMMARY
   -i, --input <file>        Read pm JSON from a file instead of running pm

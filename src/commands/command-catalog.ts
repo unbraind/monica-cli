@@ -83,6 +83,7 @@ const WRITE_COMMAND_HINTS = [
   'introduction',
   'avatar',
   'upload',
+  'mutate',
   'setup',
   'reset',
   'export',

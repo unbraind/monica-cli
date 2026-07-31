@@ -161,8 +161,9 @@ describe('Monica HTTP client', () => {
     fetchMock
       .mockResolvedValueOnce(jsonResponse({ data: { id: 4 } }))
       .mockResolvedValueOnce(jsonResponse({ message: 'Invalid file' }, 422));
-    await expect(upload('/documents', form)).resolves.toEqual({ data: { id: 4 } });
-    expect(fetch).toHaveBeenNthCalledWith(1, 'https://monica.test/api/documents', expect.objectContaining({
+    await expect(upload('/documents', form, { page: 2, ignored: undefined }))
+      .resolves.toEqual({ data: { id: 4 } });
+    expect(fetch).toHaveBeenNthCalledWith(1, 'https://monica.test/api/documents?page=2', expect.objectContaining({
       method: 'POST', body: form,
     }));
     await expect(upload('/documents', form)).rejects.toMatchObject({
