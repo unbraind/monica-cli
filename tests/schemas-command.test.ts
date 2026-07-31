@@ -11,6 +11,12 @@ vi.mock('fs', () => ({
 describe('schemas command', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
 
+  function mockStdin(value: string): void {
+    vi.spyOn(process.stdin, Symbol.asyncIterator).mockImplementation(async function* () {
+      yield Buffer.from(value);
+    });
+  }
+
   beforeEach(() => {
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -87,8 +93,7 @@ describe('schemas command', () => {
   });
 
   it('validates YAML payload from stdin with explicit --input-format yaml', async () => {
-    const readFileSyncMock = fs.readFileSync as unknown as ReturnType<typeof vi.fn>;
-    readFileSyncMock.mockReturnValue('ok: true\napiUrl: http://example/api\n');
+    mockStdin('ok: true\napiUrl: http://example/api\n');
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined as never) as (code?: string | number | null | undefined) => never);
 
     const cmd = createSchemasCommand();
@@ -114,6 +119,7 @@ describe('schemas command', () => {
       inputFormat: 'toon',
     });
 
+    mockStdin(encodeToon({ ok: true, apiUrl: 'http://example/api' }));
     await createSchemasCommand().parseAsync([
       '--format', 'json', 'validate', 'config-test', '--input-format', 'toon',
     ], { from: 'user' });

@@ -47,6 +47,7 @@ Monica CLI provides complete access to all Monica CRM features through a command
 - **API Coverage Research**: Emit endpoint/resource inventory with `monica --json api-research summary --instance-aware` (source select with `--source auto|api|monica|next|<path>`)
 - **Authoritative Source Freshness**: Verify stable 4.x or current main with `monica --json api-research source-status --edition stable|next --fail-on-stale`
 - **Portable OpenAPI Contracts**: Export deterministic OpenAPI 3.2.0 or 3.1.2 documents with `monica --json api-research openapi --edition stable|next`
+- **Exact Operation Execution**: Inspect or execute deterministic operation IDs with `monica api inspect|get|mutate`, declared-input validation, explicit mutation confirmation, multipart support, and global read-only enforcement
 - **Contract Validation and Diffing**: Gate provenance, security, schemas, CLI mappings, and breaking operation changes with `api-research validate-contract` and `api-research diff`
 - **Current API Commands**: Use typed `monica users ...` and `monica vaults ...` leaves for every route currently declared on Monica `main`
 - **Coverage Scorecard**: Use `monica --json api-research coverage --instance-aware` for compact mapped/support percentages, embedded `readOnlyActionPlan`, and deterministic next-command recommendations

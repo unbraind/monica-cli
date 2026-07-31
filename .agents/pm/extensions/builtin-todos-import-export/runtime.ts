@@ -6,24 +6,17 @@
 import fs from "node:fs/promises";
 import type { Dirent } from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import * as pmSdk from "@unbrained/pm-cli/sdk";
 import type {
-  CommitImportedItemParams,
-  CommitImportedItemResult,
-  Dependency,
   GlobalOptions,
-  ItemDocument,
   ItemMetadata,
   ItemStatus,
   ItemType,
   PmSettings,
-  ToImportLinkedArtifactsOptions,
   ToImportLinkedTestsOptions,
   ToImportLogEntriesOptions,
 } from "@unbrained/pm-cli/sdk";
 
-const PM_PACKAGE_ROOT_ENV = "PM_CLI_PACKAGE_ROOT";
-const CURRENT_RUNTIME_ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_TODOS_FOLDER = ".pm/todos";
 
 /** Inputs that customize the todos import operation. */
@@ -73,10 +66,6 @@ export interface TodosExportResult {
 }
 
 type PriorityValue = 0 | 1 | 2 | 3 | 4;
-type ConfidenceTextValue = Extract<
-  NonNullable<ItemMetadata["confidence"]>,
-  string
->;
 
 interface ParsedTodoCandidate {
   entryName: string;
@@ -99,212 +88,7 @@ type ImportCandidateResult =
   | { id: string; writeWarnings: string[] }
   | { warning: string };
 
-interface ActiveExtensionRegistrations {
-  types?: unknown;
-}
-
-interface ItemTypeRegistry {
-  types: string[];
-  type_to_folder: Record<string, string>;
-}
-
-interface TodosSdkModule {
-  CONFIDENCE_TEXT_VALUES: readonly ConfidenceTextValue[];
-  DEPENDENCY_KIND_VALUES: readonly Dependency["kind"][];
-  EXIT_CODE: {
-    NOT_FOUND: number;
-  };
-  ISSUE_SEVERITY_VALUES: readonly string[];
-  PmCliError: new (message: string, exitCode?: number) => Error;
-  RISK_VALUES: readonly string[];
-  canonicalDocument: (document: ItemDocument) => ItemDocument;
-  commitImportedItem: (
-    params: CommitImportedItemParams,
-  ) => Promise<CommitImportedItemResult>;
-  ensureTrackerInitialized: (pmRoot: string) => Promise<void>;
-  generateItemId: (pmRoot: string, prefix: string) => Promise<string>;
-  getActiveExtensionRegistrations: () => ActiveExtensionRegistrations | null;
-  getItemPath: (
-    pmRoot: string,
-    type: ItemType,
-    id: string,
-    itemFormat: "toon",
-    typeToFolder: Record<string, string>,
-  ) => string;
-  listAllItemMetadata: (
-    pmRoot: string,
-    itemFormat: PmSettings["item_format"],
-    typeToFolder: Record<string, string>,
-  ) => Promise<ItemMetadata[]>;
-  locateItem: (
-    pmRoot: string,
-    id: string,
-    prefix: string,
-    itemFormat: PmSettings["item_format"],
-    typeToFolder: Record<string, string>,
-  ) => Promise<unknown>;
-  normalizeItemMetadata: (itemMetadata: Partial<ItemMetadata>) => ItemMetadata;
-  normalizeItemId: (id: string, prefix: string) => string;
-  nowIso: () => string;
-  readLocatedItem: (located: unknown) => Promise<{ document: ItemDocument }>;
-  readSettings: (pmRoot: string) => Promise<PmSettings>;
-  resolveItemTypeRegistry: (
-    settings: PmSettings,
-    registrations: ActiveExtensionRegistrations | null,
-  ) => ItemTypeRegistry;
-  resolvePmRoot: (cwd: string, overridePath?: string) => string;
-  runActiveOnReadHooks: (context: {
-    path: string;
-    scope: "project" | "global";
-  }) => Promise<string[]>;
-  runActiveOnWriteHooks: (context: {
-    path: string;
-    scope: "project" | "global";
-    op: string;
-  }) => Promise<string[]>;
-  selectImportAuthor: (
-    explicitAuthor: string | undefined,
-    settingsAuthor: string,
-  ) => string;
-  splitFrontMatter: (content: string) => { frontMatter: string; body: string };
-  toEstimatedMinutesValue: (value: unknown) => number | undefined;
-  toImportBoolean: (value: unknown) => boolean | undefined;
-  toImportConfidence: (
-    value: unknown,
-    allowedTextValues: readonly string[],
-  ) => ItemMetadata["confidence"];
-  toImportInteger: (value: unknown) => number | undefined;
-  toImportLinkedDocs: (
-    value: unknown,
-    options?: ToImportLinkedArtifactsOptions,
-  ) => ItemMetadata["docs"];
-  toImportLinkedFiles: (
-    value: unknown,
-    options?: ToImportLinkedArtifactsOptions,
-  ) => ItemMetadata["files"];
-  toImportLinkedTests: (
-    value: unknown,
-    options?: ToImportLinkedTestsOptions,
-  ) => ItemMetadata["tests"];
-  toImportLogEntries: (
-    value: unknown,
-    options: ToImportLogEntriesOptions,
-  ) => ItemMetadata["comments"];
-  toImportNormalizedEnum: <T extends readonly string[]>(
-    value: unknown,
-    allowed: T,
-  ) => T[number] | undefined;
-  toImportPriority: (value: unknown) => 0 | 1 | 2 | 3 | 4;
-  toImportStatus: (value: unknown) => ItemStatus;
-  toImportTags: (value: unknown) => string[];
-  toNonEmptyImportString: (value: unknown) => string | undefined;
-  writeFileAtomic: (targetPath: string, content: string) => Promise<void>;
-}
-
-const TODOS_SDK_ARRAY_EXPORTS = [
-  "CONFIDENCE_TEXT_VALUES",
-  "DEPENDENCY_KIND_VALUES",
-  "ISSUE_SEVERITY_VALUES",
-  "RISK_VALUES",
-] as const satisfies readonly (keyof TodosSdkModule)[];
-
-const TODOS_SDK_FUNCTION_EXPORTS = [
-  "PmCliError",
-  "canonicalDocument",
-  "commitImportedItem",
-  "ensureTrackerInitialized",
-  "generateItemId",
-  "getActiveExtensionRegistrations",
-  "getItemPath",
-  "listAllItemMetadata",
-  "locateItem",
-  "normalizeItemMetadata",
-  "normalizeItemId",
-  "nowIso",
-  "readLocatedItem",
-  "readSettings",
-  "resolveItemTypeRegistry",
-  "resolvePmRoot",
-  "runActiveOnReadHooks",
-  "runActiveOnWriteHooks",
-  "selectImportAuthor",
-  "splitFrontMatter",
-  "toEstimatedMinutesValue",
-  "toImportBoolean",
-  "toImportConfidence",
-  "toImportInteger",
-  "toImportLinkedDocs",
-  "toImportLinkedFiles",
-  "toImportLinkedTests",
-  "toImportLogEntries",
-  "toImportNormalizedEnum",
-  "toImportPriority",
-  "toImportStatus",
-  "toImportTags",
-  "toNonEmptyImportString",
-  "writeFileAtomic",
-] as const satisfies readonly (keyof TodosSdkModule)[];
-
-function resolveTodosSdkModulePath(): string {
-  const envRoot = process.env[PM_PACKAGE_ROOT_ENV];
-  const hasConfiguredPackageRoot =
-    typeof envRoot === "string" && envRoot.trim().length > 0;
-  const packageRoot = hasConfiguredPackageRoot
-    ? path.resolve(envRoot.trim())
-    : path.resolve(CURRENT_RUNTIME_ROOT, "../../../..");
-  return hasConfiguredPackageRoot
-    ? path.join(packageRoot, "dist", "sdk", "index.js")
-    : path.join(packageRoot, "src", "sdk", "index.ts");
-}
-
-function hasTodosSdkArrayExports(loaded: Partial<TodosSdkModule>): boolean {
-  return TODOS_SDK_ARRAY_EXPORTS.every((key) => Array.isArray(loaded[key]));
-}
-
-function hasTodosSdkFunctionExports(loaded: Partial<TodosSdkModule>): boolean {
-  return TODOS_SDK_FUNCTION_EXPORTS.every(
-    (key) => typeof loaded[key] === "function",
-  );
-}
-
-function hasTodosSdkExitCodeExports(loaded: Partial<TodosSdkModule>): boolean {
-  return (
-    typeof loaded.EXIT_CODE === "object" &&
-    loaded.EXIT_CODE !== null &&
-    typeof loaded.EXIT_CODE.NOT_FOUND === "number"
-  );
-}
-
-function isTodosSdkModule(
-  loaded: Partial<TodosSdkModule>,
-): loaded is TodosSdkModule {
-  return (
-    hasTodosSdkArrayExports(loaded) &&
-    hasTodosSdkFunctionExports(loaded) &&
-    hasTodosSdkExitCodeExports(loaded)
-  );
-}
-
-async function loadTodosSdkModule(): Promise<TodosSdkModule> {
-  const modulePath = resolveTodosSdkModulePath();
-  try {
-    const loaded = (await import(
-      pathToFileURL(modulePath).href
-    )) as Partial<TodosSdkModule>;
-    if (isTodosSdkModule(loaded)) {
-      return loaded;
-    }
-  } catch (error: unknown) {
-    throw new Error(
-      `builtin-todos failed to load SDK exports from ${modulePath}.`,
-      { cause: error },
-    );
-  }
-  throw new Error(
-    `builtin-todos failed to load SDK exports from ${modulePath}.`,
-  );
-}
-
+const todosSdk = pmSdk;
 const {
   CONFIDENCE_TEXT_VALUES,
   DEPENDENCY_KIND_VALUES,
@@ -345,7 +129,7 @@ const {
   toImportTags,
   toNonEmptyImportString,
   writeFileAtomic,
-} = await loadTodosSdkModule();
+} = todosSdk;
 
 // Shared, behavior-identical value coercers are sourced from the SDK adapter
 // surface; package-specific mappings (lenient timestamps, type-name resolution,

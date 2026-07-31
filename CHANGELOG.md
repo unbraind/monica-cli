@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Execute exact Monica OpenAPI operations safely ([monica-openapi-operation-execution](https://github.com/unbraind/monica-cli/blob/master/.agents/pm/features/monica-openapi-operation-execution.toon))
+
 ## 2026.7.28 - 2026-07-28
 
 ### Added

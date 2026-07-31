@@ -233,17 +233,23 @@ describe('info command-catalog command', () => {
     expect(bulkStar?.safety.operation).toBe('write');
   });
 
-  it('classifies persistent setup, export, and upload commands conservatively', () => {
+  it('classifies persistent setup, export, upload, and generic mutation commands conservatively', () => {
     const root = new Command('monica');
     root.addCommand(new Command('setup'));
     const bulk = root.command('bulk');
     bulk.command('export');
     const documents = root.command('documents');
     documents.command('upload');
+    const api = root.command('api');
+    api.command('get');
+    api.command('mutate');
     const tree = buildCommandCatalog(root);
     expect(findNode(tree as CatalogNode, ['setup'])?.safety.operation).toBe('write');
     expect(findNode(tree as CatalogNode, ['bulk', 'export'])?.safety.operation).toBe('write');
     expect(findNode(tree as CatalogNode, ['documents', 'upload'])?.safety.operation).toBe('write');
+    expect(findNode(tree as CatalogNode, ['api'])?.safety.operation).toBe('mixed');
+    expect(findNode(tree as CatalogNode, ['api', 'get'])?.safety.operation).toBe('read');
+    expect(findNode(tree as CatalogNode, ['api', 'mutate'])?.safety.operation).toBe('write');
   });
 
   it('classifies meta-only trees and upgrades duplicate capability roots', () => {

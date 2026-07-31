@@ -8,11 +8,13 @@ import {
   PmCliError,
   isTerminalStatus,
   normalizeStatusInput,
+  normalizeSimilarityText,
   nowIso,
   readSettings,
   resolvePmRoot,
   resolveRuntimeStatusRegistry,
   runList,
+  scoreItemSimilarity,
   type GlobalOptions,
   type ItemStatus,
   type ListedItem,
@@ -21,10 +23,7 @@ import {
 import {
   buildListQueryFilters,
   compareTimestampStrings,
-  jaccardSimilarity,
-  normalizeLowercaseWhitespace,
   parseIntegerLimit,
-  tokenizeAlphaNumeric,
 } from "./runtime-utils.ts";
 
 /** Public contract for dedupe audit modes, shared by SDK and presentation-layer consumers. */
@@ -47,7 +46,6 @@ interface DedupeAuditPreparedCandidate {
   created_at: string;
   updated_at: string;
   normalized_title: string;
-  title_tokens: string[];
 }
 
 /** Documents the dedupe audit candidate payload exchanged by command, SDK, and package integrations. */
@@ -158,7 +156,7 @@ export interface DedupeAuditResult {
   /** Value that configures or reports filters for this contract. */
   filters: {
     mode: DedupeAuditMode;
-    status: ItemStatus | null;
+    status: ItemStatus | "all" | null;
     type: string | null;
     tag: string | null;
     priority: string | null;
@@ -201,15 +199,20 @@ let dedupeAllowedStatuses = new Set<string>([
 let dedupeTerminalStatuses = new Set<string>(["closed", "canceled"]);
 let dedupeStatusRegistry: RuntimeStatusRegistry | null = null;
 
-const parseStatus = (raw: string | undefined): ItemStatus | undefined => {
+const parseStatus = (
+  raw: string | undefined,
+): ItemStatus | "all" | undefined => {
   /** Normalize an optional status token against the active audit registry. */
   if (raw === undefined) {
     return undefined;
   }
   const normalized = raw.trim().toLowerCase().replaceAll("-", "_");
+  if (normalized === "all") {
+    return "all";
+  }
   if (!dedupeAllowedStatuses.has(normalized)) {
     throw new PmCliError(
-      `Status filter must be one of ${[...dedupeAllowedStatuses].join("|")}`,
+      `Status filter must be one of all|${[...dedupeAllowedStatuses].join("|")}`,
       EXIT_CODE.USAGE,
     );
   }
@@ -301,10 +304,7 @@ const similarityScore = (
   right: DedupeAuditPreparedCandidate,
 ): number => {
   /** Score exact normalized titles first, then fall back to token overlap. */
-  if (left.normalized_title === right.normalized_title) {
-    return 1;
-  }
-  return jaccardSimilarity(left.title_tokens, right.title_tokens);
+  return scoreItemSimilarity(left.title, right.title).score;
 };
 
 const forEachCandidatePair = (
@@ -451,11 +451,7 @@ const unionRoots = (parents: number[], left: number, right: number): void => {
   if (leftRoot === rightRoot) {
     return;
   }
-  if (leftRoot < rightRoot) {
-    parents[rightRoot] = leftRoot;
-  } else {
-    parents[leftRoot] = rightRoot;
-  }
+  parents[Math.max(leftRoot, rightRoot)] = Math.min(leftRoot, rightRoot);
 };
 
 const collectFuzzyTitleClusters = (
@@ -534,8 +530,7 @@ const toPreparedDedupeCandidate = (
     priority: item.priority,
     created_at: item.created_at,
     updated_at: item.updated_at,
-    normalized_title: normalizeLowercaseWhitespace(item.title),
-    title_tokens: tokenizeAlphaNumeric(item.title),
+    normalized_title: normalizeSimilarityText(item.title),
   };
 };
 
@@ -545,7 +540,7 @@ const toNullable = <Value>(value: Value | undefined): Value | null =>
 
 const buildDedupeAuditFilters = (params: {
   mode: DedupeAuditMode;
-  status: ItemStatus | undefined;
+  status: ItemStatus | "all" | undefined;
   options: DedupeAuditOptions;
   limit: number | undefined;
   fuzzyThreshold: number;
@@ -589,7 +584,7 @@ export const runDedupeAudit = async (
   const fuzzyThreshold = threshold ?? 0.8;
 
   const listed = await runList(
-    status,
+    status === "all" ? undefined : status,
     { ...buildListQueryFilters(options), full: true as const },
     global,
   );

@@ -48,6 +48,42 @@ Use the leaf `--help` output for the complete introduction date/reminder option 
 
 Complete reference for all Monica CLI commands.
 
+## api
+
+Resolve operations by the exact deterministic `operationId` published by
+`api-research openapi`. Inspection is offline; execution validates the selected
+edition, HTTP method class, declared path/query keys, required inputs, primitive
+types, enum values, and request bodies before dispatch.
+
+```bash
+monica api inspect <operationId> [--edition stable|next]
+monica api get <operationId> [--edition stable|next] [--param key=value] [--query key=value]
+monica api mutate <operationId> [--edition stable|next] [--param key=value] [--query key=value] --confirm
+```
+
+JSON mutations use `--body '<json-object>'`. Multipart uploads use repeatable
+`--form key=value` and `--file key=path` flags instead. Duplicate, missing, or
+undeclared inputs fail locally. `api get` rejects non-GET operations; `api
+mutate` rejects GET operations and requires `--confirm`. Global read-only mode
+still blocks every mutation before network dispatch and blocks multipart file
+reads before upload construction.
+
+Examples:
+
+```bash
+monica --json api inspect stable_get_contacts_id
+monica --json api get stable_get_contacts_id --param id=1 --query with=contactfields
+monica api mutate next_patch_vaults_vault --edition next --param vault=<uuid> \
+  --body '{"description":"Updated"}' --confirm
+monica api mutate stable_post_documents --form contact_id=1 \
+  --file document=./document.pdf --confirm
+```
+
+`api inspect` output validates against the registered
+`api-operation-inspect` schema. Read and mutation response shapes remain those
+declared on the selected operation in `api-research openapi`; all global TOON,
+JSON, YAML, table, Markdown, raw, field-selection, and timeout options apply.
+
 ## Current Monica API commands
 
 These commands map the complete API currently declared on Monica `main`. They

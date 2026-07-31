@@ -7,6 +7,9 @@ describe('e2e readonly write guards', () => {
     expect(commands).toContain("monica contacts create --first-name 'read-only-guard' --gender-id 1");
     expect(commands).toContain("monica tags create --name 'read-only-guard'");
     expect(commands).toContain("monica companies create --name 'read-only-guard'");
+    expect(commands).toContain(
+      "monica api mutate next_post_vaults --edition next --body '{\"name\":\"read-only-guard\"}' --confirm",
+    );
   });
 
   it('adds contact-scoped mutating commands when contact id is available', () => {
@@ -29,6 +32,12 @@ describe('e2e readonly write guards', () => {
     );
     expect(commands).toContain(
       'monica --json --request-timeout-ms 1000 schemas get api-research-openapi',
+    );
+    expect(commands).toContain(
+      'monica --json --request-timeout-ms 1000 api inspect stable_get_me',
+    );
+    expect(commands).toContain(
+      'monica --json --request-timeout-ms 1000 schemas get api-operation-inspect',
     );
   });
 });

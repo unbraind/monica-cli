@@ -90,7 +90,8 @@ export class MonicaApiError extends Error {
   }
 }
 
-interface RequestOptions {
+/** Configures one low-level Monica API request. */
+export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   params?: Record<string, string | number | undefined>;
@@ -227,7 +228,8 @@ export async function del<T>(endpoint: string): Promise<T> {
 /** Executes the upload operation. */
 export async function upload<T>(
   endpoint: string,
-  formData: FormData
+  formData: FormData,
+  params?: Record<string, string | number | undefined>,
 ): Promise<T> {
   const cfg = getConfig();
 
@@ -235,7 +237,10 @@ export async function upload<T>(
     throw new Error(`Read-only mode enabled: blocked POST ${endpoint}`);
   }
 
-  const url = `${cfg.apiUrl}${endpoint}`;
+  const url = new URL(`${cfg.apiUrl}${endpoint}`);
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value !== undefined) url.searchParams.append(key, String(value));
+  });
 
   const headers: Record<string, string> = {
     'Authorization': `Bearer ${cfg.apiKey}`,
@@ -246,7 +251,7 @@ export async function upload<T>(
   const timeoutController = createRequestTimeoutController(requestTimeoutMs);
   let response: Response;
   try {
-    response = await fetch(url, {
+    response = await fetch(url.toString(), {
       method: 'POST',
       headers,
       body: formData,

@@ -3,6 +3,42 @@ import type { OutputSchemaDescriptor } from './schema-registry';
 /** Provides OpenAPI export, compatibility diff, and validation output schemas. */
 export const OPENAPI_OUTPUT_SCHEMAS: OutputSchemaDescriptor[] = [
   {
+    id: 'api-operation-inspect',
+    title: 'api inspect',
+    description: 'Exact bundled Monica OpenAPI operation inspection envelope',
+    schema: {
+      type: 'object',
+      required: [
+        'operationId',
+        'edition',
+        'method',
+        'path',
+        'summary',
+        'resource',
+        'requiredAbility',
+        'parameters',
+        'requestBody',
+        'responses',
+        'cli',
+        'sourceCommit',
+      ],
+      properties: {
+        operationId: { type: 'string' },
+        edition: { type: 'string', enum: ['stable', 'next'] },
+        method: { type: 'string', enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] },
+        path: { type: 'string' },
+        summary: { type: 'string' },
+        resource: { type: 'string' },
+        requiredAbility: { type: 'string', enum: ['read', 'write'] },
+        parameters: { type: 'array', items: { type: 'object' } },
+        requestBody: { type: ['object', 'null'] },
+        responses: { type: 'object' },
+        cli: { type: 'object' },
+        sourceCommit: { type: 'string' },
+      },
+    },
+  },
+  {
     id: 'api-research-openapi',
     title: 'api-research openapi',
     description: 'Edition-aware Monica OpenAPI 3.2 or 3.1 document',

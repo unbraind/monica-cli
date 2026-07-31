@@ -7,6 +7,11 @@ vi.mock('fs', () => ({ readFileSync: vi.fn() }));
 describe('schemas command input failures', () => {
   let log: ReturnType<typeof vi.spyOn>;
   const read = fs.readFileSync as unknown as ReturnType<typeof vi.fn>;
+  function mockStdin(value: string | Uint8Array): void {
+    vi.spyOn(process.stdin, Symbol.asyncIterator).mockImplementation(async function* () {
+      yield value;
+    });
+  }
   beforeEach(() => {
     vi.clearAllMocks();
     log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
@@ -45,17 +50,17 @@ describe('schemas command input failures', () => {
   });
 
   it('auto-detects YAML from stdin when JSON parsing fails', async () => {
-    read.mockReturnValue('ok: true\napiUrl: https://example.test/api\n');
+    mockStdin('ok: true\napiUrl: https://example.test/api\n');
     await createSchemasCommand().parseAsync([
       '--format', 'json', 'validate', 'config-test',
     ], { from: 'user' });
     const payload = JSON.parse(String(log.mock.calls.at(-1)?.[0]));
     expect(payload.ok).toBe(true);
-    expect(read).toHaveBeenCalledWith(0, 'utf-8');
+    expect(read).not.toHaveBeenCalled();
   });
 
   it('reports invalid stdin after both JSON and YAML parsing fail', async () => {
-    read.mockReturnValue(': invalid: yaml:');
+    mockStdin(new TextEncoder().encode(': invalid: yaml:'));
     const payload = await expectExit(['--format', 'json', 'validate', 'config-test']);
     expect(payload.ok).toBe(false);
   });
