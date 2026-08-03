@@ -91,7 +91,7 @@
     "eslint-plugin-jsdoc": "63.3.2",
     "globals": "17.8.0",
     "jscpd": "5.0.14",
-    "pm-changelog": "2026.7.29-1",
+    "pm-changelog": "2026.7.29",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
